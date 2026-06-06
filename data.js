@@ -211,6 +211,7 @@ const ALL_TIME_SCORERS = [
   { n:'Ronaldo',         c:'BRA', goals:15, yrs:'1994–2006' },
   { n:'Gerd Müller',     c:'GER', goals:14, yrs:'1970–74'   },
   { n:'Just Fontaine',   c:'FRA', goals:13, yrs:'1958'      },
+  { n:'Lionel Messi',    c:'ARG', goals:13, yrs:'2006–2022'  },
   { n:'Pelé',            c:'BRA', goals:12, yrs:'1958–70'   },
   { n:'Sandor Kocsis',   c:'HUN', goals:11, yrs:'1954'      },
 ];
