@@ -39,7 +39,7 @@
 <!-- APP -->
 <div id="s-app">
   <div class="app-top">
-    <div class="app-logo">☀ <span>Soccer</span> 26</div>
+    <div class="app-logo" onclick="back()" style="cursor:pointer" title="Home">☀ <span>Soccer</span> 26</div>
     <button class="edit-btn" onclick="back()">✎ Change teams</button>
   </div>
   <div class="team-pill-bar" id="pill-bar"></div>
@@ -77,8 +77,15 @@
 
 </div>
 
+<!-- TEAM DETAIL OVERLAY -->
+<div id="team-overlay" class="team-overlay">
+  <div id="team-content" class="team-overlay-panel"></div>
+</div>
+
 <script src="flags.js"></script>
 <script src="data.js"></script>
+<script src="squads.js"></script>
+<script src="team.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

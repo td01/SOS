@@ -41,7 +41,7 @@ function launch() {
 
   const myTeams = TEAMS.filter(t => chosen.includes(t.c));
   document.getElementById('pill-bar').innerHTML = myTeams
-    .map(t => `<div class="team-pill">${ff(t.c, 22, 15)}<span class="team-pill-n">${t.n}</span></div>`)
+    .map(t => `<div class="team-pill" onclick="openTeam('${t.c}')" style="cursor:pointer">${ff(t.c, 22, 15)}<span class="team-pill-n">${t.n}</span></div>`)
     .join('');
 
   buildLive();
@@ -164,7 +164,7 @@ function matchCard(m, live) {
     <div class="match-card ${cls}">
       <div class="mc-badge">${badge}</div>
       <div class="mc-teams">
-        <div class="mc-t">
+        <div class="mc-t" onclick="openTeam('${m.hc}')" style="cursor:pointer">
           ${ff(m.hc, 32, 22)}
           <div class="mc-tn">${m.h}</div>
         </div>
@@ -172,7 +172,7 @@ function matchCard(m, live) {
           <div class="mc-score">${m.hs}–${m.as}</div>
           <div class="mc-min">${live ? 'live' : 'ft'}</div>
         </div>
-        <div class="mc-t r">
+        <div class="mc-t r" onclick="openTeam('${m.ac}')" style="cursor:pointer">
           ${ff(m.ac, 32, 22)}
           <div class="mc-tn">${m.a}</div>
         </div>
@@ -205,13 +205,13 @@ function buildLive() {
 function fixtureRow(f, mine) {
   return `
     <div class="fix-card${mine ? ' mine' : ''}">
-      <div class="fix-t">${ff(f.hc, 20, 14)} ${f.h}</div>
+      <div class="fix-t" onclick="openTeam('${f.hc}')" style="cursor:pointer">${ff(f.hc, 20, 14)} ${f.h}</div>
       <div class="fix-c">
         <span class="fix-vs">vs</span>
         <span class="fix-time">${f.t}</span>
         <div class="fix-grp">Grp ${f.g}</div>
       </div>
-      <div class="fix-t r">${ff(f.ac, 20, 14)} ${f.a}</div>
+      <div class="fix-t r" onclick="openTeam('${f.ac}')" style="cursor:pointer">${ff(f.ac, 20, 14)} ${f.a}</div>
     </div>`;
 }
 
@@ -260,7 +260,7 @@ function buildGroups() {
             <th style="width:18%">Pts</th>
           </tr>
           ${sorted.map((t, i) => `
-            <tr class="${mn.includes(t.n) ? 'mine' : ''}">
+            <tr class="${mn.includes(t.n) ? 'mine' : ''}" onclick="openTeam('${t.c}')" style="cursor:pointer">
               <td>
                 <div class="t-name">
                   ${i < 2 ? '<span class="qdot"></span>' : ''}

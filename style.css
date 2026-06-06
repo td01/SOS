@@ -616,3 +616,199 @@ body{
   #p-groups{grid-template-columns:repeat(4,1fr)}
 }
 
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   TEAM DETAIL OVERLAY
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.team-overlay{
+  position:fixed;inset:0;
+  background:#00000070;
+  z-index:200;
+  display:flex;align-items:flex-end;
+  opacity:0;pointer-events:none;
+  transition:opacity .2s;
+}
+.team-overlay.open{
+  opacity:1;pointer-events:all;
+}
+.team-overlay-panel{
+  background:var(--white);
+  width:100%;max-width:540px;
+  margin:0 auto;
+  max-height:92vh;
+  overflow-y:auto;
+  transform:translateY(100%);
+  transition:transform .25s cubic-bezier(.32,0,.67,0);
+}
+.team-overlay.open .team-overlay-panel{
+  transform:translateY(0);
+}
+
+/* Header */
+.td-header{
+  background:var(--ink);
+  padding:20px 16px 16px;
+  position:relative;
+  display:flex;flex-direction:column;align-items:flex-start;gap:6px;
+}
+.td-close{
+  position:absolute;top:14px;right:16px;
+  background:#ffffff20;border:none;
+  color:#fff;font-size:14px;font-weight:700;
+  width:32px;height:32px;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;
+}
+.td-close:hover{background:#ffffff35}
+.td-flag svg{display:block}
+.td-title{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:42px;line-height:1;
+  color:#fff;letter-spacing:.02em;
+  margin-top:4px;
+}
+.td-mgr{
+  font-size:12px;color:#ffffff70;font-weight:500;
+}
+
+/* Stats strip */
+.td-stats-strip{
+  display:grid;grid-template-columns:1fr 1fr 1fr;
+  border-bottom:1px solid var(--rule);
+}
+.td-stat{
+  padding:14px 12px;
+  border-right:1px solid var(--rule);
+  background:var(--paper);
+}
+.td-stat:last-child{border-right:none}
+.td-stat-v{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:15px;color:var(--ink);line-height:1.1;
+}
+.td-stat-l{
+  font-size:9px;font-weight:700;
+  letter-spacing:.1em;text-transform:uppercase;
+  color:var(--muted);margin-top:3px;
+}
+
+/* Info blurb */
+.td-info{
+  padding:12px 16px;
+  font-size:13px;line-height:1.5;
+  color:var(--ink);
+  border-bottom:1px solid var(--rule);
+  background:var(--lavender);
+}
+
+/* Section labels */
+.td-section-label{
+  font-size:9px;font-weight:700;
+  letter-spacing:.16em;text-transform:uppercase;
+  color:var(--muted);
+  padding:10px 16px 6px;
+  background:var(--paper);
+  border-bottom:1px solid var(--rule);
+  border-top:1px solid var(--rule);
+}
+
+/* Group standing */
+.td-grp-row{
+  display:grid;grid-template-columns:repeat(6,1fr);
+  border-bottom:1px solid var(--rule);
+}
+.td-grp-cell{
+  padding:12px 8px;text-align:center;
+  border-right:1px solid var(--rule);
+  background:var(--white);
+}
+.td-grp-cell:last-child{border-right:none}
+.td-grp-v{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:20px;color:var(--ink);line-height:1;
+}
+.td-grp-v.hot{color:var(--pink)}
+.td-grp-l{
+  font-size:9px;font-weight:700;
+  letter-spacing:.07em;text-transform:uppercase;
+  color:var(--muted);margin-top:2px;
+}
+
+/* Fixtures */
+.td-fixture{
+  padding:11px 16px;
+  border-bottom:1px solid var(--rule);
+  background:var(--white);
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+}
+.td-fix-opp{
+  display:flex;align-items:center;gap:8px;
+  font-size:13px;font-weight:700;
+  text-transform:uppercase;letter-spacing:.03em;
+}
+.td-fix-meta{
+  display:flex;flex-direction:column;align-items:flex-end;gap:2px;
+  flex-shrink:0;
+}
+.td-fix-venue{
+  font-size:10px;font-weight:700;
+  color:var(--pink);letter-spacing:.06em;text-transform:uppercase;
+}
+.td-fix-date{
+  font-size:11px;font-weight:600;color:var(--muted);
+}
+.td-fix-grp{
+  font-size:10px;color:var(--muted);
+}
+
+/* Squad */
+.td-squad{background:var(--white)}
+.td-pos-label{
+  font-size:9px;font-weight:700;
+  letter-spacing:.14em;text-transform:uppercase;
+  color:#fff;
+  background:var(--purple);
+  padding:6px 16px;
+}
+.td-player{
+  padding:10px 16px;
+  border-bottom:1px solid var(--rule);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.td-player-name{
+  font-size:13px;font-weight:700;
+  letter-spacing:.02em;
+}
+.td-player-meta{
+  display:flex;flex-direction:column;align-items:flex-end;gap:2px;
+}
+.td-player-club{
+  font-size:11px;color:var(--muted);
+}
+.td-player-caps{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:14px;color:var(--pink);
+}
+.td-no-squad{
+  padding:20px 16px;
+  font-size:13px;color:var(--muted);
+  border-bottom:1px solid var(--rule);
+}
+
+/* Desktop overlay — centre panel */
+@media(min-width:768px){
+  .team-overlay{align-items:center}
+  .team-overlay-panel{
+    max-height:88vh;
+    border:1px solid var(--rule);
+    transform:translateY(20px) scale(.97);
+  }
+  .team-overlay.open .team-overlay-panel{
+    transform:translateY(0) scale(1);
+  }
+  .td-title{font-size:60px}
+  .td-stat-v{font-size:17px}
+  .td-player-name{font-size:14px}
+  .td-stats-strip{grid-template-columns:repeat(3,1fr)}
+}
