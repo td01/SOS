@@ -482,6 +482,12 @@ body{
   .bnav-icon{font-size:16px}
   .bnav-label{font-size:11px;letter-spacing:.08em}
 
+  /* Panes: always hidden unless .on — high specificity */
+  #p-live:not(.on),
+  #p-sched:not(.on),
+  #p-groups:not(.on),
+  #p-hist:not(.on){ display:none!important }
+
   /* ── PANE WRAPPER — two-column grid on desktop ── */
   /* Live and History: two-column grid */
   #p-live.on,
@@ -507,8 +513,12 @@ body{
   .stat-v{font-size:64px}
   .stat-l{font-size:12px;margin-top:4px}
 
-  /* Full-width spanning elements */
-  .span-all,.sec{
+  /* Full-width spanning — only takes effect inside a grid context */
+  #p-live.on .sec,
+  #p-live.on .span-all,
+  #p-hist.on .sec,
+  #p-hist.on .span-all,
+  #p-groups.on .span-all{
     grid-column:1/-1;
   }
   .sec{
