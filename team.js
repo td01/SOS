@@ -118,7 +118,7 @@ function openPlayer(teamCode, playerName) {
     { v: p.wcGoals,    l: 'WC goals'     },
     { v: p.wcApps,     l: 'WC apps'      },
     { v: p.height,     l: 'Height'       },
-  ];
+  ].filter(s => s.v !== null && s.v !== undefined);
 
   const factsHtml = p.facts.map(f =>
     `<div class="pp-fact"><span class="pp-fact-dot">●</span>${f}</div>`

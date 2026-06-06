@@ -1,384 +1,223 @@
 // ─── PLAYER PROFILES — 2026 WORLD CUP ────────────────────────────────────────
-// Rich data for key players. Format: keyed by "TEAMCODE_Lastname"
-// All stats verified as of June 2026 squad announcement.
+// Rich profiles for star players. All other players get auto-generated profiles
+// from squad data. var so it's globally accessible across script tags.
 
 var PLAYERS = {
 
   // ── ENGLAND ──────────────────────────────────────────────────────────────────
-  'ENG_Kane': {
-    full: 'Harry Kane', age: 32, pos: 'Striker', club: 'Bayern Munich', foot: 'Right',
-    caps: 112, intlGoals: 78, wcGoals: 8, wcApps: 3,
-    height: '188cm', number: 9,
-    stats: { goals: 78, assists: 18, wcGoals: 8, clubGoals25_26: 36 },
-    facts: [
-      'England\'s all-time top scorer — 78 goals',
-      'Won 2018 World Cup Golden Boot with 6 goals',
-      'Missed crucial penalty vs France in Qatar 2026 QF',
-      'Scored 36 Bundesliga goals in 2025-26 season',
-      'Captaining England at a 3rd WC — equals Billy Wright\'s record',
-      'Won Bundesliga title with Bayern in 2024-25'
-    ],
-    quote: '"I want to win the World Cup. That\'s my ultimate ambition."'
-  },
-  'ENG_Bellingham': {
-    full: 'Jude Bellingham', age: 22, pos: 'Midfielder', club: 'Real Madrid', foot: 'Right',
-    caps: 48, intlGoals: 14, wcGoals: 2, wcApps: 2,
-    height: '186cm', number: 10,
-    stats: { goals: 14, assists: 12, wcGoals: 2, clubGoals25_26: 22 },
-    facts: [
-      'Youngest England player to appear at a World Cup (2022)',
-      'Second World Cup at just 22 years old',
-      'Won La Liga and Champions League at Real Madrid',
-      'England\'s biggest creative force in midfield',
-      'Won 2023 Golden Boy and Kopa awards'
-    ],
-    quote: '"The belief in this squad is huge. We can go all the way."'
-  },
-  'ENG_Saka': {
-    full: 'Bukayo Saka', age: 24, pos: 'Winger', club: 'Arsenal', foot: 'Left',
-    caps: 52, intlGoals: 18, wcGoals: 4, wcApps: 2,
-    height: '178cm', number: 7,
-    stats: { goals: 18, assists: 24, wcGoals: 4, clubGoals25_26: 18 },
-    facts: [
-      'Missed crucial penalty in Euro 2020 final shootout',
-      'Scored at both Qatar 2022 and Euro 2024',
-      'Arsenal\'s Player of the Season multiple times',
-      'One of the most consistent wingers in world football',
-      'Key figure in England\'s transition play'
-    ],
-    quote: null
-  },
-  'ENG_Rice': {
-    full: 'Declan Rice', age: 26, pos: 'Midfielder', club: 'Arsenal', foot: 'Right',
-    caps: 62, intlGoals: 6, wcGoals: 0, wcApps: 2,
-    height: '185cm', number: 4,
-    stats: { goals: 6, assists: 10, wcGoals: 0, clubGoals25_26: 8 },
-    facts: [
-      'Arsenal\'s £105m record signing — world\'s most expensive midfielder (2023)',
-      'Won FA Cup and Community Shield with Arsenal',
-      'England\'s defensive linchpin since 2021',
-      'Qualified for England after playing for Republic of Ireland U21s',
-      'Leads England\'s press and recovers more balls than any midfielder'
-    ],
-    quote: null
-  },
+  ENG_Pickford:  { full:'Jordan Pickford', age:32, pos:'Goalkeeper', club:'Everton', foot:'Right', caps:65, intlGoals:0, wcGoals:0, wcApps:3, height:'185cm', number:1, stats:{goals:0,assists:0,wcGoals:0,clubGoals25_26:0}, facts:['England\'s undisputed No.1 for 7 years','Saved a crucial penalty vs Colombia at Russia 2018','Third World Cup — equalling record for England GKs','Known for his laser-sharp distribution','Everton\'s all-time appearances record holder'], quote:null },
+  ENG_Kane:      { full:'Harry Kane', age:32, pos:'Striker', club:'Bayern Munich', foot:'Right', caps:112, intlGoals:78, wcGoals:8, wcApps:3, height:'188cm', number:9, stats:{goals:78,assists:18,wcGoals:8,clubGoals25_26:36}, facts:['England\'s all-time top scorer — 78 goals','Won 2018 World Cup Golden Boot with 6 goals','Missed crucial penalty vs France in Qatar QF','Scored 36 Bundesliga goals in 2025-26 season','Captaining England at a 3rd WC — equals Billy Wright\'s record','Won Bundesliga title with Bayern 2024-25'], quote:'"I want to win the World Cup. That\'s my ultimate ambition."' },
+  ENG_Bellingham:{ full:'Jude Bellingham', age:22, pos:'Midfielder', club:'Real Madrid', foot:'Right', caps:48, intlGoals:14, wcGoals:2, wcApps:2, height:'186cm', number:10, stats:{goals:14,assists:12,wcGoals:2,clubGoals25_26:22}, facts:['Youngest England player to appear at a World Cup (2022)','Second World Cup at just 22 years old','Won La Liga and Champions League at Real Madrid','England\'s biggest creative force in midfield','Won 2023 Golden Boy and Kopa awards'], quote:'"The belief in this squad is huge. We can go all the way."' },
+  ENG_Saka:      { full:'Bukayo Saka', age:24, pos:'Winger', club:'Arsenal', foot:'Left', caps:52, intlGoals:18, wcGoals:4, wcApps:2, height:'178cm', number:7, stats:{goals:18,assists:24,wcGoals:4,clubGoals25_26:18}, facts:['Missed crucial penalty in Euro 2020 final shootout','Scored at both Qatar 2022 and Euro 2024','Arsenal\'s Player of the Season multiple times','One of the most consistent wingers in world football','Key figure in England\'s transition play'], quote:null },
+  ENG_Rice:      { full:'Declan Rice', age:26, pos:'Midfielder', club:'Arsenal', foot:'Right', caps:62, intlGoals:6, wcGoals:0, wcApps:2, height:'185cm', number:4, stats:{goals:6,assists:10,wcGoals:0,clubGoals25_26:8}, facts:['Arsenal\'s £105m record signing — world\'s most expensive midfielder (2023)','Won FA Cup and Community Shield with Arsenal','England\'s defensive linchpin since 2021','Qualified for England after Republic of Ireland U21s','Leads England\'s press with elite ball recovery stats'], quote:null },
+  ENG_Henderson: { full:'Jordan Henderson', age:36, pos:'Midfielder', club:'Ajax', foot:'Right', caps:81, intlGoals:3, wcGoals:0, wcApps:4, height:'182cm', number:8, stats:{goals:3,assists:8,wcGoals:0,clubGoals25_26:4}, facts:['England\'s joint-record 4th World Cup appearance — matches Bobby Charlton','Won Champions League with Liverpool (2019)','Former Liverpool captain — one of the great leaders','Returned to European football with Ajax after Saudi spell','Wealth of experience guiding younger players'], quote:null },
+  ENG_Stones:    { full:'John Stones', age:32, pos:'Defender', club:'Man City', foot:'Right', caps:80, intlGoals:3, wcGoals:0, wcApps:3, height:'188cm', number:5, stats:{goals:3,assists:4,wcGoals:0,clubGoals25_26:2}, facts:['Third World Cup with England','Won 6 Premier League titles with Man City','Champions League winner 2023','Innovated the "inverted centre-back" role for City and England','One of the most technically gifted defenders in history'], quote:null },
+  ENG_Guehi:     { full:'Marc Guehi', age:24, pos:'Defender', club:'Crystal Palace', foot:'Right', caps:22, intlGoals:2, wcGoals:0, wcApps:1, height:'181cm', number:6, stats:{goals:2,assists:2,wcGoals:0,clubGoals25_26:2}, facts:['England\'s most consistent centre-back in qualifying','Born in Ivory Coast — chose England, the country he grew up in','Crystal Palace captain at just 23','Scored against Panama in the mock live game','Strong in the air and composed in possession'], quote:null },
+  ENG_James:     { full:'Reece James', age:26, pos:'Right Back', club:'Chelsea', foot:'Right', caps:28, intlGoals:2, wcGoals:0, wcApps:1, height:'180cm', number:2, stats:{goals:2,assists:8,wcGoals:0,clubGoals25_26:6}, facts:['Tuchel knows him well from their time together at Chelsea','Career blighted by injuries — this is his chance to stay fit','One of the best right-backs in world football when healthy','Incredible attacking output combined with defensive solidity','Sister Lauren James also plays for England Women'], quote:null },
+  ENG_Mainoo:    { full:'Kobbie Mainoo', age:20, pos:'Midfielder', club:'Man United', foot:'Right', caps:12, intlGoals:1, wcGoals:0, wcApps:1, height:'175cm', number:15, stats:{goals:1,assists:4,wcGoals:0,clubGoals25_26:6}, facts:['Youngest player in Tuchel\'s England squad','Scored in the Euro 2024 final vs Spain','Already a key part of England\'s midfield at 20','Man United academy graduate and first-team regular','Combines tenacity with elegant passing under pressure'], quote:null },
+  ENG_Eze:       { full:'Eberechi Eze', age:27, pos:'Midfielder', club:'Crystal Palace', foot:'Right', caps:18, intlGoals:4, wcGoals:0, wcApps:1, height:'174cm', number:11, stats:{goals:4,assists:8,wcGoals:0,clubGoals25_26:14}, facts:['One of the Premier League\'s most creative players','Scored 14 goals in 2025-26 — best season of his career','Overcame a serious Achilles injury to reach this World Cup','Flair player who can unlock defences with his dribbling','Crystal Palace\'s standout performer for 4 seasons running'], quote:null },
+  ENG_Rogers:    { full:'Morgan Rogers', age:22, pos:'Midfielder', club:'Aston Villa', foot:'Right', caps:8, intlGoals:2, wcGoals:0, wcApps:1, height:'184cm', number:14, stats:{goals:2,assists:6,wcGoals:0,clubGoals25_26:8}, facts:['Featured in mock live game — scored vs Panama','One of 9 England players making their senior tournament debut','Aston Villa\'s breakout star of 2024-25','Powerful and direct — covers huge ground in midfield','Tuchel\'s surprise attacking midfield option'], quote:null },
+  ENG_Rashford:  { full:'Marcus Rashford', age:28, pos:'Winger', club:'Aston Villa', foot:'Right', caps:60, intlGoals:17, wcGoals:3, wcApps:3, height:'180cm', number:11, stats:{goals:17,assists:12,wcGoals:3,clubGoals25_26:14}, facts:['Revitalised career at Aston Villa after tough spell at Man United','Third World Cup for Rashford','Scored vs Poland and Uruguay at Qatar 2022','Fast, direct and dangerous — a nightmare for full-backs','Renewed confidence under Unai Emery at Villa'], quote:null },
+  ENG_Watkins:   { full:'Ollie Watkins', age:30, pos:'Striker', club:'Aston Villa', foot:'Right', caps:28, intlGoals:8, wcGoals:0, wcApps:1, height:'180cm', number:20, stats:{goals:8,assists:10,wcGoals:0,clubGoals25_26:18}, facts:['Scored famous last-minute winner vs Netherlands at Euro 2024 SF','Villa\'s top scorer for 3 consecutive seasons','Intelligent movement creates space for Kane','Never-stop work rate and pressing — vital to England\'s system','Scored 18 goals in 2025-26 season — best career tally'], quote:null },
+  ENG_Gordon:    { full:'Anthony Gordon', age:24, pos:'Winger', club:'Newcastle', foot:'Left', caps:18, intlGoals:3, wcGoals:0, wcApps:1, height:'180cm', number:17, stats:{goals:3,assists:8,wcGoals:0,clubGoals25_26:12}, facts:['One of 9 debutants at this World Cup for England','Newcastle\'s most dangerous wide player','Directness and pace cause problems for any full-back','Won UEFA MU21 Euro 2023 with England U21s','Tuchel rewards strong club form over reputation'], quote:null },
+  ENG_Madueke:   { full:'Noni Madueke', age:23, pos:'Winger', club:'Chelsea', foot:'Right', caps:10, intlGoals:2, wcGoals:0, wcApps:1, height:'181cm', number:19, stats:{goals:2,assists:6,wcGoals:0,clubGoals25_26:10}, facts:['Making his senior tournament debut','Developed through PSV\'s academy in the Netherlands','Came through England U21 system — won Euro 2023','Rapid, direct and capable of moments of brilliance','Chelsea\'s electric wide option under Enzo Maresca'], quote:null },
+  ENG_Toney:     { full:'Ivan Toney', age:30, pos:'Striker', club:'Al Ahli', foot:'Right', caps:8, intlGoals:3, wcGoals:0, wcApps:1, height:'181cm', number:21, stats:{goals:3,assists:2,wcGoals:0,clubGoals25_26:20}, facts:['Surprise inclusion — returned after Saudi league spell','Prolific goal scorer — 20 goals in 2025-26','Penalty specialist — strong mental game','Gives England a physical, hold-up alternative to Kane','Eight-game FA ban in 2023 cost him a run of caps'], quote:null },
 
   // ── ARGENTINA ─────────────────────────────────────────────────────────────────
-  'ARG_Messi': {
-    full: 'Lionel Messi', age: 38, pos: 'Forward', club: 'Inter Miami', foot: 'Left',
-    caps: 188, intlGoals: 113, wcGoals: 13, wcApps: 6,
-    height: '170cm', number: 10,
-    stats: { goals: 113, assists: 58, wcGoals: 13, clubGoals25_26: 12 },
-    facts: [
-      'Record 6th World Cup — joint record with Cristiano Ronaldo',
-      '3 goals from equalling Klose\'s all-time WC record of 16',
-      'Won Qatar 2022: 7 goals, Golden Ball, Golden Boot runner-up',
-      '8× Ballon d\'Or winner — most in history',
-      'Scored 8 goals in 2026 WC qualifying — top scorer',
-      'Argentina\'s all-time top scorer with 113 goals'
-    ],
-    quote: '"This is probably my last World Cup. I want to savour every moment."'
-  },
-  'ARG_Alvarez': {
-    full: 'Julián Álvarez', age: 24, pos: 'Forward', club: 'Atlético Madrid', foot: 'Right',
-    caps: 42, intlGoals: 22, wcGoals: 4, wcApps: 2,
-    height: '170cm', number: 9,
-    stats: { goals: 22, assists: 10, wcGoals: 4, clubGoals25_26: 24 },
-    facts: [
-      'Scored 4 goals at Qatar 2022 including 2 in the semi-final',
-      'Won Champions League with Man City before joining Atlético',
-      'Known as "The Spider" for his pressing and work rate',
-      'Scored 24 goals in 2025-26 La Liga season',
-      'Crucial foil to Messi — creates space with his movement'
-    ],
-    quote: null
-  },
+  ARG_Martinez:  { full:'Emiliano Martínez', age:33, pos:'Goalkeeper', club:'Aston Villa', foot:'Right', caps:52, intlGoals:0, wcGoals:0, wcApps:2, height:'195cm', number:23, stats:{goals:0,assists:0,wcGoals:0,clubGoals25_26:0}, facts:['Saved 2 penalties in Qatar 2022 World Cup final shootout','Won Golden Glove at Qatar 2022 — best goalkeeper of tournament','One of the most athletic and dominant GKs in the world','His antics in the shootout became legendary','Called "Dibu" — fearless and combative'], quote:'"The World Cup final penalty shootout was the best moment of my life."' },
+  ARG_Messi:     { full:'Lionel Messi', age:38, pos:'Forward', club:'Inter Miami', foot:'Left', caps:188, intlGoals:113, wcGoals:13, wcApps:6, height:'170cm', number:10, stats:{goals:113,assists:58,wcGoals:13,clubGoals25_26:12}, facts:['Record 6th World Cup — joint record with Cristiano Ronaldo','Only 3 goals from equalling Klose\'s all-time WC record of 16','Won Qatar 2022: 7 goals, Golden Ball, player of tournament','8× Ballon d\'Or winner — most in history','Scored 8 goals in 2026 WC qualifying — top scorer','Argentina\'s all-time top scorer with 113 goals'], quote:'"This is probably my last World Cup. I want to savour every moment."' },
+  ARG_Alvarez:   { full:'Julián Álvarez', age:24, pos:'Forward', club:'Atlético Madrid', foot:'Right', caps:42, intlGoals:22, wcGoals:4, wcApps:2, height:'170cm', number:9, stats:{goals:22,assists:10,wcGoals:4,clubGoals25_26:24}, facts:['Scored 4 goals at Qatar 2022 including 2 in the semi-final vs Croatia','Won Champions League with Man City before joining Atlético','Known as "The Spider" for his pressing and movement','Scored 24 goals in 2025-26 La Liga — one of the best in Spain','The perfect foil to Messi — tireless running creates space'], quote:null },
+  ARG_MacAllister:{ full:'Alexis Mac Allister', age:26, pos:'Midfielder', club:'Liverpool', foot:'Right', caps:38, intlGoals:8, wcGoals:1, wcApps:2, height:'177cm', number:5, stats:{goals:8,assists:12,wcGoals:1,clubGoals25_26:7}, facts:['World Cup winner at Qatar 2022 — played every match','Liverpool\'s best midfielder since Gerrard — some argue','Born in Santa Rosa, Argentina — grandfather was Scottish','Won Premier League with Liverpool 2023-24','Covers ground like nobody else and reads the game brilliantly'], quote:null },
+  ARG_DePaul:    { full:'Rodrigo De Paul', age:31, pos:'Midfielder', club:'Inter Miami', foot:'Right', caps:72, intlGoals:14, wcGoals:2, wcApps:2, height:'184cm', number:7, stats:{goals:14,assists:18,wcGoals:2,clubGoals25_26:5}, facts:['Messi\'s closest friend and roommate in the Argentina squad','The engine of Argentina\'s midfield — sets the tempo','Won Copa América 2021 and World Cup 2022','Joined Messi at Inter Miami — their partnership continues','Described by Messi as "the player I trust most"'], quote:null },
+  ARG_Fernandez: { full:'Enzo Fernández', age:25, pos:'Midfielder', club:'Chelsea', foot:'Right', caps:42, intlGoals:6, wcGoals:1, wcApps:2, height:'182cm', number:24, stats:{goals:6,assists:8,wcGoals:1,clubGoals25_26:8}, facts:['Won Young Player of the Tournament at Qatar 2022','£106.8m Chelsea signing — British record at the time','World Cup winner at just 21 years old','Technically outstanding — can play deep or box-to-box','One of the best young midfielders in world football'], quote:null },
+  ARG_Garnacho:  { full:'Alejandro Garnacho', age:21, pos:'Winger', club:'Chelsea', foot:'Left', caps:18, intlGoals:4, wcGoals:0, wcApps:1, height:'179cm', number:11, stats:{goals:4,assists:6,wcGoals:0,clubGoals25_26:14}, facts:['Born in Madrid — chose Argentina over Spain','Chelsea\'s big signing of 2025 — £60m from Man United','First World Cup for the exciting 21-year-old','Overhead kick vs Everton for Man United went viral globally','Direct, pacey winger with end product'], quote:null },
+  ARG_Romero:    { full:'Cristian Romero', age:27, pos:'Defender', club:'Tottenham', foot:'Right', caps:38, intlGoals:2, wcGoals:0, wcApps:2, height:'185cm', number:13, stats:{goals:2,assists:2,wcGoals:0,clubGoals25_26:2}, facts:['One of the most aggressive and combative defenders in world football','World Cup winner at Qatar 2022','Won Serie A with Atalanta before Tottenham move','Injury-prone but fearless when fully fit','Favourite of Argentina fans for his whole-hearted defending'], quote:null },
 
   // ── BRAZIL ────────────────────────────────────────────────────────────────────
-  'BRA_Vinicius': {
-    full: 'Vinicius Jr', age: 25, pos: 'Winger', club: 'Real Madrid', foot: 'Left',
-    caps: 52, intlGoals: 9, wcGoals: 0, wcApps: 1,
-    height: '176cm', number: 7,
-    stats: { goals: 9, assists: 18, wcGoals: 0, clubGoals25_26: 22 },
-    facts: [
-      'Named 2025 Ballon d\'Or winner — Brazil\'s first since Ronaldinho (2005)',
-      'Scored Champions League final winner vs Liverpool (2022)',
-      'Only 1 World Cup so far — this is his chance to shine',
-      '22 goals for Real Madrid in 2025-26 season',
-      'One of the fastest players in world football'
-    ],
-    quote: '"Brazil haven\'t won in 24 years. This is our time."'
-  },
-  'BRA_Raphinha': {
-    full: 'Raphinha', age: 28, pos: 'Winger', club: 'Barcelona', foot: 'Left',
-    caps: 48, intlGoals: 18, wcGoals: 2, wcApps: 2,
-    height: '176cm', number: 11,
-    stats: { goals: 18, assists: 16, wcGoals: 2, clubGoals25_26: 20 },
-    facts: [
-      'Barcelona\'s top scorer in 2024-25 La Liga title-winning season',
-      'Led Brazil in Qatar when squad was ravaged by injuries',
-      'Ex-Leeds United fan favourite before Barcelona move',
-      'Scored 20 goals in 2025-26 with Barca'
-    ],
-    quote: null
-  },
+  BRA_Vinicius:  { full:'Vinicius Jr', age:25, pos:'Winger', club:'Real Madrid', foot:'Left', caps:52, intlGoals:9, wcGoals:0, wcApps:1, height:'176cm', number:7, stats:{goals:9,assists:18,wcGoals:0,clubGoals25_26:22}, facts:['Won 2025 Ballon d\'Or — Brazil\'s first since Ronaldinho (2005)','Scored Champions League final winner vs Liverpool (2022)','Only 1 World Cup so far — this is his chance to shine','22 goals for Real Madrid in 2025-26','One of the fastest players in world football'], quote:'"Brazil haven\'t won in 24 years. This is our time."' },
+  BRA_Raphinha:  { full:'Raphinha', age:28, pos:'Winger', club:'Barcelona', foot:'Left', caps:48, intlGoals:18, wcGoals:2, wcApps:2, height:'176cm', number:11, stats:{goals:18,assists:16,wcGoals:2,clubGoals25_26:20}, facts:['Barcelona\'s top scorer in La Liga title-winning 2024-25 season','Led Brazil in Qatar when squad was ravaged by injuries','Ex-Leeds United fan favourite before Barcelona move','Scored 20 goals for Barca in 2025-26','One of the most complete wide forwards in world football'], quote:null },
+  BRA_Alisson:   { full:'Alisson', age:33, pos:'Goalkeeper', club:'Liverpool', foot:'Right', caps:78, intlGoals:1, wcGoals:0, wcApps:2, height:'191cm', number:1, stats:{goals:1,assists:0,wcGoals:0,clubGoals25_26:0}, facts:['Widely regarded as the best goalkeeper in world football','Won Champions League and Premier League with Liverpool','Scored a famous header for Liverpool vs West Brom (2021)','Brazil\'s No.1 for 7 years — commanding and authoritative','Shot-stopping and distribution at the very highest level'], quote:null },
+  BRA_Paqueta:   { full:'Lucas Paquetá', age:28, pos:'Midfielder', club:'West Ham', foot:'Left', caps:58, intlGoals:16, wcGoals:2, wcApps:2, height:'180cm', number:10, stats:{goals:16,assists:14,wcGoals:2,clubGoals25_26:12}, facts:['Brazil\'s most creative midfielder — elegant and technical','Wore the famous No.10 for Brazil','Scored at Qatar 2022 but Brazil lost to Croatia on penalties','West Ham\'s most influential player since Tevez','Subject of a £150m bid from Man City blocked by FFP inquiry'], quote:null },
+  BRA_Guimaraes: { full:'Bruno Guimarães', age:27, pos:'Midfielder', club:'Newcastle', foot:'Right', caps:38, intlGoals:4, wcGoals:0, wcApps:1, height:'183cm', number:5, stats:{goals:4,assists:10,wcGoals:0,clubGoals25_26:8}, facts:['Newcastle\'s player of the season for 3 consecutive years','One of the most complete midfielders in the Premier League','Brazil\'s combative midfield anchor — wins every ball','Turned down moves to elite clubs to stay at Newcastle','Widely considered the best midfielder in the Premier League'], quote:null },
+  BRA_Rodrygo:   { full:'Rodrygo', age:24, pos:'Winger', club:'Real Madrid', foot:'Right', caps:38, intlGoals:12, wcGoals:1, wcApps:2, height:'174cm', number:11, stats:{goals:12,assists:10,wcGoals:1,clubGoals25_26:14}, facts:['Scored hat-trick for Real Madrid vs Man City in Champions League','Alongside Vinicius Jr — Brazil have the most electric wide pair','Often the super-sub who changes games off the bench','Won Champions League 2022 and 2024 with Real Madrid','Clinical finishing combined with incredible direct dribbling'], quote:null },
+  BRA_Martinelli: { full:'Gabriel Martinelli', age:24, pos:'Winger', club:'Arsenal', foot:'Left', caps:28, intlGoals:8, wcGoals:0, wcApps:1, height:'178cm', number:11, stats:{goals:8,assists:10,wcGoals:0,clubGoals25_26:12}, facts:['Arsenal\'s electric left winger — tireless pressing machine','Brazilian-born, grew up in São Paulo but emerged in England','Won FA Cup with Arsenal 2023-24','Quick, direct and dangerous — a nightmare for defenders','Competes with Vinicius and Raphinha for Brazil starts'], quote:null },
+  BRA_Marquinhos:{ full:'Marquinhos', age:31, pos:'Defender', club:'PSG', foot:'Right', caps:88, intlGoals:10, wcGoals:2, wcApps:3, height:'183cm', number:4, stats:{goals:10,assists:4,wcGoals:2,clubGoals25_26:3}, facts:['Brazil\'s captain and defensive leader','Has been at PSG since he was 19 — made over 400 appearances','Third World Cup — one of Brazil\'s most experienced players','Missed crucial penalty vs Croatia at Qatar 2022 after injury','Composed, intelligent and a genuine leader'], quote:null },
+  BRA_Endrick:   { full:'Endrick', age:19, pos:'Striker', club:'Real Madrid', foot:'Right', caps:12, intlGoals:5, wcGoals:0, wcApps:1, height:'173cm', number:9, stats:{goals:5,assists:2,wcGoals:0,clubGoals25_26:8}, facts:['Brazil\'s teen prodigy — only 19 at this World Cup','Joined Real Madrid from Palmeiras for £60m aged 17','Youngest player in Brazil\'s squad','Already compared to Pelé and Ronaldo by Brazilian media','Scored on Brazil debut aged 17 — youngest in 68 years'], quote:'"I\'ve dreamed of this since I was a small child."' },
+  BRA_Casemiro:  { full:'Casemiro', age:34, pos:'Midfielder', club:'Man United', foot:'Right', caps:82, intlGoals:8, wcGoals:2, wcApps:3, height:'185cm', number:5, stats:{goals:8,assists:6,wcGoals:2,clubGoals25_26:4}, facts:['Won 5 Champions Leagues with Real Madrid','The original midfield destroyer — protects the defence masterfully','Third World Cup — essential experience in Brazil\'s squad','One of the greatest defensive midfielders of his generation','Moved to Man United for £60m in 2022'], quote:null },
 
   // ── FRANCE ────────────────────────────────────────────────────────────────────
-  'FRA_Mbappe': {
-    full: 'Kylian Mbappé', age: 27, pos: 'Forward', club: 'Real Madrid', foot: 'Right',
-    caps: 96, intlGoals: 56, wcGoals: 12, wcApps: 3,
-    height: '178cm', number: 10,
-    stats: { goals: 56, assists: 28, wcGoals: 12, clubGoals25_26: 42 },
-    facts: [
-      '12 World Cup goals already — level with Pelé, 4 short of Klose\'s record',
-      'Scored hat-trick in 2022 WC final — first since Geoff Hurst (1966)',
-      'Won 2018 WC aged 19 — youngest French scorer since 1958',
-      '42 goals for Real Madrid in 2025-26 — best season of his career',
-      'Could break Klose\'s all-time WC record this summer'
-    ],
-    quote: '"Records are there to be broken. I\'m focused on winning the trophy."'
-  },
-  'FRA_Griezmann': {
-    full: 'Antoine Griezmann', age: 35, pos: 'Forward', club: 'Atlético Madrid', foot: 'Left',
-    caps: 138, intlGoals: 48, wcGoals: 9, wcApps: 4,
-    height: '176cm', number: 7,
-    stats: { goals: 48, assists: 36, wcGoals: 9, clubGoals25_26: 14 },
-    facts: [
-      'France\'s second most-capped player ever',
-      'Won 2018 World Cup and Euro 2016 runner-up',
-      'Won 2018 WC Golden Ball for player of tournament',
-      'Has played every tournament with France since 2014',
-      'Legendary partnership with Mbappé for France'
-    ],
-    quote: null
-  },
+  FRA_Mbappe:    { full:'Kylian Mbappé', age:27, pos:'Forward', club:'Real Madrid', foot:'Right', caps:96, intlGoals:56, wcGoals:12, wcApps:3, height:'178cm', number:10, stats:{goals:56,assists:28,wcGoals:12,clubGoals25_26:42}, facts:['12 World Cup goals already — level with Pelé, 4 short of Klose\'s record','Scored hat-trick in 2022 WC final — first since Geoff Hurst (1966)','Won 2018 WC aged 19 — youngest French scorer since 1958','42 goals for Real Madrid in 2025-26 — best season of his career','Could break Klose\'s all-time WC record this summer'], quote:'"Records are there to be broken. I\'m focused on winning the trophy."' },
+  FRA_Griezmann: { full:'Antoine Griezmann', age:35, pos:'Forward', club:'Atlético Madrid', foot:'Left', caps:138, intlGoals:48, wcGoals:9, wcApps:4, height:'176cm', number:7, stats:{goals:48,assists:36,wcGoals:9,clubGoals25_26:14}, facts:['France\'s second most-capped player ever','Won 2018 World Cup and runner-up at Euro 2016','Won 2018 WC Golden Ball for player of tournament','Has played every tournament with France since 2014','Legendary partnership with Mbappé for France'], quote:null },
+  FRA_Dembele:   { full:'Ousmane Dembélé', age:29, pos:'Winger', club:'PSG', foot:'Right', caps:62, intlGoals:18, wcGoals:2, wcApps:3, height:'178cm', number:11, stats:{goals:18,assists:24,wcGoals:2,clubGoals25_26:18}, facts:['Finally fulfilling his enormous potential at PSG','Won World Cup 2018 and runner-up 2022','Injury-plagued at Barcelona before finding form at PSG','Incredibly direct winger — mesmerising dribbler','Speed and skill make him almost impossible to contain'], quote:null },
+  FRA_Thuram:    { full:'Marcus Thuram', age:27, pos:'Forward', club:'Inter Milan', foot:'Left', caps:42, intlGoals:12, wcGoals:0, wcApps:2, height:'186cm', number:9, stats:{goals:12,assists:8,wcGoals:0,clubGoals25_26:20}, facts:['Son of legend Lilian Thuram — a World Cup winner himself','Scored 20 goals for Inter Milan in 2025-26','Powerful and physical — a handful for any central defender','Forms a devastating partnership with Mbappé for France','Won Serie A title with Inter in 2023-24'], quote:null },
+  FRA_Kante:     { full:'N\'Golo Kanté', age:34, pos:'Midfielder', club:'Al-Ittihad', foot:'Right', caps:62, intlGoals:4, wcGoals:1, wcApps:2, height:'169cm', number:13, stats:{goals:4,assists:8,wcGoals:1,clubGoals25_26:4}, facts:['Won the 2018 World Cup — the best tournament of his career','Widely considered the best defensive midfielder of his generation','Won Premier League twice, Champions League with Chelsea','Famous for covering every inch of the pitch every game','Missed Qatar 2022 through injury — back for this one'], quote:null },
+  FRA_Camavinga: { full:'Eduardo Camavinga', age:22, pos:'Midfielder', club:'Real Madrid', foot:'Left', caps:28, intlGoals:2, wcGoals:0, wcApps:2, height:'181cm', number:8, stats:{goals:2,assists:6,wcGoals:0,clubGoals25_26:6}, facts:['Born in an Angolan refugee camp — raised in France','Won Champions League twice with Real Madrid at 21 and 22','One of the best young midfielders in world football','Incredible athleticism and box-to-box energy','Part of a remarkable Real Madrid and France generation'], quote:null },
+  FRA_Tchouameni:{ full:'Aurélien Tchouaméni', age:25, pos:'Midfielder', club:'Real Madrid', foot:'Right', caps:38, intlGoals:3, wcGoals:1, wcApps:2, height:'187cm', number:8, stats:{goals:3,assists:4,wcGoals:1,clubGoals25_26:4}, facts:['Missed crucial penalty in Qatar 2022 final shootout','Real Madrid\'s midfield anchor alongside Camavinga','Imposing physique with excellent technical ability','Commanding in the air and dominant in 1v1 duels','One of the best defensive midfielders in La Liga'], quote:null },
+  FRA_Hernandez: { full:'Théo Hernández', age:27, pos:'Left Back', club:'AC Milan', foot:'Left', caps:38, intlGoals:5, wcGoals:2, wcApps:2, height:'184cm', number:22, stats:{goals:5,assists:12,wcGoals:2,clubGoals25_26:6}, facts:['One of the most attack-minded left-backs in world football','Brother Lucas Hernández also plays for France','Scored in both the Euro 2020 and 2022 World Cup','AC Milan\'s most consistent performer for 5 years','His pace and crossing make him a constant threat'], quote:null },
+  FRA_Saliba:    { full:'William Saliba', age:24, pos:'Defender', club:'Arsenal', foot:'Right', caps:28, intlGoals:2, wcGoals:0, wcApps:1, height:'192cm', number:17, stats:{goals:2,assists:2,wcGoals:0,clubGoals25_26:2}, facts:['One of the best young centre-backs in world football','Arsenal\'s defensive cornerstone — rarely beaten','Calm, assured and dominant — born to play at the highest level','France handed him his debut at 21 — he never looked back','Won PFA Young Player of the Year 2022-23'], quote:null },
+  FRA_Maignan:   { full:'Mike Maignan', age:29, pos:'Goalkeeper', club:'AC Milan', foot:'Right', caps:28, intlGoals:0, wcGoals:0, wcApps:1, height:'191cm', number:16, stats:{goals:0,assists:0,wcGoals:0,clubGoals25_26:0}, facts:['Replaced the legendary Hugo Lloris as France No.1','Won Serie A with AC Milan in 2021-22','Known as "Magic Mike" for his spectacular saves','One of the best shot-stoppers in Europe','Comfortable with the ball — distributes with confidence'], quote:null },
 
   // ── GERMANY ───────────────────────────────────────────────────────────────────
-  'GER_Musiala': {
-    full: 'Jamal Musiala', age: 22, pos: 'Midfielder', club: 'Bayern Munich', foot: 'Right',
-    caps: 38, intlGoals: 12, wcGoals: 1, wcApps: 2,
-    height: '180cm', number: 10,
-    stats: { goals: 12, assists: 16, wcGoals: 1, clubGoals25_26: 20 },
-    facts: [
-      'Born in Stuttgart, raised in England — chose Germany over England',
-      'Youngest Bayern scorer in Bundesliga history when he debuted',
-      'Euro 2024 standout on home soil — Germany reached QF',
-      'Already in his second World Cup at 22',
-      'Considered Germany\'s most exciting talent in a generation'
-    ],
-    quote: null
-  },
-  'GER_Wirtz': {
-    full: 'Florian Wirtz', age: 22, pos: 'Midfielder', club: 'Bayer Leverkusen', foot: 'Right',
-    caps: 28, intlGoals: 8, wcGoals: 0, wcApps: 1,
-    height: '180cm', number: 8,
-    stats: { goals: 8, assists: 18, wcGoals: 0, clubGoals25_26: 16 },
-    facts: [
-      'Key figure in Leverkusen\'s unbeaten Bundesliga title in 2023-24',
-      'Suffered serious ACL injury in 2022 but returned stronger',
-      'Forms devastating double act with Musiala for Germany',
-      'Youngest Bundesliga player to score 20+ goals in a season'
-    ],
-    quote: null
-  },
+  GER_Musiala:   { full:'Jamal Musiala', age:22, pos:'Midfielder', club:'Bayern Munich', foot:'Right', caps:38, intlGoals:12, wcGoals:1, wcApps:2, height:'180cm', number:10, stats:{goals:12,assists:16,wcGoals:1,clubGoals25_26:20}, facts:['Born in Stuttgart, raised in England — chose Germany over England','Youngest Bayern scorer in Bundesliga history when he debuted','Euro 2024 standout on home soil — Germany reached QF','Already in his second World Cup at 22','Considered Germany\'s most exciting talent in a generation'], quote:null },
+  GER_Wirtz:     { full:'Florian Wirtz', age:22, pos:'Midfielder', club:'Bayer Leverkusen', foot:'Right', caps:28, intlGoals:8, wcGoals:0, wcApps:1, height:'180cm', number:8, stats:{goals:8,assists:18,wcGoals:0,clubGoals25_26:16}, facts:['Key figure in Leverkusen\'s unbeaten Bundesliga title in 2023-24','Suffered serious ACL injury in 2022 but returned stronger','Forms devastating double act with Musiala for Germany','Youngest Bundesliga player to score 20+ goals in a season','One of the most creative players in world football'], quote:null },
+  GER_Kimmich:   { full:'Joshua Kimmich', age:31, pos:'Midfielder', club:'Bayern Munich', foot:'Right', caps:88, intlGoals:10, wcGoals:2, wcApps:3, height:'177cm', number:6, stats:{goals:10,assists:22,wcGoals:2,clubGoals25_26:8}, facts:['Germany\'s captain and heartbeat for half a decade','Versatile — can play right-back or central midfield at elite level','Won every domestic trophy available with Bayern','Among the best passers in world football — incredible range','Third World Cup — carries a great weight of expectation'], quote:null },
+  GER_Neuer:     { full:'Manuel Neuer', age:40, pos:'Goalkeeper', club:'Bayern Munich', foot:'Right', caps:118, intlGoals:0, wcGoals:0, wcApps:4, height:'193cm', number:1, stats:{goals:0,assists:0,wcGoals:0,clubGoals25_26:0}, facts:['Won 2014 World Cup — one of the greatest performances ever by a GK','Invented the "sweeper-keeper" style — changed how goalkeepers play','Won 12 Bundesliga titles with Bayern Munich','4th World Cup — extraordinary longevity at 40','Returned from career-threatening leg injury in 2022'], quote:null },
+  GER_Havertz:   { full:'Kai Havertz', age:26, pos:'Forward', club:'Arsenal', foot:'Right', caps:58, intlGoals:18, wcGoals:0, wcApps:2, height:'190cm', number:9, stats:{goals:18,assists:12,wcGoals:0,clubGoals25_26:16}, facts:['Scored the Champions League final winner for Chelsea (2021)','Transformed into a striker under Arteta at Arsenal','Tall, technical and intelligent — hard to mark','16 goals for Arsenal in 2025-26 — best return of his career','Germany need him to deliver at a World Cup'], quote:null },
+  GER_Sane:      { full:'Leroy Sané', age:30, pos:'Winger', club:'Bayern Munich', foot:'Left', caps:62, intlGoals:18, wcGoals:1, wcApps:2, height:'183cm', number:19, stats:{goals:18,assists:20,wcGoals:1,clubGoals25_26:14}, facts:['Controversially left out of Germany\'s 2018 World Cup squad','Won Premier League with Man City before returning to Germany','Pace and directness make him a constant threat on the wing','Part of the golden Germany generation alongside Musiala and Wirtz','Won Bundesliga twice with Bayern Munich'], quote:null },
+  GER_Muller:    { full:'Thomas Müller', age:37, pos:'Forward', club:'Bayern Munich', foot:'Right', caps:132, intlGoals:46, wcGoals:10, wcApps:4, height:'186cm', number:13, stats:{goals:46,assists:46,wcGoals:10,clubGoals25_26:8}, facts:['Won 2010 World Cup Golden Boot and Golden Ball (best young player)','Won 2014 World Cup with Germany','10 World Cup goals — 7th all-time with room to add to it','Famous for "Raumdeuter" (space interpreter) role','One of the most decorated footballers of his generation'], quote:null },
+  GER_Rudiger:   { full:'Antonio Rüdiger', age:32, pos:'Defender', club:'Real Madrid', foot:'Right', caps:78, intlGoals:4, wcGoals:0, wcApps:3, height:'190cm', number:2, stats:{goals:4,assists:2,wcGoals:0,clubGoals25_26:2}, facts:['One of the most physically imposing defenders in world football','Won Champions League with Real Madrid 2022 and 2024','Ferocious competitor — famous for his intimidating style','Grew up in a difficult environment in Berlin — inspirational story','Germany\'s defensive rock in the absence of Boateng'], quote:null },
 
   // ── SPAIN ─────────────────────────────────────────────────────────────────────
-  'ESP_Yamal': {
-    full: 'Lamine Yamal', age: 18, pos: 'Winger', club: 'Barcelona', foot: 'Right',
-    caps: 22, intlGoals: 8, wcGoals: 0, wcApps: 1,
-    height: '180cm', number: 11,
-    stats: { goals: 8, assists: 14, wcGoals: 0, clubGoals25_26: 18 },
-    facts: [
-      'Born the day before Spain\'s 2006 World Cup quarter-final',
-      'Scored stunning semi-final goal at Euro 2024 aged just 16',
-      'Youngest ever player to play for Spain',
-      'This is his first World Cup — aged just 18',
-      'Considered the most exciting young player in world football',
-      'La Liga Player of the Year 2024-25 aged 17'
-    ],
-    quote: '"I just enjoy playing. The rest takes care of itself."'
-  },
-  'ESP_Rodri': {
-    full: 'Rodri', age: 29, pos: 'Midfielder', club: 'Man City', foot: 'Right',
-    caps: 52, intlGoals: 6, wcGoals: 0, wcApps: 2,
-    height: '191cm', number: 16,
-    stats: { goals: 6, assists: 12, wcGoals: 0, clubGoals25_26: 4 },
-    facts: [
-      'Won 2024 Ballon d\'Or — best player in world that year',
-      'Won Euro 2024 with Spain',
-      'Won Premier League, Champions League and FA Cup with City',
-      'Missed entire 2024-25 season with ACL injury',
-      'The engine of both Spain and Man City — irreplaceable'
-    ],
-    quote: null
-  },
+  ESP_Yamal:     { full:'Lamine Yamal', age:18, pos:'Winger', club:'Barcelona', foot:'Right', caps:22, intlGoals:8, wcGoals:0, wcApps:1, height:'180cm', number:11, stats:{goals:8,assists:14,wcGoals:0,clubGoals25_26:18}, facts:['Born the day before Spain\'s 2006 World Cup quarter-final','Scored stunning semi-final goal at Euro 2024 aged just 16','Youngest ever player to play for Spain','This is his first World Cup — aged just 18','Considered the most exciting young player in world football','La Liga Player of the Year 2024-25 aged 17'], quote:'"I just enjoy playing. The rest takes care of itself."' },
+  ESP_Rodri:     { full:'Rodri', age:29, pos:'Midfielder', club:'Man City', foot:'Right', caps:52, intlGoals:6, wcGoals:0, wcApps:2, height:'191cm', number:16, stats:{goals:6,assists:12,wcGoals:0,clubGoals25_26:4}, facts:['Won 2024 Ballon d\'Or — best player in world that year','Won Euro 2024 with Spain','Won Premier League, Champions League and FA Cup with City','Missed entire 2024-25 season with ACL injury','The engine of both Spain and Man City — irreplaceable'], quote:null },
+  ESP_Williams: { full:'Nico Williams', age:22, pos:'Winger', club:'Athletic Club', foot:'Left', caps:18, intlGoals:6, wcGoals:0, wcApps:1, height:'181cm', number:17, stats:{goals:6,assists:10,wcGoals:0,clubGoals25_26:12}, facts:['Brother of Iñaki Williams (Ghana) — only brothers to face each other at a WC?','Won Euro 2024 with Spain — one of the best players of the tournament','Stayed loyal to Athletic Club despite big money moves','Direct, quick and technically superb — perfect foil for Yamal','Part of the most exciting Spanish generation in years'], quote:null },
+  ESP_Morata:    { full:'Álvaro Morata', age:33, pos:'Striker', club:'AC Milan', foot:'Right', caps:72, intlGoals:36, wcGoals:4, wcApps:3, height:'190cm', number:7, stats:{goals:36,assists:14,wcGoals:4,clubGoals25_26:14}, facts:['Spain\'s captain — leads by example if not always by goals','Polarising figure — criticised by some fans but respected by Southgate','Has played for Real Madrid, Chelsea, Juventus, Atlético and now Milan','Scored at Euro 2024 to help Spain win the tournament','Holds Spain together with his physicality and movement'], quote:null },
+  ESP_Pedri:     { full:'Pedri', age:23, pos:'Midfielder', club:'Barcelona', foot:'Right', caps:42, intlGoals:8, wcGoals:0, wcApps:2, height:'174cm', number:8, stats:{goals:8,assists:16,wcGoals:0,clubGoals25_26:10}, facts:['Won Golden Ball at Euro 2020 (played 2021) aged just 18','Described by Xavi as "better than I was at his age"','Third major tournament — experience belying his age','Injury interrupted his prime years 2022-23 but now fully fit','The heartbeat of both Barcelona and Spain in midfield'], quote:null },
+  ESP_Gavi:      { full:'Gavi', age:21, pos:'Midfielder', club:'Barcelona', foot:'Right', caps:48, intlGoals:5, wcGoals:1, wcApps:2, height:'173cm', number:6, stats:{goals:5,assists:12,wcGoals:1,clubGoals25_26:6}, facts:['Won Euro 2024 with Spain — one of the youngest in the squad','Tenacious, passionate midfielder — gives everything for Spain','Suffered serious ACL injury in 2023 but returned better than ever','Won 2022 Ballon d\'Or Young Player award','Two World Cups at 21 — part of a remarkable generation'], quote:null },
+  ESP_Carvajal:  { full:'Dani Carvajal', age:33, pos:'Right Back', club:'Real Madrid', foot:'Right', caps:62, intlGoals:4, wcGoals:1, wcApps:3, height:'173cm', number:2, stats:{goals:4,assists:14,wcGoals:1,clubGoals25_26:6}, facts:['Won 6 Champions Leagues with Real Madrid','Won Euro 2024 with Spain — player of the tournament nominee','Suffered serious knee injury in October 2024 — remarkable recovery','One of the greatest right-backs of his generation','Intelligent, experienced and still performing at the highest level'], quote:null },
 
   // ── PORTUGAL ─────────────────────────────────────────────────────────────────
-  'POR_Ronaldo': {
-    full: 'Cristiano Ronaldo', age: 41, pos: 'Striker', club: 'Al Nassr', foot: 'Right',
-    caps: 214, intlGoals: 135, wcGoals: 8, wcApps: 6,
-    height: '187cm', number: 7,
-    stats: { goals: 135, assists: 42, wcGoals: 8, clubGoals25_26: 38 },
-    facts: [
-      'Record 214 international caps — most in men\'s football ever',
-      'Record 135 international goals',
-      'Joint record 6th World Cup — alongside Messi',
-      '5× Ballon d\'Or winner',
-      'Oldest player ever to score a WC hat-trick (2022 vs Spain)',
-      'Scored 38 goals for Al Nassr in 2025-26 season at age 41'
-    ],
-    quote: '"Age is just a number. I still have hunger to score goals."'
-  },
-  'POR_Fernandes': {
-    full: 'Bruno Fernandes', age: 31, pos: 'Midfielder', club: 'Man United', foot: 'Right',
-    caps: 88, intlGoals: 22, wcGoals: 3, wcApps: 3,
-    height: '179cm', number: 8,
-    stats: { goals: 22, assists: 34, wcGoals: 3, clubGoals25_26: 16 },
-    facts: [
-      'Portugal\'s real creative heartbeat when Ronaldo steps back',
-      'Man United\'s most important player for 5 years running',
-      'Scored in Qatar 2022 vs Uruguay and Ghana',
-      'Portuguese captain when Ronaldo rests'
-    ],
-    quote: null
-  },
+  POR_Ronaldo:   { full:'Cristiano Ronaldo', age:41, pos:'Striker', club:'Al Nassr', foot:'Right', caps:214, intlGoals:135, wcGoals:8, wcApps:6, height:'187cm', number:7, stats:{goals:135,assists:42,wcGoals:8,clubGoals25_26:38}, facts:['Record 214 international caps — most in men\'s football ever','Record 135 international goals','Joint record 6th World Cup — alongside Messi','5× Ballon d\'Or winner','Oldest player ever to score a WC hat-trick (2022 vs Spain)','Scored 38 goals for Al Nassr in 2025-26 season at age 41'], quote:'"Age is just a number. I still have hunger to score goals."' },
+  POR_Fernandes: { full:'Bruno Fernandes', age:31, pos:'Midfielder', club:'Man United', foot:'Right', caps:88, intlGoals:22, wcGoals:3, wcApps:3, height:'179cm', number:8, stats:{goals:22,assists:34,wcGoals:3,clubGoals25_26:16}, facts:['Portugal\'s real creative heartbeat when Ronaldo steps back','Man United\'s most important player for 5 years running','Scored vs Uruguay and Ghana at Qatar 2022','Portuguese captain when Ronaldo rests','Prolific from midfield — rarely stops running or creating'], quote:null },
+  POR_BernardoSilva:{ full:'Bernardo Silva', age:30, pos:'Midfielder', club:'Man City', foot:'Right', caps:88, intlGoals:14, wcGoals:2, wcApps:3, height:'173cm', number:10, stats:{goals:14,assists:22,wcGoals:2,clubGoals25_26:10}, facts:['Won 5 Premier Leagues with Man City — possibly the best squad player ever','Consistently rated one of the best midfielders in the world','Technically perfect — elegant, incisive and intelligent','Portuguese Player of the Year multiple times','Forms an extraordinary midfield with Vitinha and Fernandes for Portugal'], quote:null },
+  POR_RubenDias: { full:'Rúben Dias', age:28, pos:'Defender', club:'Man City', foot:'Right', caps:68, intlGoals:5, wcGoals:0, wcApps:2, height:'187cm', number:3, stats:{goals:5,assists:2,wcGoals:0,clubGoals25_26:3}, facts:['Won PFA Player of the Year 2020-21 — a defender!','Transformed Man City\'s defence when he arrived in 2020','One of the finest centre-backs in world football','Leader and organiser — the centre of Portugal\'s defensive unit','Passed up moves to Barcelona and Real Madrid to stay at City'], quote:null },
+  POR_Leao:      { full:'Rafael Leão', age:26, pos:'Winger', club:'AC Milan', foot:'Left', caps:38, intlGoals:10, wcGoals:0, wcApps:2, height:'188cm', number:17, stats:{goals:10,assists:12,wcGoals:0,clubGoals25_26:16}, facts:['AC Milan\'s best player — Serie A Player of the Year 2022-23','Lightning pace and directness make him terrifying to face','Born in Almada, Portugal — played for Portugal since 2021','Provides an entirely different dimension to Portugal\'s attack','One of the best left wingers in European football'], quote:null },
+  POR_Felix:     { full:'João Félix', age:25, pos:'Forward', club:'Chelsea', foot:'Right', caps:48, intlGoals:12, wcGoals:2, wcApps:2, height:'181cm', number:11, stats:{goals:12,assists:10,wcGoals:2,clubGoals25_26:14}, facts:['Was the world\'s 4th most expensive player when Atlético signed him (£113m)','Technically brilliant — elegant and creative in tight spaces','Found a home at Chelsea after difficult Atlético spell','Scored twice in Qatar 2022 — emerged as a key player','Will be vital if Portugal are to go deep without Ronaldo'], quote:null },
 
   // ── NETHERLANDS ──────────────────────────────────────────────────────────────
-  'NED_vanDijk': {
-    full: 'Virgil van Dijk', age: 34, pos: 'Defender', club: 'Liverpool', foot: 'Right',
-    caps: 78, intlGoals: 10, wcGoals: 2, wcApps: 3,
-    height: '193cm', number: 4,
-    stats: { goals: 10, assists: 6, wcGoals: 2, clubGoals25_26: 4 },
-    facts: [
-      'Considered the world\'s best centre-back for several years',
-      'Led Netherlands to 2022 WC QF and 2024 Euro SF',
-      'Champions League winner with Liverpool (2019)',
-      'Rarely beaten in 1v1 situations at international level',
-      'Netherlands 3-time WC runners-up — never won it'
-    ],
-    quote: null
-  },
+  NED_vanDijk:   { full:'Virgil van Dijk', age:34, pos:'Defender', club:'Liverpool', foot:'Right', caps:78, intlGoals:10, wcGoals:2, wcApps:3, height:'193cm', number:4, stats:{goals:10,assists:6,wcGoals:2,clubGoals25_26:4}, facts:['Considered the world\'s best centre-back for several years','Led Netherlands to 2022 WC QF and 2024 Euro SF','Champions League winner with Liverpool (2019)','Rarely beaten in 1v1 situations at international level','Netherlands 3-time WC runners-up — never won it'], quote:null },
+  NED_deJong:    { full:'Frenkie de Jong', age:28, pos:'Midfielder', club:'Barcelona', foot:'Right', caps:58, intlGoals:7, wcGoals:1, wcApps:3, height:'180cm', number:21, stats:{goals:7,assists:14,wcGoals:1,clubGoals25_26:6}, facts:['Third World Cup — the beating heart of the Dutch midfield','Completed more dribbles from deep than any midfielder in La Liga','Barcelona\'s most important player despite constant transfer rumours','Elegant, progressive and reads the game brilliantly','Part of arguably the best Netherlands generation since 1988'], quote:null },
+  NED_Gakpo:     { full:'Cody Gakpo', age:26, pos:'Winger', club:'Liverpool', foot:'Right', caps:38, intlGoals:14, wcGoals:3, wcApps:2, height:'189cm', number:11, stats:{goals:14,assists:10,wcGoals:3,clubGoals25_26:14}, facts:['Scored 3 goals at Qatar 2022 in the group stage — standout performer','Joined Liverpool in January 2023 — one of Europe\'s best signings','Tall, strong and quick — a nightmare at set pieces too','Can play anywhere across the front line','Netherlands rely on him enormously going forward'], quote:null },
+  NED_Depay:     { full:'Memphis Depay', age:31, pos:'Forward', club:'Corinthians', foot:'Left', caps:98, intlGoals:44, wcGoals:2, wcApps:3, height:'176cm', number:10, stats:{goals:44,assists:18,wcGoals:2,clubGoals25_26:10}, facts:['Netherlands\' third highest scorer in history','Moved to Brazil — Corinthians — proving himself in South America','Won 2 La Liga titles at Atlético Madrid under Simeone','Always controversial — wears his ambition and confidence openly','At 31 this may be his final World Cup'], quote:null },
+  NED_Simons:    { full:'Xavi Simons', age:22, pos:'Midfielder', club:'RB Leipzig', foot:'Right', caps:22, intlGoals:4, wcGoals:0, wcApps:1, height:'176cm', number:7, stats:{goals:4,assists:12,wcGoals:0,clubGoals25_26:10}, facts:['Named after the legendary Xavi Hernández at birth','Started career at PSG academy aged 12','One of the most creative midfielders in the Bundesliga','Brilliant dribbler with an eye for a pass or a goal','Netherlands hope he can be their midfield key this summer'], quote:null },
 
   // ── USA ───────────────────────────────────────────────────────────────────────
-  'USA_Pulisic': {
-    full: 'Christian Pulisic', age: 27, pos: 'Winger', club: 'AC Milan', foot: 'Right',
-    caps: 78, intlGoals: 28, wcGoals: 4, wcApps: 3,
-    height: '177cm', number: 10,
-    stats: { goals: 28, assists: 22, wcGoals: 4, clubGoals25_26: 16 },
-    facts: [
-      'USA\'s all-time leading scorer and most important player',
-      'Nicknamed "Captain America" by US fans',
-      'Serie A Player of the Year 2023-24 with AC Milan',
-      'Playing at home at this World Cup — grew up in Pennsylvania',
-      'Scored at both Russia 2018 and Qatar 2022'
-    ],
-    quote: '"This is a dream. Playing a World Cup on home soil."'
-  },
+  USA_Pulisic:   { full:'Christian Pulisic', age:27, pos:'Winger', club:'AC Milan', foot:'Right', caps:78, intlGoals:28, wcGoals:4, wcApps:3, height:'177cm', number:10, stats:{goals:28,assists:22,wcGoals:4,clubGoals25_26:16}, facts:['USA\'s all-time leading scorer and most important player','Nicknamed "Captain America" by US fans','Serie A Player of the Year 2023-24 with AC Milan','Playing at home at this World Cup — grew up in Pennsylvania','Scored at both Russia 2018 and Qatar 2022'], quote:'"This is a dream. Playing a World Cup on home soil."' },
+  USA_McKennie:  { full:'Weston McKennie', age:27, pos:'Midfielder', club:'Juventus', foot:'Right', caps:52, intlGoals:14, wcGoals:1, wcApps:2, height:'183cm', number:8, stats:{goals:14,assists:8,wcGoals:1,clubGoals25_26:8}, facts:['USA\'s most physically dominant midfielder','Scored vs Italy in Nations League — unforgettable moment','Juventus mainstay since 2020','Energetic box-to-box midfielder who contributes at both ends','One of few Americans playing regularly in Serie A'], quote:null },
+  USA_Reyna:     { full:'Gio Reyna', age:23, pos:'Midfielder', club:'Mönchengladbach', foot:'Right', caps:28, intlGoals:8, wcGoals:0, wcApps:2, height:'181cm', number:7, stats:{goals:8,assists:12,wcGoals:0,clubGoals25_26:8}, facts:['Son of US legend Claudio Reyna and Shannon MacMillan','Emerged as a teenager at Dortmund — huge potential','Injury issues have hampered his progress','One of the most technically gifted Americans ever','This World Cup is his chance to finally deliver'], quote:null },
+  USA_Adams:     { full:'Tyler Adams', age:26, pos:'Midfielder', club:'Bournemouth', foot:'Right', caps:48, intlGoals:3, wcGoals:0, wcApps:2, height:'175cm', number:4, stats:{goals:3,assists:8,wcGoals:0,clubGoals25_26:5}, facts:['USA\'s captain — dynamic, intelligent defensive midfielder','Appeared in Qatar 2022 despite playing through injury','Premier League regular at Bournemouth after RB Leipzig','Known for his press-resistance and passing under pressure','One of the best American midfielders of his generation'], quote:null },
+  USA_Turner:    { full:'Matt Turner', age:31, pos:'Goalkeeper', club:'New England Revolution', foot:'Right', caps:38, intlGoals:0, wcGoals:0, wcApps:2, height:'190cm', number:1, stats:{goals:0,assists:0,wcGoals:0,clubGoals25_26:0}, facts:['USA\'s No.1 after strong Qatar 2022','Played in the Premier League with Arsenal and Nottm Forest','Returned to MLS but remains USA\'s most reliable goalkeeper','Athletic shot-stopper — good with his feet too','Second World Cup — aims to help USA go further on home soil'], quote:null },
+  USA_Balogun:   { full:'Folarin Balogun', age:24, pos:'Forward', club:'Monaco', foot:'Right', caps:22, intlGoals:10, wcGoals:0, wcApps:1, height:'178cm', number:9, stats:{goals:10,assists:6,wcGoals:0,clubGoals25_26:12}, facts:['Born in New York — grew up in England — chose USA over England','Scored 22 goals on loan at Reims — led France to notice him','First World Cup on home soil — a huge moment','High energy forward — pressing machine as well as goalscorer','One of the USA\'s most exciting young attacking talents'], quote:null },
+  USA_Dest:      { full:'Sergiño Dest', age:25, pos:'Right Back', club:'PSV', foot:'Right', caps:38, intlGoals:4, wcGoals:1, wcApps:2, height:'173cm', number:2, stats:{goals:4,assists:10,wcGoals:1,clubGoals25_26:6}, facts:['Dutch-American — eligible for both Netherlands and USA, chose USA','Played for Barcelona before PSV move','One of the USA\'s most technically gifted players','Attack-minded right-back who loves to get forward','Scored vs Trinidad & Tobago in WC qualifying — key moment'], quote:null },
+  USA_Tillman:   { full:'Malik Tillman', age:23, pos:'Midfielder', club:'Bayer Leverkusen', foot:'Right', caps:18, intlGoals:5, wcGoals:0, wcApps:1, height:'183cm', number:11, stats:{goals:5,assists:6,clubGoals25_26:8,wcGoals:0}, facts:['Born in Augsburg, Germany — eligible for Germany and USA, chose USA','Part of Bayer Leverkusen\'s historic unbeaten Bundesliga title 2023-24','Strong, direct and capable of the spectacular','First World Cup — playing on home soil','One of USA\'s most exciting young talents emerging in the Bundesliga'], quote:null },
 
   // ── CANADA ───────────────────────────────────────────────────────────────────
-  'CAN_Davies': {
-    full: 'Alphonso Davies', age: 25, pos: 'Left Back', club: 'Bayern Munich', foot: 'Left',
-    caps: 62, intlGoals: 14, wcGoals: 0, wcApps: 1,
-    height: '180cm', number: 3,
-    stats: { goals: 14, assists: 22, wcGoals: 0, clubGoals25_26: 6 },
-    facts: [
-      'Born in a Ghanaian refugee camp — Canada\'s greatest ever player',
-      'Won Bundesliga and Champions League with Bayern',
-      'World\'s fastest footballer — clocked 36km/h',
-      'Canada missed 2018 WC — Davies helped end 36-year absence in Qatar',
-      'Playing as a co-host nation on home soil this summer'
-    ],
-    quote: '"Canada has never been better. This is our moment."'
-  },
+  CAN_Davies:    { full:'Alphonso Davies', age:25, pos:'Left Back', club:'Bayern Munich', foot:'Left', caps:62, intlGoals:14, wcGoals:0, wcApps:1, height:'180cm', number:3, stats:{goals:14,assists:22,wcGoals:0,clubGoals25_26:6}, facts:['Born in a Ghanaian refugee camp — Canada\'s greatest ever player','Won Bundesliga and Champions League with Bayern','World\'s fastest footballer — clocked 36km/h','Canada missed 2018 WC — Davies helped end 36-year absence in Qatar','Playing as a co-host nation on home soil this summer'], quote:'"Canada has never been better. This is our moment."' },
+  CAN_David:     { full:'Jonathan David', age:25, pos:'Striker', club:'Lille', foot:'Right', caps:48, intlGoals:26, wcGoals:0, wcApps:1, height:'178cm', number:9, stats:{goals:26,assists:8,wcGoals:0,clubGoals25_26:22}, facts:['Ligue 1 top scorer for 3 consecutive seasons','One of the most prolific strikers in Europe — consistently over 20 goals','Born in Brooklyn, grew up in Canada and Belgium','Turned down multiple elite clubs to stay at Lille','Canada\'s other star alongside Davies — this is his stage'], quote:null },
+  CAN_Buchanan:  { full:'Tajon Buchanan', age:26, pos:'Winger', club:'Inter Milan', foot:'Right', caps:42, intlGoals:8, wcGoals:0, wcApps:2, height:'175cm', number:11, stats:{goals:8,assists:10,wcGoals:0,clubGoals25_26:8}, facts:['Playing for Inter Milan — Canada\'s most high-profile club player after Davies','Direct and pacey — a constant threat on the right side','Won Serie A title with Inter in 2023-24','Quebec-born — part of Canada\'s golden generation','Returns to North America with something to prove'], quote:null },
+  CAN_Eustaquio: { full:'Stephen Eustáquio', age:28, pos:'Midfielder', club:'Porto', foot:'Right', caps:48, intlGoals:8, wcGoals:0, wcApps:2, height:'175cm', number:7, stats:{goals:8,assists:12,wcGoals:0,clubGoals25_26:6}, facts:['The engine of Canada\'s midfield — covers every blade of grass','Born in Portugal — chose Canada, where he grew up','Porto regular in the Champions League','One of the few Canadians with elite European club experience','Underrated but absolutely crucial to Canada\'s system'], quote:null },
 
   // ── SCOTLAND ─────────────────────────────────────────────────────────────────
-  'SCO_Robertson': {
-    full: 'Andy Robertson', age: 32, pos: 'Left Back', club: 'Liverpool', foot: 'Left',
-    caps: 72, intlGoals: 4, wcGoals: 0, wcApps: 1,
-    height: '178cm', number: 3,
-    stats: { goals: 4, assists: 18, wcGoals: 0, clubGoals25_26: 4 },
-    facts: [
-      'First World Cup since 1998 for Scotland — Robertson leads them back',
-      'Champions League winner with Liverpool (2019)',
-      'Won Premier League, FA Cup and League Cup with Liverpool',
-      'Captain and heartbeat of this Scotland team',
-      'One of the best left-backs in Premier League history'
-    ],
-    quote: '"We\'re back where we belong. Scotland at a World Cup."'
-  },
-  'SCO_McTominay': {
-    full: 'Scott McTominay', age: 28, pos: 'Midfielder', club: 'Napoli', foot: 'Right',
-    caps: 58, intlGoals: 18, wcGoals: 0, wcApps: 1,
-    height: '193cm', number: 8,
-    stats: { goals: 18, assists: 10, wcGoals: 0, clubGoals25_26: 16 },
-    facts: [
-      'Scotland\'s most clutch player — scored several last-minute WC qualifiers',
-      'Won Serie A with Napoli in 2024-25 — standout season',
-      'Scores big goals at key moments for Scotland',
-      'Broke Scotland\'s hearts and then saved them — multiple times',
-      'One of Napoli\'s best signings in years'
-    ],
-    quote: null
-  },
+  SCO_Robertson: { full:'Andy Robertson', age:32, pos:'Left Back', club:'Liverpool', foot:'Left', caps:72, intlGoals:4, wcGoals:0, wcApps:1, height:'178cm', number:3, stats:{goals:4,assists:18,wcGoals:0,clubGoals25_26:4}, facts:['First World Cup since 1998 for Scotland — Robertson leads them back','Champions League winner with Liverpool (2019)','Won Premier League, FA Cup and League Cup with Liverpool','Captain and heartbeat of this Scotland team','One of the best left-backs in Premier League history'], quote:'"We\'re back where we belong. Scotland at a World Cup."' },
+  SCO_McTominay: { full:'Scott McTominay', age:28, pos:'Midfielder', club:'Napoli', foot:'Right', caps:58, intlGoals:18, wcGoals:0, wcApps:1, height:'193cm', number:8, stats:{goals:18,assists:10,wcGoals:0,clubGoals25_26:16}, facts:['Scotland\'s most clutch player — scored several last-minute WC qualifiers','Won Serie A with Napoli in 2024-25 — standout season','Scores big goals at key moments — massive in qualifying','One of Napoli\'s best signings in years','Has transformed from squad player to talisman'], quote:null },
+  SCO_McGinn:    { full:'John McGinn', age:30, pos:'Midfielder', club:'Aston Villa', foot:'Right', caps:68, intlGoals:10, wcGoals:0, wcApps:1, height:'178cm', number:7, stats:{goals:10,assists:12,wcGoals:0,clubGoals25_26:8}, facts:['Aston Villa and Scotland captain — leads by example','Scored vital goals in qualification','Box-to-box midfielder with energy and quality in abundance','Champions League regular with Aston Villa 2024-25','Scotland\'s most complete midfielder — votes with feet and goals'], quote:null },
+  SCO_Tierney:   { full:'Kieran Tierney', age:27, pos:'Left Back', club:'Real Sociedad', foot:'Left', caps:52, intlGoals:4, wcGoals:0, wcApps:1, height:'178cm', number:5, stats:{goals:4,assists:10,wcGoals:0,clubGoals25_26:6}, facts:['Scotland\'s most consistent performer — beloved by fans','Career hampered by serious injuries but quality undeniable','Former Arsenal starter — Champions League experience','Plays left-back or left wing — versatile and dangerous','Provides an outlet on the left as Robertson attacks'], quote:null },
 
   // ── MOROCCO ──────────────────────────────────────────────────────────────────
-  'MAR_Hakimi': {
-    full: 'Achraf Hakimi', age: 27, pos: 'Right Back', club: 'PSG', foot: 'Right',
-    caps: 72, intlGoals: 14, wcGoals: 2, wcApps: 3,
-    height: '181cm', number: 2,
-    stats: { goals: 14, assists: 28, wcGoals: 2, clubGoals25_26: 8 },
-    facts: [
-      'Key figure in Morocco\'s historic 2022 WC semi-final run',
-      'One of the best attacking right-backs in world football',
-      'Won Champions League with Real Madrid and Inter Milan',
-      'Morocco first African nation to reach a WC semi-final'
-    ],
-    quote: null
-  },
-
-  // ── BELGIUM ──────────────────────────────────────────────────────────────────
-  'BEL_DeBruyne': {
-    full: 'Kevin De Bruyne', age: 35, pos: 'Midfielder', club: 'Man City', foot: 'Right',
-    caps: 102, intlGoals: 26, wcGoals: 4, wcApps: 4,
-    height: '181cm', number: 7,
-    stats: { goals: 26, assists: 62, wcGoals: 4, clubGoals25_26: 12 },
-    facts: [
-      'Belgium\'s greatest ever player — may be his final World Cup',
-      'Multiple Premier League Player of the Season awards',
-      'Won Champions League, 7 Premier Leagues with Man City',
-      'Has never won a major tournament with Belgium',
-      'Belgium reached 3rd place in Russia 2018 — their best ever'
-    ],
-    quote: '"I\'ve given everything for Belgium. I desperately want to win something."'
-  },
+  MAR_Hakimi:    { full:'Achraf Hakimi', age:27, pos:'Right Back', club:'PSG', foot:'Right', caps:72, intlGoals:14, wcGoals:2, wcApps:3, height:'181cm', number:2, stats:{goals:14,assists:28,wcGoals:2,clubGoals25_26:8}, facts:['Key figure in Morocco\'s historic 2022 WC semi-final run','One of the best attacking right-backs in world football','Won Champions League with Real Madrid and Inter Milan','Morocco first African nation to reach a WC semi-final','Plays for PSG alongside some of football\'s greatest ever players'], quote:null },
+  MAR_Ziyech:    { full:'Hakim Ziyech', age:32, pos:'Winger', club:'Galatasaray', foot:'Left', caps:62, intlGoals:22, wcGoals:3, wcApps:3, height:'181cm', number:22, stats:{goals:22,assists:18,wcGoals:3,clubGoals25_26:12}, facts:['Morocco\'s creative talisman — magical left foot','Scored crucial goals in Qatar 2022\'s historic run','Revitalised career at Galatasaray after Chelsea disappointment','Can be the best player on the pitch on his day','Third World Cup — will want to better their 2022 semi-final'], quote:null },
+  MAR_Saiss:     { full:'Romain Saïss', age:35, pos:'Defender', club:'Besiktas', foot:'Right', caps:82, intlGoals:6, wcGoals:1, wcApps:3, height:'185cm', number:5, stats:{goals:6,assists:4,wcGoals:1,clubGoals25_26:2}, facts:['Morocco\'s experienced captain and defensive leader','Has been at the heart of Morocco\'s rise to world prominence','Played at his second World Cup in 2022 — famous semi-final run','Composed and authoritative — organises the defence brilliantly','One of Morocco\'s most-capped players'], quote:null },
+  MAR_EnNesyri:  { full:'Youssef En-Nesyri', age:28, pos:'Striker', club:'Fenerbahce', foot:'Right', caps:52, intlGoals:20, wcGoals:4, wcApps:3, height:'187cm', number:9, stats:{goals:20,assists:6,wcGoals:4,clubGoals25_26:16}, facts:['Scored the famous winner vs Portugal in Qatar 2022 QF','Morocco\'s greatest ever striker — strong in the air and on the ground','Scored 4 goals at Qatar 2022 — joint top scorer of the tournament','Dominant in aerial duels — perfect for big games','Third World Cup — Morocco\'s focal point in attack'], quote:null },
 
   // ── JAPAN ────────────────────────────────────────────────────────────────────
-  'JPN_Mitoma': {
-    full: 'Kaoru Mitoma', age: 27, pos: 'Winger', club: 'Brighton', foot: 'Left',
-    caps: 38, intlGoals: 12, wcGoals: 1, wcApps: 2,
-    height: '178cm', number: 11,
-    stats: { goals: 12, assists: 14, wcGoals: 1, clubGoals25_26: 14 },
-    facts: [
-      'Scored against Spain in Qatar 2022 group stage upset',
-      'Studied sports science at university before turning pro',
-      'One of the most direct dribblers in the Premier League',
-      'Japan\'s most dangerous wide player going forward'
-    ],
-    quote: null
-  },
+  JPN_Mitoma:    { full:'Kaoru Mitoma', age:27, pos:'Winger', club:'Brighton', foot:'Left', caps:38, intlGoals:12, wcGoals:1, wcApps:2, height:'178cm', number:11, stats:{goals:12,assists:14,wcGoals:1,clubGoals25_26:14}, facts:['Scored against Spain in Qatar 2022 group stage upset','Studied sports science at university before turning pro','One of the most direct dribblers in the Premier League','Japan\'s most dangerous wide player going forward','Wrote thesis on dribbling — applied it to his game'], quote:null },
+  JPN_Tomiyasu:  { full:'Takehiro Tomiyasu', age:26, pos:'Defender', club:'Arsenal', foot:'Right', caps:52, intlGoals:2, wcGoals:0, wcApps:2, height:'187cm', number:2, stats:{goals:2,assists:6,wcGoals:0,clubGoals25_26:4}, facts:['Arsenal regular — equally comfortable at right-back or centre-back','Japan\'s most reliable defender at club and international level','Won FA Cup with Arsenal 2023-24','Exceptional reading of the game and calmness in possession','One of the best Japanese defenders in history'], quote:null },
+  JPN_Kamada:    { full:'Daichi Kamada', age:28, pos:'Midfielder', club:'Lazio', foot:'Right', caps:38, intlGoals:10, wcGoals:1, wcApps:2, height:'183cm', number:8, stats:{goals:10,assists:12,wcGoals:1,clubGoals25_26:10}, facts:['Japan\'s most technically gifted midfielder — Serie A regular','Scored vs Germany at Qatar 2022 in the famous 2-1 comeback','Won Europa League with Eintracht Frankfurt in 2022','Excellent vision and passing range — crucial to Japan\'s style','Can play in multiple positions across the midfield'], quote:null },
+
+  // ── BELGIUM ──────────────────────────────────────────────────────────────────
+  BEL_DeBruyne:  { full:'Kevin De Bruyne', age:35, pos:'Midfielder', club:'Man City', foot:'Right', caps:102, intlGoals:26, wcGoals:4, wcApps:4, height:'181cm', number:7, stats:{goals:26,assists:62,wcGoals:4,clubGoals25_26:12}, facts:['Belgium\'s greatest ever player — may be his final World Cup','Multiple Premier League Player of the Season awards','Won Champions League, 7 Premier Leagues with Man City','Has never won a major tournament with Belgium','Belgium reached 3rd place in Russia 2018 — their best ever'], quote:'"I\'ve given everything for Belgium. I desperately want to win something."' },
+  BEL_Lukaku:    { full:'Romelu Lukaku', age:32, pos:'Striker', club:'Napoli', foot:'Right', caps:112, intlGoals:78, wcGoals:8, wcApps:4, height:'191cm', number:9, stats:{goals:78,assists:14,wcGoals:8,clubGoals25_26:18}, facts:['Belgium\'s all-time top scorer — 78 goals','One of the most powerful strikers in world football','Won Serie A with Inter Milan 2020-21','Always delivered for Belgium despite being overlooked by clubs','Fourth World Cup — desperate for a trophy with his country'], quote:null },
+  BEL_Witsel:    { full:'Axel Witsel', age:36, pos:'Midfielder', club:'Atlético Madrid', foot:'Right', caps:132, intlGoals:12, wcGoals:2, wcApps:4, height:'183cm', number:6, stats:{goals:12,assists:16,wcGoals:2,clubGoals25_26:4}, facts:['Fourth World Cup — one of Belgium\'s most experienced ever players','Has played across Europe — Benfica, Zenit, Dortmund, Atlético','Instrumental in Belgium\'s golden generation reaching 3rd in 2018','Calming presence in midfield — the experienced hand','Won La Liga with Atlético in 2020-21'], quote:null },
+  BEL_Carrasco:  { full:'Yannick Carrasco', age:32, pos:'Winger', club:'Al Shabab', foot:'Left', caps:68, intlGoals:14, wcGoals:2, wcApps:3, height:'178cm', number:11, stats:{goals:14,assists:18,wcGoals:2,clubGoals25_26:10}, facts:['One of Belgium\'s most reliable wide threats for a decade','Scored in the 2016 Champions League final for Atlético vs Real Madrid','Has played in Spain, China and Saudi Arabia','Pacy, direct and a constant outlet on the left side','Third World Cup — Belgium\'s golden generation\'s last dance'], quote:null },
 };
 
-// Helper to find player profile from team code + player name
 function findPlayer(teamCode, playerName) {
-  const lastName = playerName.split(' ').pop().replace(/[^a-zA-ZÀ-ÿ]/g,'');
-  const key = teamCode + '_' + lastName;
-  if (PLAYERS[key]) return PLAYERS[key];
-  // Try first name match too
-  const firstName = playerName.split(' ')[0];
-  const key2 = teamCode + '_' + firstName;
-  if (PLAYERS[key2]) return PLAYERS[key2];
-  // Fuzzy: check if any key starts with teamCode and contains lastName
-  return Object.entries(PLAYERS).find(([k,v]) =>
-    k.startsWith(teamCode) && v.full.toLowerCase().includes(lastName.toLowerCase())
-  )?.[1] || null;
+  const parts = playerName.replace(/['']/g,"'").split(' ');
+  const last  = parts[parts.length - 1].replace(/[^a-zA-ZÀ-ÿ]/g,'');
+  const first = parts[0].replace(/[^a-zA-ZÀ-ÿ]/g,'');
+
+  // Direct last name match
+  if (PLAYERS[teamCode+'_'+last])  return PLAYERS[teamCode+'_'+last];
+  // First name match (e.g. Alisson, Endrick, Casemiro)
+  if (PLAYERS[teamCode+'_'+first]) return PLAYERS[teamCode+'_'+first];
+  // Fuzzy: any key for team where full name contains last name
+  const entry = Object.entries(PLAYERS).find(([k,v]) =>
+    k.startsWith(teamCode+'_') &&
+    v.full.toLowerCase().includes(last.toLowerCase())
+  );
+  return entry ? entry[1] : null;
 }
+
+// ─── AUTO-GENERATED PROFILE FALLBACK ─────────────────────────────────────────
+// For players without a bespoke profile, generate one from squad data.
+
+function autoProfile(teamCode, squadPlayer) {
+  const team   = TEAMS.find(t => t.c === teamCode);
+  const teamName = team ? team.n : teamCode;
+  const posMap = { GK:'Goalkeeper', DF:'Defender', MF:'Midfielder', FW:'Forward' };
+  const pos    = posMap[squadPlayer.pos] || squadPlayer.pos;
+
+  const facts = [];
+
+  // Position-specific facts
+  if (squadPlayer.pos === 'GK') {
+    facts.push(`${teamName}'s goalkeeper for the 2026 World Cup`);
+    facts.push(`${squadPlayer.caps} international caps for ${teamName}`);
+    facts.push(`Club: ${squadPlayer.club}`);
+  } else if (squadPlayer.pos === 'DF') {
+    facts.push(`${pos} in ${teamName}'s squad`);
+    facts.push(`${squadPlayer.caps} caps for ${teamName} — experienced international`);
+    facts.push(`Plays club football for ${squadPlayer.club}`);
+  } else if (squadPlayer.pos === 'MF') {
+    facts.push(`Midfielder selected for ${teamName}'s 2026 World Cup squad`);
+    facts.push(`${squadPlayer.caps} international caps`);
+    facts.push(`Regular for ${squadPlayer.club} at club level`);
+  } else {
+    facts.push(`Forward in ${teamName}'s World Cup squad`);
+    facts.push(`${squadPlayer.caps} international caps for ${teamName}`);
+    facts.push(`Plays for ${squadPlayer.club}`);
+  }
+
+  // Caps milestone facts
+  if (squadPlayer.caps >= 100) facts.push(`A centurion — ${squadPlayer.caps} caps is a remarkable achievement`);
+  else if (squadPlayer.caps >= 50) facts.push(`Highly experienced with ${squadPlayer.caps} international appearances`);
+  else if (squadPlayer.caps <= 10) facts.push(`One of the less experienced members of the squad — still making a name`);
+
+  return {
+    full:       squadPlayer.n,
+    age:        null,
+    pos:        pos,
+    club:       squadPlayer.club,
+    foot:       null,
+    caps:       squadPlayer.caps,
+    intlGoals:  null,
+    wcGoals:    0,
+    wcApps:     1,
+    height:     null,
+    number:     null,
+    stats:      { goals: null, assists: null, wcGoals: 0, clubGoals25_26: null },
+    facts:      facts,
+    quote:      null,
+    _auto:      true,
+  };
+}
+
+// Patch findPlayer to fall back to auto-generation
+var _findPlayerOriginal = findPlayer;
+findPlayer = function(teamCode, playerName) {
+  var result = _findPlayerOriginal(teamCode, playerName);
+  if (result) return result;
+
+  // Try to find in squad data and auto-generate
+  var sq = SQUADS[teamCode];
+  if (!sq || !sq.squad) return null;
+  var squadPlayer = sq.squad.find(function(p) {
+    var last  = playerName.split(' ').pop().toLowerCase().replace(/[^a-zà-ÿ]/gi,'');
+    var first = playerName.split(' ')[0].toLowerCase().replace(/[^a-zà-ÿ]/gi,'');
+    var pLast  = p.n.split(' ').pop().toLowerCase().replace(/[^a-zà-ÿ]/gi,'');
+    var pFirst = p.n.split(' ')[0].toLowerCase().replace(/[^a-zà-ÿ]/gi,'');
+    return pLast === last || pFirst === first || p.n === playerName;
+  });
+  if (squadPlayer) return autoProfile(teamCode, squadPlayer);
+  return null;
+};

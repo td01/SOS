@@ -1,0 +1,36 @@
+<svg width="240" height="240" viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg">
+<title>Summer of Soccer</title>
+<defs>
+  <clipPath id="sun-half"><polygon points="0,0 240,0 0,240"/></clipPath>
+  <clipPath id="ball-half"><polygon points="240,0 240,240 0,240"/></clipPath>
+</defs>
+<g clip-path="url(#sun-half)">
+  <circle cx="120" cy="120" r="120" fill="#FF3CAC"/>
+  <g transform="translate(120,120)">
+    <rect x="-7" y="-118" width="14" height="46" rx="7" fill="#FFD700"/>
+    <g transform="rotate(45)"><rect x="-7" y="-118" width="14" height="46" rx="7" fill="#FFD700"/></g>
+    <g transform="rotate(90)"><rect x="-7" y="-118" width="14" height="46" rx="7" fill="#FFD700"/></g>
+    <g transform="rotate(-45)"><rect x="-7" y="-118" width="14" height="46" rx="7" fill="#FFD700"/></g>
+    <g transform="rotate(-90)"><rect x="-7" y="-118" width="14" height="46" rx="7" fill="#FFD700"/></g>
+    <g transform="rotate(-135)"><rect x="-7" y="-118" width="14" height="46" rx="7" fill="#FFD700"/></g>
+    <g transform="rotate(180)"><rect x="-7" y="-118" width="14" height="46" rx="7" fill="#FFD700"/></g>
+    <g transform="rotate(135)"><rect x="-7" y="-118" width="14" height="46" rx="7" fill="#FFD700"/></g>
+  </g>
+  <circle cx="120" cy="120" r="50" fill="#FFD700"/>
+  <circle cx="106" cy="112" r="6" fill="#FF3CAC"/>
+  <circle cx="134" cy="112" r="6" fill="#FF3CAC"/>
+  <path d="M104 132 Q120 148 136 132" stroke="#FF3CAC" stroke-width="5" fill="none" stroke-linecap="round"/>
+</g>
+<g clip-path="url(#ball-half)">
+  <circle cx="120" cy="120" r="120" fill="#F0F0F0"/>
+  <polygon points="120,88 144,106 135,134 105,134 96,106" fill="#111"/>
+  <polygon points="120,88 144,106 160,86 148,62 120,60" fill="#111"/>
+  <polygon points="144,106 160,86 186,96 188,124 164,138" fill="#111"/>
+  <polygon points="135,134 164,138 166,164 142,178 116,166" fill="#111"/>
+  <polygon points="105,134 96,106 70,112 60,138 78,158" fill="#111"/>
+  <polygon points="120,88 96,106 74,90 82,64 108,58" fill="#111"/>
+  <polygon points="135,134 105,134 94,160 112,176 138,174" fill="#111"/>
+</g>
+<line x1="4" y1="236" x2="236" y2="4" stroke="#F5F000" stroke-width="6" stroke-linecap="round"/>
+<circle cx="120" cy="120" r="120" fill="none" stroke="#F5F000" stroke-width="6"/>
+</svg>
