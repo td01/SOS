@@ -82,6 +82,19 @@ function matchCard(m, live) {
   const cls  = live ? (mine ? 'live-mine' : 'live') : (mine ? 'done-mine' : 'done');
   const badge = live ? `${m.min}' live` : 'Full time';
 
+  const eventsHtml = (live && m.events && m.events.length) ? `
+    <div class="mc-events">
+      ${m.events.map(e => {
+        const isHome = e.team === m.hc;
+        const icon = e.text.includes('RED') ? '🟥' : e.text.includes('GOAL') ? '⚽' : '📋';
+        return `<div class="mc-event ${isHome ? 'ev-home' : 'ev-away'}">
+          <span class="ev-min">${e.min}'</span>
+          <span class="ev-icon">${icon}</span>
+          <span class="ev-text">${e.text.replace(/^(GOAL — |RED CARD — )/, '')}</span>
+        </div>`;
+      }).join('')}
+    </div>` : '';
+
   return `
     <div class="match-card ${cls}">
       <div class="mc-badge">${badge}</div>
@@ -99,6 +112,7 @@ function matchCard(m, live) {
           <div class="mc-tn">${m.a}</div>
         </div>
       </div>
+      ${eventsHtml}
     </div>`;
 }
 

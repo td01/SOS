@@ -123,7 +123,20 @@ const FIXTURES = [
 // Shape: { h, hc, a, ac, hs, as, min, g } for live
 //        { h, hc, a, ac, hs, as, g }       for completed
 
-const LIVE_MATCHES = [];
+const LIVE_MATCHES = [
+  {
+    h:'England', hc:'ENG', a:'Panama', ac:'PAN',
+    hs:3, as:2, min:67, g:'G',
+    events:[
+      { min:14, team:'ENG', text:'GOAL — Harry Kane (pen)' },
+      { min:31, team:'PAN', text:'GOAL — Fajardo' },
+      { min:38, team:'ENG', text:'GOAL — Morgan Rogers' },
+      { min:52, team:'PAN', text:'GOAL — Córdoba' },
+      { min:58, team:'ENG', text:'GOAL — Marc Guehi' },
+      { min:63, team:'PAN', text:'RED CARD — Rodríguez' },
+    ]
+  },
+];
 const COMPLETED = [];
 
 // ─── GROUP STANDINGS ──────────────────────────────────────────────────────────
