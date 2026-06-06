@@ -1,7 +1,7 @@
 // ─── STATE ─────────────────────────────────────────────────────────────────────
 
-let chosen = [];    // array of team codes the user has selected
-let curRgn = 'ALL'; // active region filter
+let chosen = [];
+let curRgn = 'ALL';
 
 // ─── PICK SCREEN ───────────────────────────────────────────────────────────────
 
@@ -37,23 +37,25 @@ function rgn(r, btn) {
 
 function launch() {
   document.getElementById('s-pick').style.display = 'none';
-  document.getElementById('s-app').style.display = 'block';
+  document.getElementById('s-app').style.display  = 'block';
 
-  // Render the team pill bar
   const myTeams = TEAMS.filter(t => chosen.includes(t.c));
   document.getElementById('pill-bar').innerHTML = myTeams
     .map(t => `<div class="team-pill">${ff(t.c, 22, 15)}<span class="team-pill-n">${t.n}</span></div>`)
     .join('');
 
-  // Build all tab content
   buildLive();
   buildSchedule();
   buildGroups();
   buildHistory();
+
+  // Start polling for live score updates every 60 seconds
+  startLivePoll();
 }
 
 function back() {
-  document.getElementById('s-app').style.display = 'none';
+  stopLivePoll();
+  document.getElementById('s-app').style.display  = 'none';
   document.getElementById('s-pick').style.display = 'block';
 }
 
@@ -75,18 +77,81 @@ function isMine(match) {
   return mn.includes(match.h) || mn.includes(match.a);
 }
 
+// Span-all helper for desktop grid section labels
+function sec(label) {
+  return `<div class="sec span-all">${label}</div>`;
+}
+
+// ─── LIVE POLLING ──────────────────────────────────────────────────────────────
+// When the API is wired up, fetchLiveData() calls /api/fixtures?live=all
+// and /api/fixtures?date=today, then rebuilds the live tab.
+// Until then it just re-renders from the static data arrays.
+
+let pollTimer = null;
+
+function startLivePoll() {
+  // Poll immediately, then every 60s
+  fetchLiveData();
+  pollTimer = setInterval(fetchLiveData, 60000);
+}
+
+function stopLivePoll() {
+  if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+}
+
+async function fetchLiveData() {
+  // ── PRODUCTION: uncomment when API key is set in Netlify ──────────────────
+  // try {
+  //   const [liveRes, todayRes] = await Promise.all([
+  //     fetch('/api/fixtures?live=all'),
+  //     fetch(`/api/fixtures?date=${new Date().toISOString().slice(0,10)}&league=1&season=2026`)
+  //   ]);
+  //   const liveData  = await liveRes.json();
+  //   const todayData = await todayRes.json();
+  //
+  //   LIVE_MATCHES.length = 0;
+  //   COMPLETED.length    = 0;
+  //
+  //   liveData.response.forEach(f => {
+  //     LIVE_MATCHES.push({
+  //       h: f.teams.home.name, hc: f.teams.home.code,
+  //       a: f.teams.away.name, ac: f.teams.away.code,
+  //       hs: f.goals.home ?? 0, as: f.goals.away ?? 0,
+  //       min: f.fixture.status.elapsed ?? 0, g: f.league.round,
+  //       events: [] // fetch separately with /api/fixtures?id=<id>
+  //     });
+  //   });
+  //
+  //   todayData.response
+  //     .filter(f => f.fixture.status.short === 'FT')
+  //     .forEach(f => {
+  //       COMPLETED.push({
+  //         h: f.teams.home.name, hc: f.teams.home.code,
+  //         a: f.teams.away.name, ac: f.teams.away.code,
+  //         hs: f.goals.home, as: f.goals.away, g: f.league.round
+  //       });
+  //     });
+  // } catch(e) {
+  //   console.warn('Live fetch failed, using cached data', e);
+  // }
+  // ── END PRODUCTION ────────────────────────────────────────────────────────
+
+  // Re-render with current data (static until API is wired)
+  buildLive();
+}
+
 // ─── LIVE TAB ──────────────────────────────────────────────────────────────────
 
 function matchCard(m, live) {
-  const mine = isMine(m);
-  const cls  = live ? (mine ? 'live-mine' : 'live') : (mine ? 'done-mine' : 'done');
+  const mine  = isMine(m);
+  const cls   = live ? (mine ? 'live-mine' : 'live') : (mine ? 'done-mine' : 'done');
   const badge = live ? `${m.min}' live` : 'Full time';
 
   const eventsHtml = (live && m.events && m.events.length) ? `
     <div class="mc-events">
       ${m.events.map(e => {
         const isHome = e.team === m.hc;
-        const icon = e.text.includes('RED') ? '🟥' : e.text.includes('GOAL') ? '⚽' : '📋';
+        const icon   = e.text.includes('RED') ? '🟥' : e.text.includes('GOAL') ? '⚽' : '📋';
         return `<div class="mc-event ${isHome ? 'ev-home' : 'ev-away'}">
           <span class="ev-min">${e.min}'</span>
           <span class="ev-icon">${icon}</span>
@@ -118,8 +183,7 @@ function matchCard(m, live) {
 
 function buildLive() {
   const myGameCount = [...LIVE_MATCHES, ...COMPLETED].filter(isMine).length;
-  const totalGoals  = COMPLETED.reduce((s, m) => s + m.hs + m.as, 0) +
-                      LIVE_MATCHES.reduce((s, m) => s + m.hs + m.as, 0);
+  const totalGoals  = [...LIVE_MATCHES, ...COMPLETED].reduce((s, m) => s + m.hs + m.as, 0);
 
   document.getElementById('stat-row').innerHTML = `
     <div class="stat-cell"><div class="stat-v hot">${LIVE_MATCHES.length}</div><div class="stat-l">Live now</div></div>
@@ -129,11 +193,11 @@ function buildLive() {
 
   document.getElementById('live-wrap').innerHTML = LIVE_MATCHES.length
     ? LIVE_MATCHES.map(m => matchCard(m, true)).join('')
-    : `<div style="padding:20px 16px;color:var(--muted);font-size:13px;font-weight:600;letter-spacing:.04em;border-bottom:1px solid var(--rule)">Kick off Jun 11 · Mexico vs South Africa</div>`;
+    : `<div class="empty-state">Kick off Jun 11 · Mexico vs South Africa</div>`;
 
   document.getElementById('done-wrap').innerHTML = COMPLETED.length
     ? COMPLETED.map(m => matchCard(m, false)).join('')
-    : `<div style="padding:20px 16px;color:var(--muted);font-size:13px;font-weight:600;letter-spacing:.04em">No results yet — tournament starts Jun 11</div>`;
+    : `<div class="empty-state">No results yet — tournament starts Jun 11</div>`;
 }
 
 // ─── SCHEDULE TAB ──────────────────────────────────────────────────────────────
@@ -152,24 +216,24 @@ function fixtureRow(f, mine) {
 }
 
 function buildSchedule() {
-  const mn    = myTeamNames();
-  const mine  = FIXTURES.filter(f => mn.includes(f.h) || mn.includes(f.a));
-  let html    = '';
+  const mn   = myTeamNames();
+  const mine = FIXTURES.filter(f => mn.includes(f.h) || mn.includes(f.a));
+  let html   = '';
 
   if (mine.length) {
-    html += `<div class="sec">Your fixtures</div>`;
+    html += sec('Your fixtures');
     html += mine.map(f => fixtureRow(f, true)).join('');
   }
 
-  // Group remaining fixtures by date
-  html += `<div class="sec">Full schedule</div>`;
+  html += sec('Full schedule');
+
   const byDate = {};
   FIXTURES.forEach(f => {
     if (!byDate[f.date]) byDate[f.date] = [];
     byDate[f.date].push(f);
   });
   Object.entries(byDate).forEach(([date, matches]) => {
-    html += `<div class="day-lbl">${date}</div>`;
+    html += `<div class="day-lbl span-all">${date}</div>`;
     html += matches.map(f => fixtureRow(f, mn.includes(f.h) || mn.includes(f.a))).join('');
   });
 
@@ -233,26 +297,26 @@ function histRow(rank, code, name, detail, val, valClass) {
 
 function buildHistory() {
   document.getElementById('p-hist').innerHTML = `
-    <div class="sec">All-time top scorers</div>
+    ${sec('All-time top scorers')}
     <div class="hist-block">
       <div class="hist-hd pink-bg"><div class="hist-hd-lbl">World Cup Goals — all time</div></div>
       ${ALL_TIME_SCORERS.map((s, i) => histRow(i + 1, s.c, s.n, `${s.c} · ${s.yrs}`, s.goals, '')).join('')}
     </div>
 
-    <div class="sec">Golden Shoe — top scorer per tournament</div>
+    ${sec('Golden Shoe — top scorer per tournament')}
     <div class="hist-block">
       <div class="hist-hd purple-bg"><div class="hist-hd-lbl">Golden Shoe History</div></div>
       ${GOLDEN_SHOE.map((g, i) => histRow(i + 1, g.c, g.n, String(g.yr), g.goals, 'pur')).join('')}
     </div>
 
-    <div class="sec">Most World Cup titles</div>
+    ${sec('Most World Cup titles')}
     <div class="hist-block">
       <div class="hist-hd yellow-bg"><div class="hist-hd-lbl" style="color:var(--ink)">Tournament Winners</div></div>
       ${TOURNAMENT_WINNERS.map((w, i) => histRow(i + 1, w.c, w.n, w.yrs, '×' + w.t, 'grn')).join('')}
     </div>
 
-    <div class="sec">Records</div>
-    <div class="rec-grid">
+    ${sec('Records')}
+    <div class="rec-grid span-all">
       ${RECORDS.map(r => `
         <div class="rec-tile">
           <div class="rec-t">${r.t}</div>
