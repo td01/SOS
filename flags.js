@@ -1,7 +1,7 @@
 // Flat geometric SVG flag renderer
 // Each flag is defined by a simple shape descriptor + colour palette
 
-const FLAG_DEFS = {
+var FLAG_DEFS = {
   ARG: { s:'h',  c:['#74ACDF','#FFF','#74ACDF'] },
   BRA: { s:'d',  c:['#009C3B','#FFDF00'] },
   ENG: { s:'cross', c:['#FFF','#CF142B'] },
