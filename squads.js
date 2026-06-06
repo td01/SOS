@@ -2,7 +2,7 @@
 // Real confirmed squads. Position codes: GK / DF / MF / FW
 // Club and caps are approximate at time of squad announcement.
 
-const SQUADS = {
+var SQUADS = {
 
   ENG: {
     manager: 'Thomas Tuchel',

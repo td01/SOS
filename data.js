@@ -7,7 +7,7 @@
 // r = region: EUR / AME / AFR / ASI / OTH
 // g = group A–L
 
-const TEAMS = [
+var TEAMS = [
   // Group A
   { n:'Mexico',       c:'MEX', r:'AME', g:'A' },
   { n:'South Africa', c:'RSA', r:'AFR', g:'A' },
@@ -74,7 +74,7 @@ const TEAMS = [
 // Dates in ET (USA local reference). All times ET.
 // Sources: ESPN, Yahoo Sports, CBS Sports confirmed schedule
 
-const FIXTURES = [
+var FIXTURES = [
   // ── Matchday 1 ──────────────────────────────────────────────────────────────
   // Group A — Jun 11
   { h:'Mexico',      hc:'MEX', a:'South Africa', ac:'RSA', g:'A', date:'Jun 11', t:'15:00 ET' },
@@ -123,7 +123,7 @@ const FIXTURES = [
 // Shape: { h, hc, a, ac, hs, as, min, g } for live
 //        { h, hc, a, ac, hs, as, g }       for completed
 
-const LIVE_MATCHES = [
+var LIVE_MATCHES = [
   {
     h:'England', hc:'ENG', a:'Panama', ac:'PAN',
     hs:3, as:2, min:67, g:'G',
@@ -137,12 +137,12 @@ const LIVE_MATCHES = [
     ]
   },
 ];
-const COMPLETED = [];
+var COMPLETED = [];
 
 // ─── GROUP STANDINGS ──────────────────────────────────────────────────────────
 // All zeroed — updated by API in production, or updated manually after matches.
 
-const GROUPS = {
+var GROUPS = {
   A: [
     { n:'Mexico',       c:'MEX', p:0, w:0, d:0, l:0, gf:0, ga:0, pts:0 },
     { n:'South Africa', c:'RSA', p:0, w:0, d:0, l:0, gf:0, ga:0, pts:0 },
@@ -219,7 +219,7 @@ const GROUPS = {
 
 // ─── ALL-TIME HISTORY ─────────────────────────────────────────────────────────
 
-const ALL_TIME_SCORERS = [
+var ALL_TIME_SCORERS = [
   { n:'Miroslav Klose',  c:'GER', goals:16, yrs:'2002–2014' },
   { n:'Ronaldo',         c:'BRA', goals:15, yrs:'1994–2006' },
   { n:'Gerd Müller',     c:'GER', goals:14, yrs:'1970–74'   },
@@ -229,7 +229,7 @@ const ALL_TIME_SCORERS = [
   { n:'Sandor Kocsis',   c:'HUN', goals:11, yrs:'1954'      },
 ];
 
-const GOLDEN_SHOE = [
+var GOLDEN_SHOE = [
   { yr:2022, n:"Kylian Mbappé",    c:'FRA', goals:8 },
   { yr:2018, n:"Harry Kane",       c:'ENG', goals:6 },
   { yr:2014, n:"James Rodríguez",  c:'COL', goals:6 },
@@ -239,7 +239,7 @@ const GOLDEN_SHOE = [
   { yr:1998, n:"Davor Šuker",      c:'CRO', goals:6 },
 ];
 
-const TOURNAMENT_WINNERS = [
+var TOURNAMENT_WINNERS = [
   { n:'Brazil',    c:'BRA', t:5, yrs:'1958 · 62 · 70 · 94 · 2002' },
   { n:'Germany',   c:'GER', t:4, yrs:'1954 · 74 · 90 · 2014'      },
   { n:'Italy',     c:'ITA', t:4, yrs:'1934 · 38 · 82 · 2006'      },
@@ -248,7 +248,7 @@ const TOURNAMENT_WINNERS = [
   { n:'Spain',     c:'ESP', t:1, yrs:'2010'                       },
 ];
 
-const RECORDS = [
+var RECORDS = [
   { t:'Fastest goal',      v:'11s',  d:'Hakan Şükür, Turkey 2002'   },
   { t:'Biggest win',       v:'10–1', d:'Hungary vs El Salvador 1982' },
   { t:'Oldest scorer',     v:'42',   d:'Roger Milla, Cameroon 1994'  },
