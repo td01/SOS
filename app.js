@@ -111,10 +111,15 @@ function buildLive() {
     <div class="stat-cell"><div class="stat-v hot">${LIVE_MATCHES.length}</div><div class="stat-l">Live now</div></div>
     <div class="stat-cell"><div class="stat-v">${LIVE_MATCHES.length + COMPLETED.length}</div><div class="stat-l">Today</div></div>
     <div class="stat-cell"><div class="stat-v hot">${myGameCount}</div><div class="stat-l">Your games</div></div>
-    <div class="stat-cell"><div class="stat-v">${totalGoals}</div><div class="stat-l">Goals today</div></div>`;
+    <div class="stat-cell"><div class="stat-v">${totalGoals || '—'}</div><div class="stat-l">Goals today</div></div>`;
 
-  document.getElementById('live-wrap').innerHTML  = LIVE_MATCHES.map(m => matchCard(m, true)).join('');
-  document.getElementById('done-wrap').innerHTML  = COMPLETED.map(m => matchCard(m, false)).join('');
+  document.getElementById('live-wrap').innerHTML = LIVE_MATCHES.length
+    ? LIVE_MATCHES.map(m => matchCard(m, true)).join('')
+    : `<div style="padding:20px 16px;color:var(--muted);font-size:13px;font-weight:600;letter-spacing:.04em;border-bottom:1px solid var(--rule)">Kick off Jun 11 · Mexico vs South Africa</div>`;
+
+  document.getElementById('done-wrap').innerHTML = COMPLETED.length
+    ? COMPLETED.map(m => matchCard(m, false)).join('')
+    : `<div style="padding:20px 16px;color:var(--muted);font-size:13px;font-weight:600;letter-spacing:.04em">No results yet — tournament starts Jun 11</div>`;
 }
 
 // ─── SCHEDULE TAB ──────────────────────────────────────────────────────────────

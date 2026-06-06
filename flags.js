@@ -34,6 +34,30 @@ const FLAG_DEFS = {
   GHA: { s:'h3', c:['#006B3F','#FCD116','#EE1C25'] },
   TUN: { s:'circ2', c:['#E70013','#FFF'] },
   CMR: { s:'v',  c:['#007A5E','#CE1126','#FCD116'] },
+  // New teams for 2026
+  RSA: { s:'h3', c:['#007A4D','#FFB81C','#DE3831'] },  // South Africa
+  CZE: { s:'h2', c:['#FFF','#D7141A'], a:'#11457E' },   // Czechia (bicolour + blue triangle, simplified)
+  BIH: { s:'diag',c:['#002395','#FFCD00'] },             // Bosnia (simplified)
+  HAI: { s:'h2', c:['#00209F','#D21034'] },              // Haiti
+  SCO: { s:'cross',c:['#003DA5','#FFF'] },               // Scotland (St Andrew's cross)
+  PAR: { s:'h',  c:['#D52B1E','#FFF','#0038A8'] },       // Paraguay
+  TUR: { s:'circ2',c:['#E30A17','#FFF'] },               // Turkey (crescent simplified as offset circle)
+  CUW: { s:'diag',c:['#002B7F','#F9E814'] },             // Curaçao (simplified)
+  CIV: { s:'v',  c:['#F77F00','#FFF','#009A44'] },       // Ivory Coast
+  SWE: { s:'cross',c:['#006AA7','#FECC02'] },            // Sweden
+  PAN: { s:'quad',c:['#FFF','#DA121A','#046A38','#FFF'] }, // Panama (4 quadrants simplified)
+  CPV: { s:'h3cv',c:['#003893','#FFF','#CF2027'], a:'#F7D116' }, // Cape Verde (simplified)
+  IRQ: { s:'h',  c:['#CE1126','#FFF','#000'] },          // Iraq
+  NOR: { s:'cross',c:['#EF2B2D','#FFF'], a:'#002868' },  // Norway
+  ALG: { s:'v2', c:['#FFF','#006233'], a:'#D21034' },    // Algeria (simplified)
+  AUT: { s:'h',  c:['#ED2939','#FFF','#ED2939'] },       // Austria
+  JOR: { s:'h3j',c:['#007A3D','#FFF','#000'], a:'#CE1126' }, // Jordan (simplified)
+  COD: { s:'diag',c:['#007FFF','#F7D618'] },             // DR Congo (simplified)
+  UZB: { s:'h',  c:['#1EB53A','#FFF','#CE1126'] },       // Uzbekistan
+  EGY: { s:'h',  c:['#CE1126','#FFF','#000'] },          // Egypt
+  NZL: { s:'defr',c:['#00247D','#CC142B','#FFF'] },      // New Zealand (dark blue + cross simplified)
+  ITA: { s:'v',  c:['#009246','#FFF','#CE2B37'] },       // Italy (for history tab)
+  HUN: { s:'h',  c:['#CE2939','#FFF','#477050'] },       // Hungary (for history tab)
 };
 
 function svgFlag(code, w, h) {
@@ -109,6 +133,45 @@ function svgFlag(code, w, h) {
            <rect x="${t(w*.21)}" y="0" width="${t(h*.1)}" height="${t(h*.52)}" fill="#fff"/>
            <rect x="0" y="${t(h*.22)}" width="${t(w*.48)}" height="${t(h*.1)}" fill="#fff"/>`;
       break;
+    case 'diag':
+      // diagonal split (bottom-left triangle c[0], top-right c[1])
+      b = `<rect width="${w}" height="${h}" fill="${c[0]}"/>
+           <polygon points="0,${h} ${w},0 ${w},${h}" fill="${c[1]}"/>`;
+      break;
+    case 'quad':
+      // 4-quadrant flag (Panama style)
+      b = `<rect width="${w2}" height="${h2}" fill="${c[0]}"/>
+           <rect x="${w2}" width="${w2}" height="${h2}" fill="${c[1]}"/>
+           <rect y="${h2}" width="${w2}" height="${h2}" fill="${c[2]}"/>
+           <rect x="${w2}" y="${h2}" width="${w2}" height="${h2}" fill="${c[3]||c[0]}"/>`;
+      break;
+    case 'h3cv': {
+      // Cape Verde: blue/white/red with yellow stripe accent
+      const s1=t(h*.4),s2=t(h*.12);
+      b = `<rect width="${w}" height="${h}" fill="${c[0]}"/>
+           <rect y="${s1}" width="${w}" height="${s2}" fill="${c[2]}"/>
+           <rect y="${t(s1+s2)}" width="${w}" height="${t(h*.06)}" fill="${a}"/>
+           <rect y="${t(s1+s2+h*.06)}" width="${w}" height="${s2}" fill="${c[2]}"/>`;
+      break;
+    }
+    case 'h3j': {
+      // Jordan: tricolour with red triangle on left
+      b = `<rect width="${w}" height="${h3}" fill="${c[0]}"/>
+           <rect y="${h3}" width="${w}" height="${h3}" fill="${c[1]}"/>
+           <rect y="${t(2*h/3)}" width="${w}" height="${h3}" fill="${c[2]}"/>
+           <polygon points="0,0 ${t(w*.4)},${h2} 0,${h}" fill="${a}"/>`;
+      break;
+    }
+    case 'defr': {
+      // New Zealand: dark blue base with southern cross (simplified as small cross)
+      const ct=t(h*.15),cx=t(w*.28);
+      b = `<rect width="${w}" height="${h}" fill="${c[0]}"/>
+           <rect x="${cx}" y="0" width="${ct}" height="${h}" fill="${c[2]}"/>
+           <rect x="0" y="${t(h*.42)}" width="${t(w*.55)}" height="${ct}" fill="${c[2]}"/>
+           <rect x="${t(cx+ct*.25)}" y="0" width="${t(ct*.5)}" height="${h}" fill="${c[1]}"/>
+           <rect x="0" y="${t(h*.42+ct*.25)}" width="${t(w*.55)}" height="${t(ct*.5)}" fill="${c[1]}"/>`;
+      break;
+    }
     case 'sol':
       b = `<rect width="${w}" height="${h}" fill="${c[0]}"/>
            <polygon points="${w2},${t(h*.18)} ${t(w*.56)},${t(h*.42)} ${t(w*.79)},${t(h*.34)} ${t(w*.63)},${t(h*.54)} ${t(w*.74)},${t(h*.79)} ${w2},${t(h*.64)} ${t(w*.26)},${t(h*.79)} ${t(w*.37)},${t(h*.54)} ${t(w*.21)},${t(h*.34)} ${t(w*.44)},${t(h*.42)}" fill="${a}"/>`;
