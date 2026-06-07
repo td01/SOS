@@ -641,14 +641,16 @@ body{
 }
 .grp-tbl td:first-child{ text-align:left }
 
-/* Qualification rows */
-.grp-tbl tr.qual td{ border-left:3px solid var(--green) }
-.grp-tbl tr.qual td:first-child{ color:var(--ink) }
+/* Qualification rows — use box-shadow so layout is unaffected */
+.grp-tbl tr.qual td:first-child{
+  box-shadow:inset 4px 0 0 var(--green);
+  color:var(--ink);
+}
 
 /* Your team row */
 .grp-tbl tr.mine td{ background:var(--lav) }
 .grp-tbl tr.mine td:first-child{ color:var(--purple) }
-.grp-tbl tr.mine.qual td{ border-left-color:var(--purple) }
+.grp-tbl tr.mine.qual td:first-child{ box-shadow:inset 4px 0 0 var(--purple) }
 
 .t-name{
   font-family:var(--display);
