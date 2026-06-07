@@ -9,7 +9,7 @@ function renderPick(region) {
   const list = region === 'ALL' ? TEAMS : TEAMS.filter(t => t.r === region);
   document.getElementById('ctry-list').innerHTML = list.map(t => `
     <div class="ctry-tile${chosen.includes(t.c) ? ' on' : ''}" onclick="toggleTeam('${t.c}')">
-      ${ff(t.c, 40, 28)}
+      ${ff(t.c, 56, 39)}
       <div class="ctry-n">${t.n}</div>
     </div>`).join('');
 
@@ -41,7 +41,7 @@ function launch() {
 
   const myTeams = TEAMS.filter(t => chosen.includes(t.c));
   document.getElementById('pill-bar').innerHTML = myTeams
-    .map(t => `<div class="team-pill" onclick="openTeam('${t.c}')" style="cursor:pointer">${ff(t.c, 22, 15)}<span class="team-pill-n">${t.n}</span></div>`)
+    .map(t => `<div class="team-pill" onclick="openTeam('${t.c}')" style="cursor:pointer">${ff(t.c, 28, 20)}<span class="team-pill-n">${t.n}</span></div>`)
     .join('');
 
   buildLive();
@@ -167,7 +167,7 @@ function matchCard(m, live) {
       <div class="mc-badge">${badge}</div>
       <div class="mc-teams">
         <div class="mc-t" onclick="openTeam('${m.hc}')" style="cursor:pointer">
-          ${ff(m.hc, 32, 22)}
+          ${ff(m.hc, 48, 33)}
           <div class="mc-tn">${m.h}</div>
         </div>
         <div>
@@ -175,7 +175,7 @@ function matchCard(m, live) {
           <div class="mc-min">${live ? 'live' : 'ft'}</div>
         </div>
         <div class="mc-t r" onclick="openTeam('${m.ac}')" style="cursor:pointer">
-          ${ff(m.ac, 32, 22)}
+          ${ff(m.ac, 48, 33)}
           <div class="mc-tn">${m.a}</div>
         </div>
       </div>
@@ -207,13 +207,13 @@ function buildLive() {
 function fixtureRow(f, mine) {
   return `
     <div class="fix-card${mine ? ' mine' : ''}">
-      <div class="fix-t" onclick="openTeam('${f.hc}')" style="cursor:pointer">${ff(f.hc, 20, 14)} ${f.h}</div>
+      <div class="fix-t" onclick="openTeam('${f.hc}')" style="cursor:pointer">${ff(f.hc, 28, 20)} ${f.h}</div>
       <div class="fix-c">
         <span class="fix-vs">vs</span>
         <span class="fix-time">${f.t}</span>
         <div class="fix-grp">Grp ${f.g}</div>
       </div>
-      <div class="fix-t r" onclick="openTeam('${f.ac}')" style="cursor:pointer">${ff(f.ac, 20, 14)} ${f.a}</div>
+      <div class="fix-t r" onclick="openTeam('${f.ac}')" style="cursor:pointer">${ff(f.ac, 28, 20)} ${f.a}</div>
     </div>`;
 }
 
@@ -266,7 +266,7 @@ function buildGroups() {
               <td>
                 <div class="t-name">
                   ${i < 2 ? '<span class="qdot"></span>' : ''}
-                  <span style="width:16px;height:11px;display:inline-block;overflow:hidden;flex-shrink:0">${svgFlag(t.c, 16, 11)}</span>
+                  <span style="width:22px;height:15px;display:inline-block;overflow:hidden;flex-shrink:0">${svgFlag(t.c, 22, 15)}</span>
                   ${t.n}
                 </div>
               </td>

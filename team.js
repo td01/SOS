@@ -16,7 +16,7 @@ function openTeam(code) {
   const headerHtml = `
     <div class="td-header">
       <button class="td-close" onclick="closeTeam()" aria-label="Close">✕</button>
-      <div class="td-flag">${svgFlag(code, 80, 56)}</div>
+      <div class="td-flag">${svgFlag(code, 100, 70)}</div>
       <div class="td-title">${team ? team.n : code}</div>
       ${squad ? `<div class="td-mgr">Coach: <strong>${squad.manager}</strong></div>` : ''}
     </div>`;
@@ -52,7 +52,7 @@ function openTeam(code) {
       const opp    = isHome ? f.a : f.h;
       const oppCode= isHome ? f.ac : f.hc;
       return `<div class="td-fixture">
-        <div class="td-fix-opp">${ff(oppCode,24,17)} ${opp}</div>
+        <div class="td-fix-opp">${ff(oppCode,32,22)} ${opp}</div>
         <div class="td-fix-meta">
           <span class="td-fix-venue">${isHome ? 'Home' : 'Away'}</span>
           <span class="td-fix-date">${f.date} · ${f.t}</span>
@@ -107,7 +107,7 @@ function openPlayer(teamCode, playerName) {
   const p = findPlayer(teamCode, playerName);
   if (!p) return;
 
-  const teamFlag = svgFlag(teamCode, 24, 17);
+  const teamFlag = svgFlag(teamCode, 32, 22);
   const overlay  = document.getElementById('player-overlay');
   const el       = document.getElementById('player-content');
 
