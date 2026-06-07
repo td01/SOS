@@ -18,9 +18,25 @@
 <!-- PICK SCREEN -->
 <div id="s-pick">
   <div class="pick-hero">
-    <div class="pick-hero-rule"></div>
-    <div class="pick-eye">2026 World Cup</div>
-    <div class="pick-title">Summer<br><b>of Soccer</b></div>
+    <div class="pick-hero-accent"></div>
+    <span class="pick-eyebrow">2026 World Cup</span>
+    <div class="pick-title">Summer<br><em>of Soccer</em></div>
+    <div class="pick-meta">
+      <div class="pick-meta-item">
+        <div class="pick-meta-val">48</div>
+        <div class="pick-meta-lbl">Teams</div>
+      </div>
+      <div class="pick-meta-div"></div>
+      <div class="pick-meta-item">
+        <div class="pick-meta-val">104</div>
+        <div class="pick-meta-lbl">Matches</div>
+      </div>
+      <div class="pick-meta-div"></div>
+      <div class="pick-meta-item">
+        <div class="pick-countdown" id="pick-countdown">—</div>
+        <div class="pick-countdown-lbl">Until kick off</div>
+      </div>
+    </div>
   </div>
   <div class="region-bar">
     <button class="rbtn on" onclick="rgn('ALL',this)">All 32</button>
@@ -42,6 +58,7 @@
     <div class="app-logo" onclick="back()" style="cursor:pointer" title="Home">Summer <span>of Soccer</span></div>
     <button class="edit-btn" onclick="back()">✎ Change teams</button>
   </div>
+  <div class="score-ticker" id="score-ticker"></div>
   <div class="team-pill-bar" id="pill-bar"></div>
 
   <div class="bottom-nav">
@@ -69,9 +86,9 @@
 
   <div id="p-live" class="pane on">
     <div class="stat-row" id="stat-row"></div>
-    <div id="live-sec" class="sec span-all">Live now</div>
+    <div class="sec span-all">Live now</div>
     <div id="live-wrap"></div>
-    <div id="done-sec" class="sec span-all">Today's results</div>
+    <div class="sec span-all">Today&#39;s results</div>
     <div id="done-wrap"></div>
   </div>
 
