@@ -556,9 +556,9 @@ body{
 
 .day-lbl{
   font-family:var(--display);
-  font-size:17px;letter-spacing:.06em;
+  font-size:22px;letter-spacing:.05em;
   color:var(--ink);
-  padding:11px var(--pad);
+  padding:11px var(--pad) 9px;
   background:var(--paper);
   border-bottom:1px solid var(--rule);
   display:block;
@@ -567,10 +567,10 @@ body{
 
 .fix-card{
   background:var(--card);
-  padding:13px var(--pad);
+  padding:14px var(--pad);
   border-bottom:1px solid var(--rule);
   display:grid;
-  grid-template-columns:1fr 52px 1fr;
+  grid-template-columns:1fr 56px 1fr;
   align-items:center;gap:8px;
   border-left:3px solid transparent;
   transition:border-color .1s;
@@ -581,27 +581,28 @@ body{
 }
 .fix-t{
   font-family:var(--display);
-  font-size:14px;letter-spacing:.04em;
+  font-size:20px;letter-spacing:.03em;
   text-transform:uppercase;
-  display:flex;align-items:center;gap:8px;
+  display:flex;align-items:center;gap:9px;
   line-height:1;
 }
 .fix-t.r{ flex-direction:row-reverse }
 .fix-c{ text-align:center }
 .fix-vs{
   font-family:var(--display);
-  font-size:16px;color:var(--muted);display:block;
+  font-size:18px;color:var(--muted);display:block;
   letter-spacing:.06em;
 }
 .fix-time{
   font-family:var(--display);
-  font-size:13px;color:var(--pink);display:block;
+  font-size:15px;color:var(--pink);display:block;
   letter-spacing:.04em;
 }
 .fix-grp{
-  font-size:11px;color:var(--muted);
-  letter-spacing:.04em;
-  margin-top:1px;
+  font-family:var(--display);
+  font-size:12px;color:var(--muted);
+  letter-spacing:.06em;
+  margin-top:2px;
 }
 
 /* ============================================================
@@ -658,6 +659,7 @@ body{
   display:flex;align-items:center;gap:9px;
   line-height:1;
 }
+.t-name > *{ vertical-align:middle;align-self:center }
 .t-pts{
   font-family:var(--display);
   font-size:24px;color:var(--ink);line-height:1;
@@ -665,8 +667,8 @@ body{
 .qdot{
   width:8px;height:8px;
   background:var(--green);
-  display:inline-block;flex-shrink:0;
-  flex-shrink:0;
+  display:block;flex-shrink:0;
+  align-self:center;
 }
 
 /* ============================================================
@@ -681,19 +683,19 @@ body{
 .hist-hd.yellow-bg{ background:var(--yellow) }
 .hist-hd-lbl{
   font-family:var(--display);
-  font-size:24px;letter-spacing:.04em;color:#fff;
+  font-size:28px;letter-spacing:.04em;color:#fff;
 }
 .hist-hd.yellow-bg .hist-hd-lbl{ color:var(--ink) }
 
 .hist-row{
   display:grid;grid-template-columns:36px 1fr auto;
-  align-items:center;gap:10px;
-  padding:11px var(--pad);
+  align-items:center;gap:12px;
+  padding:13px var(--pad);
   border-bottom:1px solid var(--rule);
   background:var(--card);
 }
 .hist-rank{
-  font-family:var(--display);font-size:28px;
+  font-family:var(--display);font-size:32px;
   color:var(--muted);text-align:center;
 }
 .hist-rank.g{ color:#E8A000 }
@@ -702,15 +704,15 @@ body{
 .h-info{ display:flex;align-items:center;gap:9px;min-width:0;flex:1 }
 .h-name{
   font-family:var(--display);
-  font-size:14px;letter-spacing:.03em;
+  font-size:18px;letter-spacing:.03em;
   text-transform:uppercase;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
 }
-.h-det{ font-size:12px;color:var(--muted);margin-top:2px }
+.h-det{ font-family:var(--display);font-size:13px;letter-spacing:.04em;color:var(--muted);margin-top:3px }
 .h-val{
   font-family:var(--display);
-  font-size:52px;color:var(--pink);
-  line-height:.9;
+  font-size:56px;color:var(--pink);
+  line-height:.88;
 }
 .h-val.pur{ color:var(--purple) }
 .h-val.grn{ color:#1a6b1a }
@@ -725,12 +727,12 @@ body{
 }
 .rec-t{
   font-family:var(--display);
-  font-size:11px;letter-spacing:.1em;
+  font-size:13px;letter-spacing:.1em;
   text-transform:uppercase;color:var(--muted);margin-bottom:6px;
 }
 .rec-v{
   font-family:var(--display);
-  font-size:42px;color:var(--ink);line-height:1;
+  font-size:52px;color:var(--ink);line-height:.92;
 }
 .rec-d{ font-size:12px;color:var(--muted);margin-top:5px;line-height:1.35 }
 
