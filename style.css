@@ -81,7 +81,7 @@ body{
 }
 .pick-title{
   font-family:var(--display);
-  font-size:80px;line-height:.82;
+  font-size:90px;line-height:.80;
   color:var(--card);
   margin-bottom:0;
 }
@@ -199,17 +199,21 @@ body{
 /* Top bar */
 .app-top{
   background:var(--ink);
-  padding:12px var(--pad);
+  padding:10px var(--pad);
   display:flex;align-items:center;justify-content:space-between;
   position:sticky;top:0;z-index:50;
   border-bottom:3px solid var(--yellow);
+  min-height:52px;
 }
-.app-logo{
+.app-logo{ cursor:pointer;display:flex;align-items:center;gap:10px }
+.app-icon{ flex-shrink:0;display:block }
+.app-logo-text{
   font-family:var(--display);
-  font-size:24px;letter-spacing:.04em;
-  color:var(--card);cursor:pointer;
+  font-size:18px;letter-spacing:.06em;
+  color:var(--card);
+  line-height:1;
 }
-.app-logo span{color:var(--pink)}
+.app-logo-text em{color:var(--pink);font-style:normal}
 .edit-btn{
   font-family:var(--display);
   font-size:12px;letter-spacing:.09em;
@@ -268,7 +272,7 @@ body{
   background:var(--lav);
   display:flex;overflow-x:auto;
   border-bottom:2px solid var(--ink);
-  min-height:42px;align-items:center;
+  min-height:44px;align-items:center;
 }
 .team-pill-bar::-webkit-scrollbar{display:none}
 .team-pill{
@@ -329,7 +333,7 @@ body{
 
 .sec{
   font-family:var(--display);
-  font-size:11px;letter-spacing:.18em;
+  font-size:12px;letter-spacing:.2em;
   text-transform:uppercase;
   color:var(--muted);
   padding:10px var(--pad) 8px;
@@ -352,18 +356,18 @@ body{
 }
 .stat-cell{
   background:var(--card);
-  padding:14px var(--pad);
+  padding:16px var(--pad);
 }
 .stat-v{
   font-family:var(--display);
-  font-size:52px;color:var(--ink);line-height:1;
+  font-size:64px;color:var(--ink);line-height:.9;
 }
 .stat-v.hot{color:var(--pink)}
 .stat-l{
   font-family:var(--display);
-  font-size:11px;letter-spacing:.1em;
+  font-size:12px;letter-spacing:.12em;
   text-transform:uppercase;
-  color:var(--muted);margin-top:2px;
+  color:var(--muted);margin-top:4px;
 }
 
 /* ============================================================
@@ -429,7 +433,7 @@ body{
 
 .mc-tn{
   font-family:var(--display);
-  font-size:16px;letter-spacing:.04em;
+  font-size:18px;letter-spacing:.05em;
   text-transform:uppercase;line-height:1;
 }
 .live    .mc-tn,
@@ -440,8 +444,8 @@ body{
 .mc-center{ text-align:center }
 .mc-score{
   font-family:var(--display);
-  font-size:64px;letter-spacing:-.02em;
-  line-height:1;
+  font-size:80px;letter-spacing:-.02em;
+  line-height:.9;
 }
 .live    .mc-score,
 .live-mine .mc-score { color:#fff }
@@ -610,24 +614,24 @@ body{
 }
 .grp-title{
   font-family:var(--display);
-  font-size:22px;color:var(--yellow);letter-spacing:.06em;
+  font-size:28px;color:var(--yellow);letter-spacing:.06em;
 }
 
 .grp-tbl{ width:100%;border-collapse:collapse;table-layout:fixed }
 .grp-tbl th{
   font-family:var(--display);
-  font-size:11px;letter-spacing:.09em;
+  font-size:13px;letter-spacing:.1em;
   text-transform:uppercase;color:var(--muted);
-  padding:8px var(--pad) 7px;
+  padding:9px var(--pad) 8px;
   text-align:right;
-  background:var(--paper);border-bottom:1px solid var(--rule);
+  background:var(--paper);border-bottom:2px solid var(--ink);
 }
 .grp-tbl th:first-child{ text-align:left }
 .grp-tbl td{
-  padding:11px var(--pad);text-align:right;
+  padding:13px var(--pad);text-align:right;
   border-bottom:1px solid var(--rule);
   background:var(--card);
-  font-size:14px;font-weight:600;
+  font-size:15px;font-weight:700;
 }
 .grp-tbl td:first-child{ text-align:left }
 
@@ -642,12 +646,12 @@ body{
 
 .t-name{
   font-family:var(--display);
-  font-size:14px;letter-spacing:.03em;
+  font-size:16px;letter-spacing:.03em;
   display:flex;align-items:center;gap:8px;
 }
 .t-pts{
   font-family:var(--display);
-  font-size:22px;color:var(--ink);
+  font-size:28px;color:var(--ink);
 }
 .qdot{
   width:7px;height:7px;
@@ -695,8 +699,8 @@ body{
 .h-det{ font-size:12px;color:var(--muted);margin-top:2px }
 .h-val{
   font-family:var(--display);
-  font-size:42px;color:var(--pink);
-  line-height:1;
+  font-size:52px;color:var(--pink);
+  line-height:.9;
 }
 .h-val.pur{ color:var(--purple) }
 .h-val.grn{ color:#1a6b1a }
@@ -774,7 +778,7 @@ body{
 }
 .dyk-title{
   font-family:var(--display);
-  font-size:46px;line-height:.9;
+  font-size:52px;line-height:.88;
   color:var(--ink);margin-bottom:18px;
   letter-spacing:.01em;
 }
@@ -1201,7 +1205,7 @@ body{
 
   #stat-row{ grid-column:1/-1;grid-template-columns:repeat(4,1fr) }
   .stat-cell{ padding:20px 28px }
-  .stat-v{ font-size:64px }
+  .stat-v{ font-size:80px }
 
   .sec.span-all,#p-live.on .sec,#p-hist.on .sec{ grid-column:1/-1 }
   .sec{ padding:11px 28px }
@@ -1211,7 +1215,7 @@ body{
   #done-wrap{ grid-column:2 }
 
   .match-card{ padding:20px 28px 18px }
-  .mc-score{ font-size:80px }
+  .mc-score{ font-size:100px }
   .mc-tn{ font-size:18px }
 
   .fix-card{ padding:14px 28px;grid-template-columns:1fr 60px 1fr }

@@ -326,7 +326,7 @@ function buildHistory() {
   document.getElementById('p-hist').innerHTML =
     sec('All-time top scorers') +
     '<div class="hist-block">' +
-      '<div class="hist-hd pink-bg"><div class="hist-hd-lbl">World Cup Goals — all time</div></div>' +
+      '<div class="hist-hd pink-bg"><div class="hist-hd-lbl">All-time top scorers</div></div>' +
       ALL_TIME_SCORERS.map(function(s,i){ return histRow(i+1, s.c, s.n, s.c+' · '+s.yrs, s.goals, ''); }).join('') +
     '</div>' +
     sec('Golden Shoe — top scorer per tournament') +
@@ -334,7 +334,7 @@ function buildHistory() {
       '<div class="hist-hd purple-bg"><div class="hist-hd-lbl">Golden Shoe History</div></div>' +
       GOLDEN_SHOE.map(function(g,i){ return histRow(i+1, g.c, g.n, String(g.yr), g.goals, 'pur'); }).join('') +
     '</div>' +
-    sec('Most World Cup titles') +
+    sec('Tournament winners') +
     '<div class="hist-block">' +
       '<div class="hist-hd yellow-bg"><div class="hist-hd-lbl" style="color:var(--ink)">Tournament Winners</div></div>' +
       TOURNAMENT_WINNERS.map(function(w,i){ return histRow(i+1, w.c, w.n, w.yrs, '×'+w.t, 'grn'); }).join('') +
