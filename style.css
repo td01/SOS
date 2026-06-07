@@ -72,6 +72,9 @@ body{
   height:4px;
   background:var(--yellow);
 }
+.pick-icon-row{
+  padding:0 0 10px;
+}
 .pick-eyebrow{
   font-family:var(--display);
   font-size:12px;letter-spacing:.22em;
@@ -209,11 +212,11 @@ body{
 .app-icon{ flex-shrink:0;display:block }
 .app-logo-text{
   font-family:var(--display);
-  font-size:18px;letter-spacing:.06em;
+  font-size:20px;letter-spacing:.05em;
   color:var(--card);
   line-height:1;
 }
-.app-logo-text em{color:var(--pink);font-style:normal}
+.app-logo-text em{color:var(--yellow);font-style:normal}
 .edit-btn{
   font-family:var(--display);
   font-size:12px;letter-spacing:.09em;
@@ -609,29 +612,32 @@ body{
 
 .grp-hd{
   background:var(--ink);
-  padding:9px var(--pad);
+  padding:10px var(--pad) 8px;
   display:flex;align-items:center;justify-content:space-between;
 }
 .grp-title{
   font-family:var(--display);
-  font-size:28px;color:var(--yellow);letter-spacing:.06em;
+  font-size:36px;color:var(--yellow);letter-spacing:.04em;
+  line-height:1;
 }
 
 .grp-tbl{ width:100%;border-collapse:collapse;table-layout:fixed }
 .grp-tbl th{
   font-family:var(--display);
-  font-size:13px;letter-spacing:.1em;
+  font-size:11px;letter-spacing:.14em;
   text-transform:uppercase;color:var(--muted);
-  padding:9px var(--pad) 8px;
+  padding:7px var(--pad) 6px;
   text-align:right;
-  background:var(--paper);border-bottom:2px solid var(--ink);
+  background:var(--paper);border-bottom:1px solid var(--rule);
 }
 .grp-tbl th:first-child{ text-align:left }
 .grp-tbl td{
-  padding:13px var(--pad);text-align:right;
+  padding:10px var(--pad) 8px;text-align:right;
   border-bottom:1px solid var(--rule);
   background:var(--card);
-  font-size:15px;font-weight:700;
+  font-family:var(--display);
+  font-size:28px;line-height:1;
+  letter-spacing:.02em;
 }
 .grp-tbl td:first-child{ text-align:left }
 
@@ -646,17 +652,19 @@ body{
 
 .t-name{
   font-family:var(--display);
-  font-size:16px;letter-spacing:.03em;
-  display:flex;align-items:center;gap:8px;
+  font-size:28px;letter-spacing:.02em;
+  display:flex;align-items:center;gap:10px;
+  line-height:1;
 }
 .t-pts{
   font-family:var(--display);
-  font-size:28px;color:var(--ink);
+  font-size:36px;color:var(--ink);line-height:1;
 }
 .qdot{
-  width:7px;height:7px;
+  width:8px;height:8px;
   background:var(--green);
   display:inline-block;flex-shrink:0;
+  flex-shrink:0;
 }
 
 /* ============================================================
@@ -1221,7 +1229,11 @@ body{
   .fix-card{ padding:14px 28px;grid-template-columns:1fr 60px 1fr }
   .fix-t{ font-size:16px }
 
-  .grp-tbl th,.grp-tbl td{ padding:10px 20px }
+  .grp-tbl th{ padding:8px 20px }
+  .grp-tbl td{ padding:12px 20px;font-size:32px }
+  .grp-title{ font-size:44px }
+  .t-name{ font-size:32px }
+  .t-pts{ font-size:44px }
 
   #p-hist.on .sec{ grid-column:1/-1 }
   .rec-grid.span-all{
