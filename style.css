@@ -617,7 +617,7 @@ body{
 }
 .grp-title{
   font-family:var(--display);
-  font-size:36px;color:var(--yellow);letter-spacing:.04em;
+  font-size:28px;color:var(--yellow);letter-spacing:.05em;
   line-height:1;
 }
 
@@ -632,11 +632,11 @@ body{
 }
 .grp-tbl th:first-child{ text-align:left }
 .grp-tbl td{
-  padding:10px var(--pad) 8px;text-align:right;
+  padding:11px var(--pad) 9px;text-align:right;
   border-bottom:1px solid var(--rule);
   background:var(--card);
   font-family:var(--display);
-  font-size:28px;line-height:1;
+  font-size:20px;line-height:1;
   letter-spacing:.02em;
 }
 .grp-tbl td:first-child{ text-align:left }
@@ -652,13 +652,13 @@ body{
 
 .t-name{
   font-family:var(--display);
-  font-size:28px;letter-spacing:.02em;
-  display:flex;align-items:center;gap:10px;
+  font-size:20px;letter-spacing:.03em;
+  display:flex;align-items:center;gap:9px;
   line-height:1;
 }
 .t-pts{
   font-family:var(--display);
-  font-size:36px;color:var(--ink);line-height:1;
+  font-size:24px;color:var(--ink);line-height:1;
 }
 .qdot{
   width:8px;height:8px;
@@ -1230,10 +1230,10 @@ body{
   .fix-t{ font-size:16px }
 
   .grp-tbl th{ padding:8px 20px }
-  .grp-tbl td{ padding:12px 20px;font-size:32px }
-  .grp-title{ font-size:44px }
-  .t-name{ font-size:32px }
-  .t-pts{ font-size:44px }
+  .grp-tbl td{ padding:12px 20px;font-size:22px }
+  .grp-title{ font-size:32px }
+  .t-name{ font-size:22px }
+  .t-pts{ font-size:28px }
 
   #p-hist.on .sec{ grid-column:1/-1 }
   .rec-grid.span-all{
