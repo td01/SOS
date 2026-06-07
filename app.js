@@ -69,7 +69,6 @@ function launch() {
   buildLive();
   buildSchedule();
   buildGroups();
-  buildHistory();
   startLivePoll();
 }
 
