@@ -61,39 +61,21 @@ body{
 /* Hero */
 .pick-hero{
   background:var(--ink);
-  padding:20px var(--pad) 0;
+  padding:12px var(--pad);
+  display:flex;align-items:center;justify-content:space-between;
+  border-bottom:3px solid var(--yellow);
   position:relative;
-  overflow:hidden;
-  min-height:auto;
 }
-.pick-hero-accent{
-  position:absolute;
-  top:0;left:0;right:0;
-  height:4px;
-  background:var(--yellow);
-}
-.pick-icon-row{
-  padding:0 0 10px;
-}
-.pick-eyebrow{
-  font-family:var(--display);
-  font-size:12px;letter-spacing:.22em;
-  color:var(--pink);
-  margin-bottom:6px;
-  display:block;
-}
-.pick-title{
-  font-family:var(--display);
-  font-size:64px;line-height:.84;
-  color:var(--card);
-  margin-bottom:0;
-}
-.pick-title em{color:var(--yellow);font-style:normal}
+.pick-hero-accent{ display:none }
+.pick-icon-row{ display:none }
+.pick-eyebrow{ display:none }
+.pick-title{ display:none }
 .pick-meta{
   display:flex;align-items:center;gap:16px;
   padding:10px 0 14px;
   border-top:1px solid #ffffff15;
   margin-top:10px;
+  display:none;
 }
 .pick-meta-item{
   display:flex;flex-direction:column;gap:2px;
@@ -556,21 +538,21 @@ body{
 
 .day-lbl{
   font-family:var(--display);
-  font-size:22px;letter-spacing:.05em;
+  font-size:26px;letter-spacing:.05em;
   color:var(--ink);
-  padding:11px var(--pad) 9px;
+  padding:12px var(--pad) 10px;
   background:var(--paper);
-  border-bottom:1px solid var(--rule);
+  border-bottom:2px solid var(--rule);
   display:block;
 }
 .day-lbl.span-all{grid-column:1/-1}
 
 .fix-card{
   background:var(--card);
-  padding:14px var(--pad);
-  border-bottom:1px solid var(--rule);
+  padding:16px var(--pad);
+  border-bottom:2px solid var(--rule);
   display:grid;
-  grid-template-columns:1fr 56px 1fr;
+  grid-template-columns:1fr 64px 1fr;
   align-items:center;gap:8px;
   border-left:3px solid transparent;
   transition:border-color .1s;
@@ -581,28 +563,28 @@ body{
 }
 .fix-t{
   font-family:var(--display);
-  font-size:20px;letter-spacing:.03em;
+  font-size:30px;letter-spacing:.02em;
   text-transform:uppercase;
-  display:flex;align-items:center;gap:9px;
+  display:flex;align-items:center;gap:10px;
   line-height:1;
 }
 .fix-t.r{ flex-direction:row-reverse }
 .fix-c{ text-align:center }
 .fix-vs{
   font-family:var(--display);
-  font-size:18px;color:var(--muted);display:block;
-  letter-spacing:.06em;
+  font-size:27px;color:var(--muted);display:block;
+  letter-spacing:.04em;
 }
 .fix-time{
   font-family:var(--display);
-  font-size:15px;color:var(--pink);display:block;
-  letter-spacing:.04em;
+  font-size:22px;color:var(--pink);display:block;
+  letter-spacing:.03em;
 }
 .fix-grp{
   font-family:var(--display);
-  font-size:12px;color:var(--muted);
-  letter-spacing:.06em;
-  margin-top:2px;
+  font-size:14px;color:var(--muted);
+  letter-spacing:.05em;
+  margin-top:3px;
 }
 
 /* ============================================================
@@ -618,7 +600,7 @@ body{
 }
 .grp-title{
   font-family:var(--display);
-  font-size:28px;color:var(--yellow);letter-spacing:.05em;
+  font-size:24px;color:var(--yellow);letter-spacing:.05em;
   line-height:1;
 }
 
@@ -633,11 +615,11 @@ body{
 }
 .grp-tbl th:first-child{ text-align:left }
 .grp-tbl td{
-  padding:11px var(--pad) 9px;text-align:right;
+  padding:9px var(--pad) 8px;text-align:right;
   border-bottom:1px solid var(--rule);
   background:var(--card);
   font-family:var(--display);
-  font-size:20px;line-height:1;
+  font-size:17px;line-height:1;
   letter-spacing:.02em;
 }
 .grp-tbl td:first-child{ text-align:left }
@@ -653,14 +635,14 @@ body{
 
 .t-name{
   font-family:var(--display);
-  font-size:20px;letter-spacing:.03em;
-  display:flex;align-items:center;gap:9px;
+  font-size:17px;letter-spacing:.03em;
+  display:flex;align-items:center;gap:8px;
   line-height:1;
 }
 .t-name > *{ vertical-align:middle;align-self:center }
 .t-pts{
   font-family:var(--display);
-  font-size:24px;color:var(--ink);line-height:1;
+  font-size:20px;color:var(--ink);line-height:1;
 }
 .qdot{ display:none }
 
@@ -676,7 +658,7 @@ body{
 .hist-hd.yellow-bg{ background:var(--yellow) }
 .hist-hd-lbl{
   font-family:var(--display);
-  font-size:28px;letter-spacing:.04em;color:#fff;
+  font-size:35px;letter-spacing:.04em;color:#fff;
 }
 .hist-hd.yellow-bg .hist-hd-lbl{ color:var(--ink) }
 
@@ -688,7 +670,7 @@ body{
   background:var(--card);
 }
 .hist-rank{
-  font-family:var(--display);font-size:32px;
+  font-family:var(--display);font-size:40px;
   color:var(--muted);text-align:center;
 }
 .hist-rank.g{ color:#E8A000 }
@@ -697,15 +679,15 @@ body{
 .h-info{ display:flex;align-items:center;gap:9px;min-width:0;flex:1 }
 .h-name{
   font-family:var(--display);
-  font-size:18px;letter-spacing:.03em;
+  font-size:22px;letter-spacing:.03em;
   text-transform:uppercase;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
 }
 .h-det{ font-family:var(--display);font-size:13px;letter-spacing:.04em;color:var(--muted);margin-top:3px }
 .h-val{
   font-family:var(--display);
-  font-size:56px;color:var(--pink);
-  line-height:.88;
+  font-size:70px;color:var(--pink);
+  line-height:.85;
 }
 .h-val.pur{ color:var(--purple) }
 .h-val.grn{ color:#1a6b1a }
@@ -725,7 +707,7 @@ body{
 }
 .rec-v{
   font-family:var(--display);
-  font-size:52px;color:var(--ink);line-height:.92;
+  font-size:65px;color:var(--ink);line-height:.88;
 }
 .rec-d{ font-size:12px;color:var(--muted);margin-top:5px;line-height:1.35 }
 
@@ -1167,8 +1149,8 @@ body{
   body{ max-width:100%;font-size:16px }
 
   /* Pick */
-  .pick-hero{ padding:52px 48px 0 }
-  .pick-title{ font-size:100px }
+  .pick-hero{ padding:14px 32px }
+
   .ctry-list{ grid-template-columns:repeat(8,1fr) }
   .ctry-tile .flat-flag{ width:52px!important;height:36px!important }
   .ctry-tile .flat-flag svg{ width:52px!important;height:36px!important }
@@ -1224,13 +1206,13 @@ body{
   .mc-tn{ font-size:18px }
 
   .fix-card{ padding:14px 28px;grid-template-columns:1fr 60px 1fr }
-  .fix-t{ font-size:16px }
+  .fix-t{ font-size:28px }
 
   .grp-tbl th{ padding:8px 20px }
-  .grp-tbl td{ padding:12px 20px;font-size:22px }
-  .grp-title{ font-size:32px }
-  .t-name{ font-size:22px }
-  .t-pts{ font-size:28px }
+  .grp-tbl td{ padding:10px 20px;font-size:18px }
+  .grp-title{ font-size:26px }
+  .t-name{ font-size:18px }
+  .t-pts{ font-size:22px }
 
   #p-hist.on .sec{ grid-column:1/-1 }
   .rec-grid.span-all{
@@ -1238,7 +1220,7 @@ body{
     grid-template-columns:repeat(4,1fr);
   }
   .hist-row{ padding:12px 28px }
-  .h-val{ font-size:52px }
+  .h-val{ font-size:72px }
 
   .dyk-card{ padding:32px 40px 40px;max-width:700px;margin:0 auto }
   .dyk-title{ font-size:56px }
@@ -1262,8 +1244,8 @@ body{
 }
 
 @media(min-width:1200px){
-  .pick-hero{ padding:72px 80px 0 }
-  .pick-title{ font-size:120px }
+  .pick-hero{ padding:16px 48px }
+
   .ctry-list{ grid-template-columns:repeat(12,1fr) }
   .app-top{ padding:16px 48px }
   .bottom-nav{ padding-left:48px }
