@@ -589,7 +589,7 @@ body{
    GROUPS
    ============================================================ */
 
-.grp-block{ border-bottom:1px solid var(--rule);overflow:hidden }
+.grp-block{ border-bottom:1px solid var(--rule);overflow:hidden;position:relative }
 
 .grp-hd{
   background:var(--ink);
@@ -602,7 +602,7 @@ body{
   line-height:1;
 }
 
-.grp-tbl{ width:100%;border-collapse:collapse;table-layout:fixed;margin:0 }
+.grp-tbl{ width:100%;border-collapse:collapse;border-spacing:0;table-layout:fixed;margin:0;display:table }
 .grp-tbl th{
   font-family:var(--display);
   font-size:13px;letter-spacing:.12em;
@@ -611,7 +611,7 @@ body{
   text-align:right;
   background:var(--paper);border-bottom:1px solid var(--rule);
 }
-.grp-tbl th:first-child{ text-align:left }
+.grp-tbl th:first-child{ text-align:left;padding-left:var(--pad) }
 .grp-tbl td{
   padding:12px var(--pad) 10px;text-align:right;
   border-bottom:1px solid var(--rule);
@@ -620,7 +620,7 @@ body{
   font-size:28px;line-height:1;
   letter-spacing:.02em;
 }
-.grp-tbl td:first-child{ text-align:left;padding-left:var(--pad) }
+.grp-tbl td:first-child,.grp-tbl th:first-child{ text-align:left;padding-left:var(--pad) }
 
 /* Qualification rows — subtle background only, no side border */
 .grp-tbl tr.qual td{ background:var(--faint) }
@@ -1269,8 +1269,9 @@ body{
 }
 .stats-section-title{
   font-family:var(--display);
-  font-size:22px;letter-spacing:.05em;
+  font-size:20px;letter-spacing:.04em;
   color:var(--yellow);line-height:1;
+  white-space:nowrap;
 }
 
 .stats-row{
@@ -1295,7 +1296,7 @@ body{
 }
 .stats-name{
   font-family:var(--display);
-  font-size:20px;letter-spacing:.03em;
+  font-size:18px;letter-spacing:.03em;
   line-height:1;white-space:nowrap;
   overflow:hidden;text-overflow:ellipsis;
 }

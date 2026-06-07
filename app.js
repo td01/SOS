@@ -488,6 +488,27 @@ function buildStats() {
     '</div>' +
   '</div>';
 
+  // ── ALL-TIME HISTORY (top 5 each) ──
+  html += '<div class="stats-section">' +
+    '<div class="stats-section-hd"><div class="stats-section-title">⚽ All-time Scorers</div></div>' +
+    ALL_TIME_SCORERS.slice(0,5).map(function(s,i){ return statsRow(i+1,s.c,s.n,s.c+' · '+s.yrs,s.goals,'goals',false); }).join('') +
+  '</div>';
+
+  html += '<div class="stats-section">' +
+    '<div class="stats-section-hd"><div class="stats-section-title">👟 Golden Shoe</div></div>' +
+    GOLDEN_SHOE.slice(0,5).map(function(g,i){ return statsRow(i+1,g.c,g.n,String(g.yr),g.goals,'assists',false); }).join('') +
+  '</div>';
+
+  html += '<div class="stats-section">' +
+    '<div class="stats-section-hd"><div class="stats-section-title">🏆 Most Titles</div></div>' +
+    TOURNAMENT_WINNERS.slice(0,5).map(function(w,i){ return statsRow(i+1,w.c,w.n,w.yrs,'×'+w.t,'yellow-stat',false); }).join('') +
+  '</div>';
+
+  html += '<div class="stats-section">' +
+    '<div class="stats-section-hd"><div class="stats-section-title">⚡ Records</div></div>' +
+    RECORDS.map(function(r){ return '<div class="stats-row"><div class="stats-info"><div class="stats-name">' + r.t + '</div><div class="stats-sub">' + r.d + '</div></div><div class="stats-val goals">' + r.v + '</div></div>'; }).join('') +
+  '</div>';
+
   pane.innerHTML = html;
 }
 

@@ -3,7 +3,7 @@
 
 var FLAG_DEFS = {
   ARG: { s:'h',  c:['#74ACDF','#FFF','#74ACDF'] },
-  BRA: { s:'d',  c:['#009C3B','#FFDF00'] },
+  BRA: { s:'bra', c:['#009C3B','#FFDF00','#002776'] },
   ENG: { s:'cross', c:['#FFF','#CF142B'] },
   FRA: { s:'v',  c:['#002395','#FFF','#ED2939'] },
   GER: { s:'h',  c:['#111','#DD0000','#FFCE00'] },
@@ -16,7 +16,7 @@ var FLAG_DEFS = {
   MEX: { s:'v',  c:['#006847','#FFF','#CE1126'] },
   CAN: { s:'v',  c:['#FF0000','#FFF','#FF0000'] },
   AUS: { s:'aus',c:['#00008B','#FF0000','#FFF'] },
-  KOR: { s:'circ',c:['#FFF','#CD2E3A'] },
+  KOR: { s:'kor', c:['#FFF','#CD2E3A','#003478'] },
   SEN: { s:'v',  c:['#00853F','#FDEF42','#E31B23'] },
   NGA: { s:'v',  c:['#008751','#FFF','#008751'] },
   COL: { s:'h3', c:['#FCD116','#003087','#CE1126'] },
@@ -117,6 +117,56 @@ function svgFlag(code, w, h) {
       b = `<rect width="${w}" height="${h}" fill="${c[0]}"/>
            <polygon points="${w2},0 ${w},${h2} ${w2},${h} 0,${h2}" fill="${c[1]}"/>`;
       break;
+    case 'bra': {
+      // Brazil: green base, yellow diamond, blue circle, white band
+      const bx = t(w*0.1), by = t(h*0.18);
+      const bw = w - bx*2, bh = h - by*2;
+      b = `<rect width="${w}" height="${h}" fill="${c[0]}"/>
+           <polygon points="${w2},${by} ${w-bx},${h2} ${w2},${h-by} ${bx},${h2}" fill="${c[1]}"/>
+           <circle cx="${w2}" cy="${h2}" r="${t(h*0.28)}" fill="${c[2]}"/>
+           <ellipse cx="${w2}" cy="${h2}" rx="${t(w*0.26)}" ry="${t(h*0.09)}" fill="none" stroke="#FFF" stroke-width="${t(h*0.06)}"/>`;
+      break;
+    }
+    case 'kor': {
+      // South Korea: white base, taeguk circle (red/blue yin-yang), 4 trigram bars
+      const r = t(h*0.28), cx2 = w2, cy2 = h2;
+      const rb = t(r*0.48);
+      // Black trigram bars (simplified as short thick lines)
+      const blen = t(r*0.9), bt = t(h*0.055), gap = t(h*0.09);
+      // Top-left bars (3 lines, geon)
+      const ang1 = -Math.PI*0.75;
+      const tx1 = t(cx2 + Math.cos(ang1)*(r+gap+blen/2)), ty1 = t(cy2 + Math.sin(ang1)*(r+gap+blen/2));
+      // Bottom-right bars (3 lines, gon)  
+      const ang2 = Math.PI*0.25;
+      const tx2 = t(cx2 + Math.cos(ang2)*(r+gap+blen/2)), ty2 = t(cy2 + Math.sin(ang2)*(r+gap+blen/2));
+      // Top-right (2 bars, gam)
+      const ang3 = -Math.PI*0.25;
+      const tx3 = t(cx2 + Math.cos(ang3)*(r+gap+blen/2)), ty3 = t(cy2 + Math.sin(ang3)*(r+gap+blen/2));
+      // Bottom-left (3 bars, li)
+      const ang4 = Math.PI*0.75;
+      const tx4 = t(cx2 + Math.cos(ang4)*(r+gap+blen/2)), ty4 = t(cy2 + Math.sin(ang4)*(r+gap+blen/2));
+
+      b = `<rect width="${w}" height="${h}" fill="#FFFFFF"/>
+           <circle cx="${cx2}" cy="${cy2}" r="${r}" fill="#CD2E3A"/>
+           <path d="M${cx2},${cy2-r} a${r},${r} 0 0,1 0,${r*2} a${rb},${rb} 0 0,1 0,-${rb*2} a${rb},${rb} 0 0,0 0,-${rb*2} z" fill="#003478"/>
+           <g stroke="#000" stroke-width="${bt}" stroke-linecap="round" transform="rotate(-45,${cx2},${cy2})">
+             <line x1="${cx2-blen/2}" y1="${cy2-r-gap}" x2="${cx2+blen/2}" y2="${cy2-r-gap}"/>
+             <line x1="${cx2-blen/2}" y1="${cy2-r-gap-bt*2}" x2="${cx2+blen/2}" y2="${cy2-r-gap-bt*2}"/>
+             <line x1="${cx2-blen/2}" y1="${cy2-r-gap-bt*4}" x2="${cx2+blen/2}" y2="${cy2-r-gap-bt*4}"/>
+             <line x1="${cx2-blen/2}" y1="${cy2+r+gap}" x2="${cx2+blen/2}" y2="${cy2+r+gap}"/>
+             <line x1="${cx2-blen/2}" y1="${cy2+r+gap+bt*2}" x2="${cx2+blen/2}" y2="${cy2+r+gap+bt*2}"/>
+             <line x1="${cx2-blen/2}" y1="${cy2+r+gap+bt*4}" x2="${cx2+blen/2}" y2="${cy2+r+gap+bt*4}"/>
+           </g>
+           <g stroke="#000" stroke-width="${bt}" stroke-linecap="round" transform="rotate(45,${cx2},${cy2})">
+             <line x1="${cx2-blen/2}" y1="${cy2-r-gap}" x2="${cx2+blen/2}" y2="${cy2-r-gap}"/>
+             <line x1="${cx2-blen/2}" y1="${cy2-r-gap-bt*2}" x2="${t(cx2)}" y2="${cy2-r-gap-bt*2}"/>
+             <line x1="${cx2-blen/2}" y1="${cy2-r-gap-bt*4}" x2="${cx2+blen/2}" y2="${cy2-r-gap-bt*4}"/>
+             <line x1="${cx2-blen/2}" y1="${cy2+r+gap}" x2="${cx2+blen/2}" y2="${cy2+r+gap}"/>
+             <line x1="${cx2-blen/2}" y1="${cy2+r+gap+bt*2}" x2="${cx2+blen/2}" y2="${cy2+r+gap+bt*2}"/>
+             <line x1="${cx2-blen/2}" y1="${cy2+r+gap+bt*4}" x2="${t(cx2+blen/4)}" y2="${cy2+r+gap+bt*4}"/>
+           </g>`;
+      break;
+    }
     case 'usa':
       b = `<rect width="${w}" height="${h}" fill="${c[0]}"/>
            <rect y="${t(h*.13)}" width="${w}" height="${t(h*.13)}" fill="${c[1]}"/>
