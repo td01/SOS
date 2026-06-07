@@ -863,21 +863,45 @@ body{
 
 /* Hero */
 .pp-hero{
-  padding:4px 16px 18px;
+  display:flex;align-items:stretch;
   border-bottom:1px solid #ffffff15;
+  min-height:140px;
+}
+.pp-photo-wrap{
+  width:110px;flex-shrink:0;
+  background:#ffffff08;
+  display:flex;align-items:center;justify-content:center;
+  overflow:hidden;
+  border-right:1px solid #ffffff10;
+}
+.pp-photo-placeholder{
+  display:flex;align-items:center;justify-content:center;
+  width:80px;height:80px;
+}
+.pp-photo{
+  width:110px;
+  height:100%;
+  object-fit:cover;
+  object-position:top center;
+  display:block;
+}
+.pp-hero-text{
+  padding:14px 16px 14px;
+  display:flex;flex-direction:column;justify-content:center;gap:4px;
+  min-width:0;
 }
 .pp-flag-wrap{
-  margin-bottom:8px;
   display:flex;align-items:center;gap:8px;
+  margin-bottom:2px;
 }
 .pp-name{
   font-family:'Bebas Neue',sans-serif;
-  font-size:46px;line-height:.9;
+  font-size:38px;line-height:.9;
   color:#fff;
-  margin-bottom:4px;
+  margin-bottom:2px;
 }
 .pp-meta{
-  font-size:13px;font-weight:600;
+  font-size:12px;font-weight:600;
   color:#ffffff70;
   letter-spacing:.04em;
   text-transform:uppercase;
@@ -987,4 +1011,21 @@ body{
   .pp-season-val{font-size:64px}
   .pp-fact{font-size:14px}
   .app-logo{font-size:28px}
+}
+
+/* ── PHOTO ATTRIBUTION ── */
+.pp-attribution{
+  padding:8px 16px;
+  font-size:10px;
+  color:#ffffff30;
+  border-top:1px solid #ffffff08;
+  text-align:center;
+}
+.pp-attribution a{color:#ffffff50;text-decoration:none}
+
+/* ── DESKTOP PLAYER PHOTO ── */
+@media(min-width:768px){
+  .pp-photo-wrap{width:160px}
+  .pp-photo{width:160px}
+  .pp-name{font-size:52px}
 }

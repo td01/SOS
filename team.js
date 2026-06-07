@@ -109,39 +109,49 @@ function openPlayer(teamCode, playerName) {
 
   const teamFlag = svgFlag(teamCode, 24, 17);
   const overlay  = document.getElementById('player-overlay');
-  const content  = document.getElementById('player-content');
+  const el       = document.getElementById('player-content');
 
   const statItems = [
-    { v: p.age,        l: 'Age'          },
-    { v: p.caps,       l: 'Caps'         },
-    { v: p.intlGoals,  l: 'Intl goals'   },
-    { v: p.wcGoals,    l: 'WC goals'     },
-    { v: p.wcApps,     l: 'WC apps'      },
-    { v: p.height,     l: 'Height'       },
+    { v: p.age,        l: 'Age'        },
+    { v: p.caps,       l: 'Caps'       },
+    { v: p.intlGoals,  l: 'Intl goals' },
+    { v: p.wcGoals,    l: 'WC goals'   },
+    { v: p.wcApps,     l: 'WC apps'   },
+    { v: p.height,     l: 'Height'     },
   ].filter(s => s.v !== null && s.v !== undefined);
 
-  const factsHtml = p.facts.map(f =>
+  const factsHtml  = p.facts.map(f =>
     `<div class="pp-fact"><span class="pp-fact-dot">●</span>${f}</div>`
   ).join('');
-
-  const quoteHtml = p.quote ? `<div class="pp-quote">${p.quote}</div>` : '';
-
-  const seasonStat = p.stats.clubGoals25_26
+  const quoteHtml  = p.quote ? `<div class="pp-quote">${p.quote}</div>` : '';
+  const seasonStat = p.stats && p.stats.clubGoals25_26
     ? `<div class="pp-season">
-        <div class="pp-season-val">${p.stats.clubGoals25_26}</div>
-        <div class="pp-season-label">Club goals 2025–26</div>
+         <div class="pp-season-val">${p.stats.clubGoals25_26}</div>
+         <div class="pp-season-label">Club goals 2025–26</div>
        </div>`
     : '';
 
-  content.innerHTML = `
+  // Build initial HTML with placeholder image
+  el.innerHTML = `
     <div class="pp-header">
       <button class="pp-back" onclick="closePlayer()" aria-label="Back">‹ Back</button>
       <div class="pp-number">${p.number || ''}</div>
     </div>
     <div class="pp-hero">
-      <div class="pp-flag-wrap">${teamFlag}</div>
-      <div class="pp-name">${p.full}</div>
-      <div class="pp-meta">${p.pos} · ${p.club}</div>
+      <div class="pp-photo-wrap">
+        <div class="pp-photo-placeholder" id="pp-photo-placeholder">
+          <svg viewBox="0 0 80 80" width="80" height="80" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="40" cy="30" r="18" fill="#ffffff30"/>
+            <ellipse cx="40" cy="72" rx="28" ry="20" fill="#ffffff30"/>
+          </svg>
+        </div>
+        <img id="pp-photo" class="pp-photo" style="display:none" alt="${p.full}"/>
+      </div>
+      <div class="pp-hero-text">
+        <div class="pp-flag-wrap">${teamFlag}</div>
+        <div class="pp-name">${p.full}</div>
+        <div class="pp-meta">${p.pos} · ${p.club}</div>
+      </div>
     </div>
     <div class="pp-stats-grid">
       ${statItems.map(s => `
@@ -153,10 +163,34 @@ function openPlayer(teamCode, playerName) {
     ${seasonStat}
     ${quoteHtml}
     <div class="pp-section-label">Key facts</div>
-    <div class="pp-facts">${factsHtml}</div>`;
+    <div class="pp-facts">${factsHtml}</div>
+    <div class="pp-attribution">Images via <a href="https://en.wikipedia.org" target="_blank">Wikipedia</a> (CC-BY-SA) · editorial use</div>`;
 
   overlay.classList.add('open');
-  content.scrollTop = 0;
+  el.scrollTop = 0;
+
+  // Fetch Wikipedia thumbnail asynchronously
+  fetchWikiImage(p.full);
+}
+
+function fetchWikiImage(name) {
+  const url = 'https://en.wikipedia.org/api/rest_v1/page/summary/' + encodeURIComponent(name.replace(/ /g,'_'));
+  fetch(url)
+    .then(r => r.ok ? r.json() : null)
+    .then(data => {
+      const thumb = data && data.thumbnail && data.thumbnail.source;
+      const img   = document.getElementById('pp-photo');
+      const ph    = document.getElementById('pp-photo-placeholder');
+      if (thumb && img) {
+        img.src = thumb;
+        img.onload = function() {
+          img.style.display = 'block';
+          if (ph) ph.style.display = 'none';
+        };
+        img.onerror = function() { /* keep placeholder */ };
+      }
+    })
+    .catch(() => { /* keep placeholder */ });
 }
 
 function closePlayer() {
