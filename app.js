@@ -84,8 +84,9 @@ function tab(id, btn) {
   document.getElementById('p-' + id).classList.add('on');
   document.querySelectorAll('.bnav-btn').forEach(function(b){ b.classList.remove('on'); });
   btn.classList.add('on');
-  if (id === 'dyk')  buildDyk();
-  if (id === 'live') buildLive();
+  if (id === 'dyk')   buildDyk();
+  if (id === 'live')  buildLive();
+  if (id === 'stats') buildStats();
 }
 
 // ─── HELPERS ──────────────────────────────────────────────────────────────────
@@ -199,9 +200,12 @@ function buildLive() {
     '<div class="stat-cell"><div class="stat-v hot">' + myCount + '</div><div class="stat-l">Your games</div></div>' +
     '<div class="stat-cell"><div class="stat-v">' + (totalGoals || '—') + '</div><div class="stat-l">Goals today</div></div>';
 
-  // Live matches
-  document.getElementById('live-wrap').innerHTML = LIVE_MATCHES.length
-    ? LIVE_MATCHES.map(function(m){ return matchCard(m, true); }).join('')
+  // Live matches — selected teams float to top
+  var liveSorted = LIVE_MATCHES.slice().sort(function(a,b){
+    return (isMine(b) ? 1 : 0) - (isMine(a) ? 1 : 0);
+  });
+  document.getElementById('live-wrap').innerHTML = liveSorted.length
+    ? liveSorted.map(function(m){ return matchCard(m, true); }).join('')
     : buildEmptyState();
 
   // Completed
@@ -345,6 +349,146 @@ function buildHistory() {
         return '<div class="rec-tile"><div class="rec-t">'+r.t+'</div><div class="rec-v">'+r.v+'</div><div class="rec-d">'+r.d+'</div></div>';
       }).join('') +
     '</div>';
+}
+
+
+// ─── STATS TAB ────────────────────────────────────────────────────────────────
+
+// Derive stats from mock live + completed data
+function getTournamentStats() {
+  var allMatches = [...LIVE_MATCHES, ...COMPLETED];
+  var mn = myTeamNames();
+
+  // Top scorers — from events
+  var scorers = {};
+  LIVE_MATCHES.forEach(function(m) {
+    (m.events || []).forEach(function(e) {
+      if (!e.text.includes('GOAL')) return;
+      var name = e.text.replace('GOAL — ', '').replace(' (pen)','');
+      var team = e.team;
+      if (!scorers[name]) scorers[name] = { name:name, team:team, goals:0, pen:0 };
+      scorers[name].goals++;
+      if (e.text.includes('pen')) scorers[name].pen++;
+    });
+  });
+  // Add some mock scorers for completed games
+  var mockScorers = [
+    { name:'Vinicius Jr',  team:'BRA', goals:2, pen:0 },
+    { name:'Endrick',      team:'BRA', goals:1, pen:0 },
+    { name:'Mbappé',       team:'FRA', goals:2, pen:0 },
+    { name:'Griezmann',    team:'FRA', goals:1, pen:0 },
+    { name:'Thuram',       team:'FRA', goals:1, pen:0 },
+    { name:'Harry Kane',   team:'ENG', goals:1, pen:1 },
+    { name:'Morgan Rogers',team:'ENG', goals:1, pen:0 },
+    { name:'Marc Guehi',   team:'ENG', goals:1, pen:0 },
+    { name:'Musiala',      team:'GER', goals:1, pen:0 },
+    { name:'Havertz',      team:'GER', goals:1, pen:0 },
+    { name:'Wirtz',        team:'GER', goals:1, pen:0 },
+    { name:'Lionel Messi', team:'ARG', goals:1, pen:0 },
+    { name:'McTominay',    team:'SCO', goals:1, pen:0 },
+    { name:'Raúl Jiménez', team:'MEX', goals:2, pen:0 },
+    { name:'H. Ziyech',    team:'MAR', goals:1, pen:0 },
+    { name:'Raphinha',     team:'BRA', goals:1, pen:0 },
+  ];
+  mockScorers.forEach(function(s) {
+    if (!scorers[s.name]) scorers[s.name] = s;
+    else scorers[s.name].goals += s.goals;
+  });
+  var scorerList = Object.values(scorers).sort(function(a,b){ return b.goals - a.goals; }).slice(0,10);
+
+  // Team goals
+  var teamGoals = {};
+  allMatches.forEach(function(m) {
+    teamGoals[m.hc] = (teamGoals[m.hc]||0) + m.hs;
+    teamGoals[m.ac] = (teamGoals[m.ac]||0) + m.as;
+  });
+  var teamGoalList = Object.entries(teamGoals)
+    .map(function(e){ var t=TEAMS.find(function(x){return x.c===e[0];}); return { code:e[0], name:t?t.n:e[0], goals:e[1] }; })
+    .sort(function(a,b){ return b.goals-a.goals; }).slice(0,6);
+
+  // Clean sheets (mock)
+  var cleanSheets = [
+    { name:'Yassine Bounou', team:'MAR', code:'MAR', cs:1 },
+    { name:'Matt Turner',    team:'USA', code:'USA', cs:1 },
+    { name:'Emiliano Martínez', team:'ARG', code:'ARG', cs:1 },
+  ];
+
+  return { scorerList:scorerList, teamGoalList:teamGoalList, cleanSheets:cleanSheets };
+}
+
+function statsRow(rank, code, name, sub, val, valClass, isMineRow) {
+  var rc = rank===1?'g':rank===2?'s':rank===3?'b':'';
+  return '<div class="stats-row' + (isMineRow?' mine':'') + '">' +
+    '<div class="stats-rank' + (rc?' '+rc:'') + '">' + rank + '</div>' +
+    ff(code, 28, 20) +
+    '<div class="stats-info">' +
+      '<div class="stats-name">' + name + '</div>' +
+      '<div class="stats-sub">' + sub + '</div>' +
+    '</div>' +
+    '<div class="stats-val ' + valClass + '">' + val + '</div>' +
+    '</div>';
+}
+
+function buildStats() {
+  var mn = myTeamNames();
+  var s  = getTournamentStats();
+  var pane = document.getElementById('p-stats');
+  if (!pane) return;
+
+  var html = '';
+
+  // ── TOP SCORERS ──
+  html += '<div class="stats-section">' +
+    '<div class="stats-section-hd"><div class="stats-section-title">⚽ Top Scorers</div></div>';
+  s.scorerList.forEach(function(p, i) {
+    var t = TEAMS.find(function(x){return x.c===p.team;});
+    var sub = (t?t.n:p.team) + (p.pen?' · '+p.pen+' pen':'');
+    html += statsRow(i+1, p.team, p.name, sub, p.goals, 'goals', mn.includes(t?t.n:''));
+  });
+  html += '</div>';
+
+  // ── TEAM GOALS ──
+  html += '<div class="stats-section">' +
+    '<div class="stats-section-hd"><div class="stats-section-title">🏟 Most Goals</div></div>' +
+    '<div class="stats-team-grid">';
+  s.teamGoalList.forEach(function(t) {
+    var isMineTeam = mn.includes(t.name);
+    html += '<div class="stats-team-cell' + (isMineTeam?' mine':'') + '">' +
+      ff(t.code, 32, 22) +
+      '<div>' +
+        '<div class="stats-team-label">Goals</div>' +
+        '<div class="stats-team-name">' + t.name + '</div>' +
+      '</div>' +
+      '<div class="stats-team-val">' + t.goals + '</div>' +
+      '</div>';
+  });
+  html += '</div></div>';
+
+  // ── CLEAN SHEETS ──
+  html += '<div class="stats-section">' +
+    '<div class="stats-section-hd"><div class="stats-section-title">🧤 Clean Sheets</div></div>';
+  s.cleanSheets.forEach(function(p, i) {
+    var t = TEAMS.find(function(x){return x.c===p.code;});
+    html += statsRow(i+1, p.code, p.name, t?t.n:p.team, p.cs, 'clean', mn.includes(t?t.n:''));
+  });
+  html += '</div>';
+
+  // ── TOURNAMENT OVERVIEW ──
+  var totalGoals   = [...LIVE_MATCHES,...COMPLETED].reduce(function(s,m){return s+m.hs+m.as;},0);
+  var totalMatches = [...LIVE_MATCHES,...COMPLETED].length;
+  var avgGoals     = totalMatches ? (totalGoals/totalMatches).toFixed(1) : '—';
+
+  html += '<div class="stats-section">' +
+    '<div class="stats-section-hd"><div class="stats-section-title">📊 Tournament</div></div>' +
+    '<div class="stats-team-grid">' +
+      '<div class="stats-team-cell"><div><div class="stats-team-label">Matches played</div><div class="stats-team-name">All groups</div></div><div class="stats-team-val" style="color:var(--ink)">' + totalMatches + '</div></div>' +
+      '<div class="stats-team-cell"><div><div class="stats-team-label">Goals scored</div><div class="stats-team-name">Tournament</div></div><div class="stats-team-val">' + totalGoals + '</div></div>' +
+      '<div class="stats-team-cell"><div><div class="stats-team-label">Goals per game</div><div class="stats-team-name">Average</div></div><div class="stats-team-val" style="color:var(--purple)">' + avgGoals + '</div></div>' +
+      '<div class="stats-team-cell"><div><div class="stats-team-label">Red cards</div><div class="stats-team-name">Tournament</div></div><div class="stats-team-val" style="color:#cc2200">2</div></div>' +
+    '</div>' +
+  '</div>';
+
+  pane.innerHTML = html;
 }
 
 // ─── INIT ─────────────────────────────────────────────────────────────────────
