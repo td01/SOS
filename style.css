@@ -126,12 +126,11 @@ body{
 .ctry-list{
   display:grid;
   grid-template-columns:repeat(3,1fr);
-  background:var(--paper);
+  background:var(--rule);
+  gap:1px;
 }
 .ctry-tile{
   background:var(--card);
-  border-right:1px solid var(--rule);
-  border-bottom:1px solid var(--rule);
   padding:10px 4px 8px;
   display:flex;flex-direction:column;align-items:center;gap:5px;
   cursor:pointer;transition:background .08s;
@@ -339,10 +338,12 @@ body{
 .stat-cell{
   background:var(--card);
   padding:16px var(--pad);
+  text-align:left;
 }
 .stat-v{
   font-family:var(--display);
   font-size:64px;color:var(--ink);line-height:.9;
+  text-align:left;display:block;
 }
 .stat-v.hot{color:var(--pink)}
 .stat-l{
@@ -350,6 +351,7 @@ body{
   font-size:12px;letter-spacing:.12em;
   text-transform:uppercase;
   color:var(--muted);margin-top:4px;
+  text-align:left;display:block;
 }
 
 /* ============================================================
@@ -551,12 +553,21 @@ body{
   display:grid;
   grid-template-columns:1fr 64px 1fr;
   align-items:center;gap:8px;
-  border-left:3px solid transparent;
-  transition:border-color .1s;
+  /* no border-left — never shifts content */
 }
 .fix-card.mine{
-  border-left-color:var(--pink);
-  background:var(--faint);
+  background:var(--lav);
+  /* Inset box-shadow = left accent, zero layout impact */
+  box-shadow:inset 5px 0 0 var(--pink);
+}
+/* Team name colour in your-team rows */
+.fix-card.mine .fix-t{
+  color:var(--purple);
+}
+/* Time in pink stays, but bolder */
+.fix-card.mine .fix-time{
+  color:var(--pink);
+  font-size:24px;
 }
 .fix-t{
   font-family:var(--display);
@@ -1148,7 +1159,7 @@ body{
   /* Pick */
   .pick-hero{ padding:14px 32px 12px }
 
-  .ctry-list{ grid-template-columns:repeat(8,1fr) }
+  .ctry-list{ grid-template-columns:repeat(8,1fr);gap:1px;background:var(--rule) }
   .ctry-tile .flat-flag{ width:52px!important;height:36px!important }
   .ctry-tile .flat-flag svg{ width:52px!important;height:36px!important }
   .pick-footer{ padding:16px 48px }
@@ -1246,7 +1257,7 @@ body{
 @media(min-width:1200px){
   .pick-hero{ padding:14px 48px 12px }
 
-  .ctry-list{ grid-template-columns:repeat(12,1fr) }
+  .ctry-list{ grid-template-columns:repeat(12,1fr);gap:1px;background:var(--rule) }
   .app-top{ padding:16px 48px }
   .bottom-nav{ padding-left:48px }
   .sec,.day-lbl{ padding-left:48px;padding-right:48px }
