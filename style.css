@@ -291,7 +291,7 @@ body{
 .bnav-icon{font-size:16px}
 .bnav-label{
   font-family:var(--display);
-  font-size:9px;letter-spacing:.1em;
+  font-size:14px;letter-spacing:.06em;
 }
 
 /* ============================================================
@@ -571,9 +571,9 @@ body{
 }
 .fix-t{
   font-family:var(--display);
-  font-size:30px;letter-spacing:.02em;
+  font-size:21px;letter-spacing:.02em;
   text-transform:uppercase;
-  display:flex;align-items:center;gap:10px;
+  display:flex;align-items:center;gap:8px;
   line-height:1;
 }
 .fix-t.r{ flex-direction:row-reverse }
@@ -608,7 +608,7 @@ body{
 }
 .grp-title{
   font-family:var(--display);
-  font-size:40px;color:var(--yellow);letter-spacing:.04em;
+  font-size:30px;color:var(--yellow);letter-spacing:.04em;
   line-height:1;
 }
 
@@ -623,11 +623,11 @@ body{
 }
 .grp-tbl th:first-child{ text-align:left;padding-left:var(--pad) }
 .grp-tbl td{
-  padding:12px var(--pad) 10px;text-align:right;
+  padding:10px var(--pad) 8px;text-align:right;
   border-bottom:1px solid var(--rule);
   background:var(--card);
   font-family:var(--display);
-  font-size:28px;line-height:1;
+  font-size:20px;line-height:1;
   letter-spacing:.02em;
 }
 .grp-tbl td:first-child,.grp-tbl th:first-child{ text-align:left;padding-left:var(--pad) }
@@ -643,14 +643,14 @@ body{
 
 .t-name{
   font-family:var(--display);
-  font-size:28px;letter-spacing:.02em;
-  display:flex;align-items:center;gap:10px;
+  font-size:20px;letter-spacing:.02em;
+  display:flex;align-items:center;gap:8px;
   line-height:1;
 }
 .t-name > *{ vertical-align:middle;align-self:center }
 .t-pts{
   font-family:var(--display);
-  font-size:33px;color:var(--ink);line-height:1;
+  font-size:24px;color:var(--ink);line-height:1;
 }
 .qdot{ display:none }
 
@@ -1276,12 +1276,12 @@ body{
 }
 .stats-section-hd{
   background:var(--ink);
-  padding:11px var(--pad) 9px;
+  padding:13px var(--pad) 11px;
   display:flex;align-items:center;justify-content:space-between;
 }
 .stats-section-title{
   font-family:var(--display);
-  font-size:20px;letter-spacing:.04em;
+  font-size:28px;letter-spacing:.04em;
   color:var(--yellow);line-height:1;
   white-space:nowrap;
 }
@@ -1296,8 +1296,8 @@ body{
 .stats-row.mine{ background:var(--lav) }
 .stats-rank{
   font-family:var(--display);
-  font-size:28px;color:var(--muted);
-  min-width:28px;text-align:center;line-height:1;
+  font-size:39px;color:var(--muted);
+  min-width:36px;text-align:center;line-height:1;
 }
 .stats-rank.g{ color:#E8A000 }
 .stats-rank.s{ color:#AAA }
@@ -1308,19 +1308,19 @@ body{
 }
 .stats-name{
   font-family:var(--display);
-  font-size:18px;letter-spacing:.03em;
+  font-size:25px;letter-spacing:.02em;
   line-height:1;white-space:nowrap;
   overflow:hidden;text-overflow:ellipsis;
 }
 .stats-sub{
   font-family:var(--display);
-  font-size:12px;letter-spacing:.06em;
+  font-size:14px;letter-spacing:.05em;
   color:var(--muted);
 }
 .stats-val{
   font-family:var(--display);
-  font-size:44px;color:var(--pink);
-  line-height:.9;flex-shrink:0;
+  font-size:62px;color:var(--pink);
+  line-height:.88;flex-shrink:0;
 }
 .stats-val.goals{ color:var(--pink) }
 .stats-val.assists{ color:var(--purple) }
@@ -1358,4 +1358,44 @@ body{
   .stats-name{ font-size:22px }
   .stats-val{ font-size:52px }
   .stats-team-grid{ grid-template-columns:repeat(4,1fr) }
+}
+
+/* ── GROUPS LIVE TOGGLE ──────────────────────────────────────────────────────*/
+.groups-toolbar{
+  display:flex;align-items:center;gap:12px;
+  padding:10px var(--pad);
+  background:var(--paper);
+  border-bottom:2px solid var(--ink);
+  grid-column:1/-1;
+}
+.live-toggle{
+  font-family:var(--display);
+  font-size:14px;letter-spacing:.1em;
+  background:transparent;
+  border:2px solid var(--ink);
+  color:var(--ink);
+  padding:6px 14px;
+  cursor:pointer;
+  transition:all .12s;
+}
+.live-toggle:active{ opacity:.7 }
+.live-toggle.live-toggle-on{
+  background:var(--pink);
+  border-color:var(--pink);
+  color:#fff;
+}
+.live-toggle-note{
+  font-family:var(--display);
+  font-size:11px;letter-spacing:.08em;
+  color:var(--pink);
+  text-transform:uppercase;
+}
+.grp-block-live .grp-hd{
+  background:#1a0a12;
+}
+.grp-live-badge{
+  font-family:var(--display);
+  font-size:12px;letter-spacing:.1em;
+  color:var(--pink);
+  animation:pulse-opacity 1.2s ease-in-out infinite;
 }

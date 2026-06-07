@@ -281,25 +281,92 @@ function buildSchedule() {
 
 // ─── GROUPS ───────────────────────────────────────────────────────────────────
 
+var groupsShowLive = false;
+
+function toggleGroupsLive(btn) {
+  groupsShowLive = !groupsShowLive;
+  btn.textContent = groupsShowLive ? '● LIVE' : 'LIVE VIEW';
+  btn.classList.toggle('live-toggle-on', groupsShowLive);
+  buildGroups();
+}
+
+// Apply live match results to standings
+function getAdjustedGroups() {
+  if (!groupsShowLive || !LIVE_MATCHES.length) return GROUPS;
+
+  // Deep clone
+  var adj = {};
+  Object.entries(GROUPS).forEach(function(e) {
+    adj[e[0]] = e[1].map(function(t){ return Object.assign({},t); });
+  });
+
+  LIVE_MATCHES.forEach(function(m) {
+    // Find which group this match belongs to
+    var grp = adj[m.g];
+    if (!grp) return;
+    var home = grp.find(function(t){ return t.c === m.hc; });
+    var away = grp.find(function(t){ return t.c === m.ac; });
+    if (!home || !away) return;
+
+    // Apply current live score on top of existing stats
+    home.gf = (home.gf||0) + m.hs;
+    home.ga = (home.ga||0) + m.as;
+    away.gf = (away.gf||0) + m.as;
+    away.ga = (away.ga||0) + m.hs;
+    home.p  = (home.p||0) + 1;
+    away.p  = (away.p||0) + 1;
+
+    if (m.hs > m.as) {
+      home.w = (home.w||0)+1; home.pts = (home.pts||0)+3;
+      away.l = (away.l||0)+1;
+    } else if (m.as > m.hs) {
+      away.w = (away.w||0)+1; away.pts = (away.pts||0)+3;
+      home.l = (home.l||0)+1;
+    } else {
+      home.d = (home.d||0)+1; home.pts = (home.pts||0)+1;
+      away.d = (away.d||0)+1; away.pts = (away.pts||0)+1;
+    }
+  });
+  return adj;
+}
+
 function buildGroups() {
   var mn = myTeamNames();
-  document.getElementById('p-groups').innerHTML = Object.entries(GROUPS).map(function(entry){
+  var groups = getAdjustedGroups();
+
+  // Build toggle button
+  var toggleHtml = '<div class="groups-toolbar">' +
+    '<button class="live-toggle' + (groupsShowLive ? ' live-toggle-on' : '') +
+    '" onclick="toggleGroupsLive(this)">' +
+    (groupsShowLive ? '● LIVE' : 'LIVE VIEW') +
+    '</button>' +
+    (groupsShowLive ? '<span class="live-toggle-note">Standings updated with live scores</span>' : '') +
+    '</div>';
+
+  document.getElementById('p-groups').innerHTML = groupsShowLive
+    ? groupsShowLive && '<div class="groups-live-bar">● Live standings — updates as matches progress</div>'
+    : '';
+
+  document.getElementById('p-groups').innerHTML = toggleHtml + Object.entries(groups).map(function(entry){
     var grp = entry[0], rows = entry[1];
-    var sorted = [...rows].sort(function(a,b){
+    var sorted = rows.slice().sort(function(a,b){
       return (b.pts - a.pts) || ((b.gf - b.ga) - (a.gf - a.ga));
     });
-    return '<div class="grp-block">' +
-      '<div class="grp-hd"><div class="grp-title">Group ' + grp + '</div></div>' +
+    var isLive = groupsShowLive && LIVE_MATCHES.some(function(m){ return m.g === grp; });
+    return '<div class="grp-block' + (isLive ? ' grp-block-live' : '') + '">' +
+      '<div class="grp-hd">' +
+        '<div class="grp-title">Group ' + grp + '</div>' +
+        (isLive ? '<span class="grp-live-badge">● LIVE</span>' : '') +
+      '</div>' +
       '<table class="grp-tbl">' +
-        '<tr><th style="width:46%">Team</th><th style="width:18%">P</th><th style="width:18%">GD</th><th style="width:18%">Pts</th></tr>' +
+        '<tr><th style="width:54%">Team</th><th style="width:15%">P</th><th style="width:15%">GD</th><th style="width:16%">Pts</th></tr>' +
         sorted.map(function(t, i){
           var isQual = i < 2;
           var isMineRow = mn.includes(t.n);
           var rowClass = (isMineRow ? 'mine' : '') + (isQual ? ' qual' : '');
           return '<tr class="' + rowClass.trim() + '" onclick="openTeam(\'' + t.c + '\')" style="cursor:pointer">' +
             '<td><div class="t-name">' +
-              
-              '<span style="width:36px;height:25px;display:inline-block;overflow:hidden;flex-shrink:0;vertical-align:middle">' + svgFlag(t.c, 36, 25) + '</span>' +
+              '<span style="width:26px;height:18px;display:inline-block;overflow:hidden;flex-shrink:0;vertical-align:middle">' + svgFlag(t.c, 26, 18) + '</span>' +
               t.n +
             '</div></td>' +
             '<td>' + t.p + '</td>' +
