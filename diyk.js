@@ -22,6 +22,17 @@ function dykSetFilter(cat, btn) {
   document.querySelectorAll('.dyk-filter-btn').forEach(function(b){ b.classList.remove('on'); });
   btn.classList.add('on');
   initDyk();
+
+  // Attach touch listeners with passive:false so we can preventDefault
+  setTimeout(function() {
+    var card = document.getElementById('dyk-card');
+    if (card && !card._touchBound) {
+      card.addEventListener('touchstart', dykTouchStart, { passive:true });
+      card.addEventListener('touchmove',  dykTouchMove,  { passive:false });
+      card.addEventListener('touchend',   dykTouchEnd,   { passive:true });
+      card._touchBound = true;
+    }
+  }, 50);
 }
 
 function dykNext() {
@@ -53,22 +64,49 @@ function animateCard(dir) {
   card.classList.add(dir === 'next' ? 'slide-in-right' : 'slide-in-left');
 }
 
-// Touch/swipe handling
+// Touch/swipe handling — drag-responsive with visual feedback
 var dykTouchStartX = 0;
 var dykTouchStartY = 0;
+var dykDragging = false;
 
 function dykTouchStart(e) {
   dykTouchStartX = e.touches[0].clientX;
   dykTouchStartY = e.touches[0].clientY;
+  dykDragging = false;
+}
+
+function dykTouchMove(e) {
+  var dx = e.touches[0].clientX - dykTouchStartX;
+  var dy = e.touches[0].clientY - dykTouchStartY;
+  // Only intercept horizontal swipes
+  if (!dykDragging && Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 8) {
+    dykDragging = true;
+  }
+  if (dykDragging) {
+    e.preventDefault();
+    var card = document.getElementById('dyk-card');
+    if (card) {
+      var clamped = Math.max(-120, Math.min(120, dx));
+      card.style.transform = 'translateX(' + (clamped * 0.4) + 'px)';
+      card.style.opacity = 1 - Math.abs(clamped) / 300;
+    }
+  }
 }
 
 function dykTouchEnd(e) {
+  var card = document.getElementById('dyk-card');
+  if (card) {
+    card.style.transform = '';
+    card.style.opacity = '';
+  }
+  if (!dykDragging) return;
   var dx = e.changedTouches[0].clientX - dykTouchStartX;
   var dy = e.changedTouches[0].clientY - dykTouchStartY;
-  if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 40) {
+  if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 28) {
     if (dx < 0) dykNext();
     else dykPrev();
   }
+  dykDragging = false;
 }
 
 function renderDyk() {
@@ -117,7 +155,7 @@ function buildDyk() {
     '<div class="dyk-progress"><div class="dyk-progress-bar" id="dyk-progress-bar"></div></div>' +
     filters +
     '<div class="dyk-stage">' +
-      '<div class="dyk-card" id="dyk-card" ontouchstart="dykTouchStart(event)" ontouchend="dykTouchEnd(event)"></div>' +
+      '<div class="dyk-card" id="dyk-card"></div>' +
     '</div>' +
     '<div class="dyk-controls">' +
       '<button class="dyk-ctrl-btn" id="dyk-prev-btn" onclick="dykPrev()" aria-label="Previous fact">‹</button>' +
@@ -127,4 +165,15 @@ function buildDyk() {
     '<div class="dyk-hint">Swipe or tap arrows</div>';
 
   initDyk();
+
+  // Attach touch listeners with passive:false so we can preventDefault
+  setTimeout(function() {
+    var card = document.getElementById('dyk-card');
+    if (card && !card._touchBound) {
+      card.addEventListener('touchstart', dykTouchStart, { passive:true });
+      card.addEventListener('touchmove',  dykTouchMove,  { passive:false });
+      card.addEventListener('touchend',   dykTouchEnd,   { passive:true });
+      card._touchBound = true;
+    }
+  }, 50);
 }

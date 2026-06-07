@@ -128,7 +128,6 @@ body{
 .ctry-list{
   display:grid;
   grid-template-columns:repeat(3,1fr);
-  border-left:1px solid var(--rule);
   background:var(--paper);
 }
 .ctry-tile{
@@ -591,38 +590,38 @@ body{
    GROUPS
    ============================================================ */
 
-.grp-block{ border-bottom:1px solid var(--rule) }
+.grp-block{ border-bottom:1px solid var(--rule);overflow:hidden }
 
 .grp-hd{
   background:var(--ink);
-  padding:10px var(--pad) 8px;
+  padding:12px var(--pad) 10px;
   display:flex;align-items:center;justify-content:space-between;
 }
 .grp-title{
   font-family:var(--display);
-  font-size:24px;color:var(--yellow);letter-spacing:.05em;
+  font-size:40px;color:var(--yellow);letter-spacing:.04em;
   line-height:1;
 }
 
-.grp-tbl{ width:100%;border-collapse:collapse;table-layout:fixed }
+.grp-tbl{ width:100%;border-collapse:collapse;table-layout:fixed;margin:0 }
 .grp-tbl th{
   font-family:var(--display);
-  font-size:11px;letter-spacing:.14em;
+  font-size:13px;letter-spacing:.12em;
   text-transform:uppercase;color:var(--muted);
-  padding:7px var(--pad) 6px;
+  padding:8px var(--pad) 7px;
   text-align:right;
   background:var(--paper);border-bottom:1px solid var(--rule);
 }
 .grp-tbl th:first-child{ text-align:left }
 .grp-tbl td{
-  padding:9px var(--pad) 8px;text-align:right;
+  padding:12px var(--pad) 10px;text-align:right;
   border-bottom:1px solid var(--rule);
   background:var(--card);
   font-family:var(--display);
-  font-size:17px;line-height:1;
+  font-size:28px;line-height:1;
   letter-spacing:.02em;
 }
-.grp-tbl td:first-child{ text-align:left }
+.grp-tbl td:first-child{ text-align:left;padding-left:var(--pad) }
 
 /* Qualification rows — subtle background only, no side border */
 .grp-tbl tr.qual td{ background:var(--faint) }
@@ -635,14 +634,14 @@ body{
 
 .t-name{
   font-family:var(--display);
-  font-size:17px;letter-spacing:.03em;
-  display:flex;align-items:center;gap:8px;
+  font-size:28px;letter-spacing:.02em;
+  display:flex;align-items:center;gap:10px;
   line-height:1;
 }
 .t-name > *{ vertical-align:middle;align-self:center }
 .t-pts{
   font-family:var(--display);
-  font-size:20px;color:var(--ink);line-height:1;
+  font-size:33px;color:var(--ink);line-height:1;
 }
 .qdot{ display:none }
 
@@ -735,28 +734,25 @@ body{
 .dyk-filter-btn.on{ background:var(--ink);color:var(--yellow) }
 
 .dyk-stage{
-  padding:var(--pad);
-  min-height:320px;
+  padding:12px var(--pad);
+  min-height:300px;
   display:flex;align-items:stretch;
   background:var(--paper);
+  touch-action:pan-y;
 }
 .dyk-card{
   background:var(--card);
   border:1px solid var(--rule);
   border-top:5px solid var(--pink);
   padding:22px var(--pad) 28px;
-  width:100%;cursor:grab;
+  width:100%;
   position:relative;
   overflow:hidden;
+  will-change:transform;
+  user-select:none;
+  -webkit-user-select:none;
 }
-.dyk-card::after{
-  content:'';
-  position:absolute;
-  bottom:-20px;right:-20px;
-  width:80px;height:80px;
-  background:var(--paper);
-  transform:rotate(45deg);
-}
+.dyk-card::after{ display:none }
 .dyk-card:active{ cursor:grabbing }
 .dyk-cat{
   font-family:var(--display);
@@ -774,10 +770,10 @@ body{
   color:var(--ink);
 }
 
-@keyframes slideInRight{from{transform:translateX(48px);opacity:0}to{transform:translateX(0);opacity:1}}
-@keyframes slideInLeft {from{transform:translateX(-48px);opacity:0}to{transform:translateX(0);opacity:1}}
-.slide-in-right{ animation:slideInRight .22s cubic-bezier(.25,0,.25,1) }
-.slide-in-left { animation:slideInLeft  .22s cubic-bezier(.25,0,.25,1) }
+@keyframes slideInRight{from{transform:translateX(60px);opacity:0}to{transform:translateX(0);opacity:1}}
+@keyframes slideInLeft {from{transform:translateX(-60px);opacity:0}to{transform:translateX(0);opacity:1}}
+.slide-in-right{ animation:slideInRight .18s cubic-bezier(.22,1,.36,1) }
+.slide-in-left { animation:slideInLeft  .18s cubic-bezier(.22,1,.36,1) }
 
 .dyk-controls{
   display:flex;align-items:center;justify-content:space-between;
@@ -800,11 +796,14 @@ body{
 .dyk-hint{
   text-align:center;
   font-family:var(--display);
-  font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+  font-size:11px;letter-spacing:.14em;text-transform:uppercase;
   color:var(--muted);
-  padding:8px 0 10px;
+  padding:6px 0 10px;
   background:var(--paper);
+  display:flex;align-items:center;justify-content:center;gap:8px;
 }
+.dyk-hint::before{ content:'←' }
+.dyk-hint::after{ content:'→' }
 
 /* ============================================================
    TEAM OVERLAY

@@ -296,7 +296,7 @@ function buildGroups() {
           return '<tr class="' + rowClass.trim() + '" onclick="openTeam(\'' + t.c + '\')" style="cursor:pointer">' +
             '<td><div class="t-name">' +
               
-              '<span style="width:26px;height:18px;display:inline-block;overflow:hidden;flex-shrink:0;vertical-align:middle">' + svgFlag(t.c, 26, 18) + '</span>' +
+              '<span style="width:36px;height:25px;display:inline-block;overflow:hidden;flex-shrink:0;vertical-align:middle">' + svgFlag(t.c, 36, 25) + '</span>' +
               t.n +
             '</div></td>' +
             '<td>' + t.p + '</td>' +
