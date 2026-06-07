@@ -61,28 +61,34 @@ body{
 /* Hero */
 .pick-hero{
   background:var(--ink);
-  padding:12px var(--pad);
-  display:flex;align-items:center;justify-content:space-between;
-  border-bottom:3px solid var(--yellow);
+  padding:16px var(--pad) 0;
   position:relative;
+  border-bottom:3px solid var(--yellow);
 }
 .pick-hero-accent{ display:none }
 .pick-icon-row{ display:none }
 .pick-eyebrow{ display:none }
-.pick-title{ display:none }
+/* Title — big but 40% of full screenshot size */
+.pick-title{
+  font-family:var(--display);
+  font-size:56px;line-height:.84;
+  color:var(--card);
+  margin:8px 0 0;
+}
+.pick-title em{ color:var(--yellow);font-style:normal }
+/* Meta strip — 48 teams, 104 matches, countdown */
 .pick-meta{
-  display:flex;align-items:center;gap:16px;
-  padding:10px 0 14px;
+  display:flex;align-items:center;gap:20px;
+  padding:12px 0 14px;
   border-top:1px solid #ffffff15;
-  margin-top:10px;
-  display:none;
+  margin-top:12px;
 }
 .pick-meta-item{
   display:flex;flex-direction:column;gap:2px;
 }
 .pick-meta-val{
   font-family:var(--display);
-  font-size:18px;line-height:1;
+  font-size:20px;line-height:1;
   color:var(--yellow);
 }
 .pick-meta-lbl{
@@ -97,7 +103,7 @@ body{
 /* Countdown */
 .pick-countdown{
   font-family:var(--display);
-  font-size:24px;line-height:1;
+  font-size:22px;line-height:1;
   color:var(--pink);
 }
 .pick-countdown-lbl{
@@ -1148,7 +1154,8 @@ body{
   body{ max-width:100%;font-size:16px }
 
   /* Pick */
-  .pick-hero{ padding:14px 32px }
+  .pick-hero{ padding:20px 32px 0 }
+  .pick-title{ font-size:80px }
 
   .ctry-list{ grid-template-columns:repeat(8,1fr) }
   .ctry-tile .flat-flag{ width:52px!important;height:36px!important }
@@ -1243,7 +1250,8 @@ body{
 }
 
 @media(min-width:1200px){
-  .pick-hero{ padding:16px 48px }
+  .pick-hero{ padding:24px 48px 0 }
+  .pick-title{ font-size:96px }
 
   .ctry-list{ grid-template-columns:repeat(12,1fr) }
   .app-top{ padding:16px 48px }
