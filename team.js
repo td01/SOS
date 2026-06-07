@@ -90,9 +90,9 @@ function openTeam(code) {
     squadHtml = `<div class="td-section-label">Squad</div><div class="td-no-squad">Full squad data coming soon</div>`;
   }
 
-  content.innerHTML = headerHtml + statsHtml + infoHtml + grpHtml + fixHtml + squadHtml;
+  content.innerHTML = headerHtml + '<div class="td-body">' + statsHtml + infoHtml + grpHtml + fixHtml + squadHtml + '</div>';
   overlay.classList.add('open');
-  content.scrollTop = 0;
+  content.querySelector('.td-body').scrollTop = 0;
   document.body.style.overflow = 'hidden';
 }
 
@@ -131,12 +131,13 @@ function openPlayer(teamCode, playerName) {
        </div>`
     : '';
 
-  // Build initial HTML with placeholder image
+  // Build initial HTML — sticky header + scrollable body
   el.innerHTML = `
     <div class="pp-header">
       <button class="pp-back" onclick="closePlayer()" aria-label="Back">‹ Back</button>
       <div class="pp-number">${p.number || ''}</div>
     </div>
+    <div class="pp-body">
     <div class="pp-hero">
       <div class="pp-photo-wrap">
         <div class="pp-photo-placeholder" id="pp-photo-placeholder">
@@ -164,10 +165,12 @@ function openPlayer(teamCode, playerName) {
     ${quoteHtml}
     <div class="pp-section-label">Key facts</div>
     <div class="pp-facts">${factsHtml}</div>
-    <div class="pp-attribution">Images via <a href="https://en.wikipedia.org" target="_blank">Wikipedia</a> (CC-BY-SA) · editorial use</div>`;
+    <div class="pp-attribution">Images via <a href="https://en.wikipedia.org" target="_blank">Wikipedia</a> (CC-BY-SA) · editorial use</div>
+    </div>`;
 
   overlay.classList.add('open');
-  el.scrollTop = 0;
+  var ppBody = el.querySelector('.pp-body');
+  if (ppBody) ppBody.scrollTop = 0;
 
   // Fetch Wikipedia thumbnail asynchronously
   fetchWikiImage(p.full);

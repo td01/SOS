@@ -64,6 +64,8 @@ function tab(id, btn) {
   document.getElementById('p-' + id).classList.add('on');
   document.querySelectorAll('.bnav-btn').forEach(b => b.classList.remove('on'));
   btn.classList.add('on');
+  if (id === 'dyk') buildDyk();
+  if (id === 'live') buildLive();
 }
 
 // ─── HELPERS ───────────────────────────────────────────────────────────────────
