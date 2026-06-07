@@ -295,7 +295,7 @@ function buildGroups() {
           var rowClass = (isMineRow ? 'mine' : '') + (isQual ? ' qual' : '');
           return '<tr class="' + rowClass.trim() + '" onclick="openTeam(\'' + t.c + '\')" style="cursor:pointer">' +
             '<td><div class="t-name">' +
-              (isQual ? '<span class="qdot"></span>' : '') +
+              
               '<span style="width:26px;height:18px;display:inline-block;overflow:hidden;flex-shrink:0;vertical-align:middle">' + svgFlag(t.c, 26, 18) + '</span>' +
               t.n +
             '</div></td>' +

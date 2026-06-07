@@ -10,26 +10,26 @@
 
 /* ── TOKENS ── */
 :root{
-  /* Brand */
-  --pink:    #FF2070;
-  --yellow:  #F5F000;
-  --purple:  #6B46C1;
-  --lav:     #EDE9F8;
-  --sky:     #00BFFF;
-  --green:   #00C853;
+  /* Brand — pastel-forward */
+  --pink:    #E8386D;
+  --yellow:  #F0C93A;
+  --purple:  #6B5CE7;
+  --lav:     #F0EEFF;
+  --sky:     #5BC8F5;
+  --green:   #3DBD7D;
 
   /* Neutrals */
-  --ink:     #0D0D0D;
+  --ink:     #1A1A2E;
   --card:    #FFFFFF;
-  --paper:   #F4F2EE;
-  --rule:    #E0DDD7;
-  --muted:   #888;
-  --faint:   #F9F8F6;
+  --paper:   #F5F3F0;
+  --rule:    #E4E1DB;
+  --muted:   #9A97A0;
+  --faint:   #FAF9F7;
 
   /* Status */
-  --live-bg: #FF2070;
+  --live-bg: #E8386D;
   --done-bg: #FFFFFF;
-  --mine-live-bg: #0D0D0D;
+  --mine-live-bg: #1A1A2E;
   --mine-done-bg: var(--lav);
 
   /* Type scale */
@@ -61,10 +61,10 @@ body{
 /* Hero */
 .pick-hero{
   background:var(--ink);
-  padding:32px var(--pad) 0;
+  padding:20px var(--pad) 0;
   position:relative;
   overflow:hidden;
-  min-height:180px;
+  min-height:auto;
 }
 .pick-hero-accent{
   position:absolute;
@@ -84,23 +84,23 @@ body{
 }
 .pick-title{
   font-family:var(--display);
-  font-size:90px;line-height:.80;
+  font-size:64px;line-height:.84;
   color:var(--card);
   margin-bottom:0;
 }
 .pick-title em{color:var(--yellow);font-style:normal}
 .pick-meta{
   display:flex;align-items:center;gap:16px;
-  padding:14px 0 18px;
+  padding:10px 0 14px;
   border-top:1px solid #ffffff15;
-  margin-top:14px;
+  margin-top:10px;
 }
 .pick-meta-item{
   display:flex;flex-direction:column;gap:2px;
 }
 .pick-meta-val{
   font-family:var(--display);
-  font-size:22px;line-height:1;
+  font-size:18px;line-height:1;
   color:var(--yellow);
 }
 .pick-meta-lbl{
@@ -115,7 +115,7 @@ body{
 /* Countdown */
 .pick-countdown{
   font-family:var(--display);
-  font-size:34px;line-height:1;
+  font-size:24px;line-height:1;
   color:var(--pink);
 }
 .pick-countdown-lbl{
@@ -202,11 +202,11 @@ body{
 /* Top bar */
 .app-top{
   background:var(--ink);
-  padding:10px var(--pad);
+  padding:12px var(--pad);
   display:flex;align-items:center;justify-content:space-between;
   position:sticky;top:0;z-index:50;
   border-bottom:3px solid var(--yellow);
-  min-height:52px;
+  min-height:54px;
 }
 .app-logo{ cursor:pointer;display:flex;align-items:center;gap:10px }
 .app-icon{ flex-shrink:0;display:block }
@@ -272,23 +272,23 @@ body{
 
 /* Team pill bar */
 .team-pill-bar{
-  background:var(--lav);
+  background:var(--paper);
   display:flex;overflow-x:auto;
-  border-bottom:2px solid var(--ink);
-  min-height:44px;align-items:center;
+  border-bottom:1px solid var(--rule);
+  min-height:40px;align-items:center;
 }
 .team-pill-bar::-webkit-scrollbar{display:none}
 .team-pill{
   display:flex;align-items:center;gap:6px;
-  padding:8px 14px;
-  border-right:1px solid #C8C0E8;
+  padding:7px 12px;
+  border-right:1px solid var(--rule);
   flex-shrink:0;cursor:pointer;
 }
 .team-pill:active{background:#DDD8F5}
 .team-pill-n{
   font-family:var(--display);
-  font-size:14px;letter-spacing:.04em;
-  color:var(--purple);white-space:nowrap;
+  font-size:13px;letter-spacing:.04em;
+  color:var(--ink);white-space:nowrap;
 }
 
 /* Bottom nav */
@@ -642,16 +642,14 @@ body{
 }
 .grp-tbl td:first-child{ text-align:left }
 
-/* Qualification rows — use box-shadow so layout is unaffected */
-.grp-tbl tr.qual td:first-child{
-  box-shadow:inset 4px 0 0 var(--green);
-  color:var(--ink);
-}
+/* Qualification rows — subtle background only, no side border */
+.grp-tbl tr.qual td{ background:var(--faint) }
+.grp-tbl tr.qual td:first-child{ color:var(--ink) }
 
 /* Your team row */
 .grp-tbl tr.mine td{ background:var(--lav) }
 .grp-tbl tr.mine td:first-child{ color:var(--purple) }
-.grp-tbl tr.mine.qual td:first-child{ box-shadow:inset 4px 0 0 var(--purple) }
+.grp-tbl tr.mine.qual td{ background:var(--lav) }
 
 .t-name{
   font-family:var(--display);
@@ -664,12 +662,7 @@ body{
   font-family:var(--display);
   font-size:24px;color:var(--ink);line-height:1;
 }
-.qdot{
-  width:8px;height:8px;
-  background:var(--green);
-  display:block;flex-shrink:0;
-  align-self:center;
-}
+.qdot{ display:none }
 
 /* ============================================================
    HISTORY
@@ -1175,7 +1168,7 @@ body{
 
   /* Pick */
   .pick-hero{ padding:52px 48px 0 }
-  .pick-title{ font-size:130px }
+  .pick-title{ font-size:100px }
   .ctry-list{ grid-template-columns:repeat(8,1fr) }
   .ctry-tile .flat-flag{ width:52px!important;height:36px!important }
   .ctry-tile .flat-flag svg{ width:52px!important;height:36px!important }
@@ -1270,7 +1263,7 @@ body{
 
 @media(min-width:1200px){
   .pick-hero{ padding:72px 80px 0 }
-  .pick-title{ font-size:160px }
+  .pick-title{ font-size:120px }
   .ctry-list{ grid-template-columns:repeat(12,1fr) }
   .app-top{ padding:16px 48px }
   .bottom-nav{ padding-left:48px }
