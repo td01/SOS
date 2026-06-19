@@ -39,9 +39,14 @@ function startCountdown() {
   function tick() {
     var now  = Date.now();
     var diff = target - now;
-    var el   = document.getElementById('pick-countdown');
+    var el    = document.getElementById('pick-countdown');
+    var lblEl = document.getElementById('pick-countdown-lbl');
     if (!el) return;
-    if (diff <= 0) { el.textContent = 'LIVE NOW'; return; }
+    if (diff <= 0) {
+      el.textContent = 'LIVE';
+      if (lblEl) lblEl.textContent = 'Tournament underway';
+      return;
+    }
     var d = Math.floor(diff / 86400000);
     var h = Math.floor((diff % 86400000) / 3600000);
     var m = Math.floor((diff % 3600000) / 60000);
@@ -278,7 +283,17 @@ function buildLive() {
 }
 
 function buildEmptyState() {
-  // Find the next fixture
+  var tournamentStarted = Date.now() > new Date('2026-06-11T19:00:00Z').getTime();
+
+  if (tournamentStarted) {
+    // Tournament is live — just no matches kicking off this exact moment
+    return '<div class="empty-state">' +
+      '<div class="empty-state-title">No live games right now</div>' +
+      '<div class="empty-state-body">Check today&#39;s results below, or see the schedule for upcoming fixtures.</div>' +
+      '</div>';
+  }
+
+  // Pre-tournament — show countdown to opener
   var next = FIXTURES[0];
   var countdown = getCountdown(new Date('2026-06-11T19:00:00Z'));
   return '<div class="empty-state">' +

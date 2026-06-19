@@ -125,66 +125,37 @@ var FIXTURES = [
 
 var LIVE_MATCHES = [
   {
-    h:'England', hc:'ENG', a:'Panama', ac:'PAN',
-    hs:3, as:2, min:67, g:'G',
+    h:'Scotland', hc:'SCO', a:'Morocco', ac:'MAR',
+    hs:0, as:1, min:83, g:'C',
     events:[
-      { min:14, team:'ENG', text:'GOAL — Harry Kane (pen)' },
-      { min:31, team:'PAN', text:'GOAL — Fajardo' },
-      { min:38, team:'ENG', text:'GOAL — Morgan Rogers' },
-      { min:52, team:'PAN', text:'GOAL — Córdoba' },
-      { min:58, team:'ENG', text:'GOAL — Marc Guehi' },
-      { min:63, team:'PAN', text:'RED CARD — Rodríguez' },
-    ]
-  },
-  {
-    h:'Argentina', hc:'ARG', a:'Algeria', ac:'ALG',
-    hs:1, as:0, min:34, g:'J',
-    events:[
-      { min:21, team:'ARG', text:'GOAL — Lionel Messi' },
-    ]
-  },
-  {
-    h:'Brazil', hc:'BRA', a:'Scotland', ac:'SCO',
-    hs:2, as:1, min:78, g:'C',
-    events:[
-      { min:8,  team:'BRA', text:'GOAL — Vinicius Jr' },
-      { min:44, team:'SCO', text:'GOAL — McTominay' },
-      { min:61, team:'BRA', text:'GOAL — Endrick' },
-      { min:72, team:'SCO', text:'RED CARD — Tierney' },
-    ]
-  },
-  {
-    h:'France', hc:'FRA', a:'Iraq', ac:'IRQ',
-    hs:4, as:0, min:88, g:'I',
-    events:[
-      { min:12, team:'FRA', text:'GOAL — Mbappé' },
-      { min:29, team:'FRA', text:'GOAL — Griezmann' },
-      { min:55, team:'FRA', text:'GOAL — Mbappé' },
-      { min:81, team:'FRA', text:'GOAL — Thuram' },
-    ]
-  },
-  {
-    h:'USA', hc:'USA', a:'Paraguay', ac:'PAR',
-    hs:0, as:0, min:12, g:'D',
-    events:[]
-  },
-  {
-    h:'Germany', hc:'GER', a:'Curaçao', ac:'CUW',
-    hs:3, as:0, min:51, g:'E',
-    events:[
-      { min:7,  team:'GER', text:'GOAL — Musiala' },
-      { min:19, team:'GER', text:'GOAL — Havertz' },
-      { min:43, team:'GER', text:'GOAL — Wirtz' },
+      { min:2, team:'MAR', text:'GOAL — Ismael Saibari' },
     ]
   },
 ];
 
 var COMPLETED = [
-  { h:'Mexico',    hc:'MEX', a:'South Africa', ac:'RSA', hs:2, as:0, g:'A' },
-  { h:'Canada',    hc:'CAN', a:'Bosnia-Herz.', ac:'BIH', hs:1, as:1, g:'B' },
-  { h:'Spain',     hc:'ESP', a:'Cape Verde',   ac:'CPV', hs:3, as:0, g:'H' },
-  { h:'Portugal',  hc:'POR', a:'DR Congo',     ac:'COD', hs:2, as:1, g:'K' },
-  { h:'Japan',     hc:'JPN', a:'Sweden',       ac:'SWE', hs:1, as:0, g:'F' },
+  // Day 9 — 19 June
+  { h:'USA',     hc:'USA', a:'Australia',   ac:'AUS', hs:2, as:0, g:'D' },
+  { h:'Mexico',  hc:'MEX', a:'South Korea', ac:'KOR', hs:1, as:0, g:'A' },
+  { h:'Brazil',  hc:'BRA', a:'Haiti',       ac:'HAI', hs:3, as:0, g:'C' },
+  // Day 8 — 18 June
+  { h:'Türkiye', hc:'TUR', a:'Paraguay',    ac:'PAR', hs:1, as:1, g:'D' },
+  { h:'England', hc:'ENG', a:'Croatia',     ac:'CRO', hs:4, as:2, g:'I' },
+  { h:'Ghana',   hc:'GHA', a:'Panama',      ac:'PAN', hs:1, as:0, g:'I' },
+  { h:'Portugal',hc:'POR', a:'DR Congo',    ac:'COD', hs:1, as:1, g:'K' },
+  { h:'Colombia',hc:'COL', a:'Uzbekistan',  ac:'UZB', hs:3, as:1, g:'K' },
+  // Day 7 — 17 June
+  { h:'Belgium', hc:'BEL', a:'Egypt',       ac:'EGY', hs:1, as:1, g:'G' },
+  { h:'Iran',    hc:'IRN', a:'New Zealand', ac:'NZL', hs:2, as:2, g:'G' },
+  { h:'Spain',   hc:'ESP', a:'Cape Verde',  ac:'CPV', hs:0, as:0, g:'H' },
+  { h:'Saudi Arabia', hc:'KSA', a:'Uruguay', ac:'URU', hs:1, as:1, g:'H' },
+  { h:'Sweden',  hc:'SWE', a:'Tunisia',     ac:'TUN', hs:5, as:1, g:'F' },
+  { h:'Netherlands', hc:'NED', a:'Japan',   ac:'JPN', hs:2, as:2, g:'F' },
+  { h:'Germany', hc:'GER', a:'Curaçao',     ac:'CUW', hs:7, as:1, g:'E' },
+  { h:'Ivory Coast', hc:'CIV', a:'Ecuador', ac:'ECU', hs:1, as:0, g:'E' },
+  { h:'Canada',  hc:'CAN', a:'Qatar',       ac:'QAT', hs:6, as:0, g:'B' },
+  { h:'France',  hc:'FRA', a:'Senegal',     ac:'SEN', hs:3, as:1, g:'J' },
+  { h:'Iraq',    hc:'IRQ', a:'Norway',      ac:'NOR', hs:1, as:4, g:'J' },
 ];
 
 // ─── GROUP STANDINGS ──────────────────────────────────────────────────────────
