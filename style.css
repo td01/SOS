@@ -1403,3 +1403,14 @@ body{
   color:var(--pink);
   animation:pulse-opacity 1.2s ease-in-out infinite;
 }
+
+/* ── DEMO DATA INDICATOR ──────────────────────────────────────────────────────*/
+.ticker-demo-tag{
+  font-family:var(--display);
+  font-size:10px;letter-spacing:.1em;
+  background:#00000030;
+  color:#ffffffb0;
+  padding:2px 8px;
+  flex-shrink:0;
+  white-space:nowrap;
+}

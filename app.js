@@ -108,9 +108,11 @@ function buildTicker() {
   var ticker = document.getElementById('score-ticker');
   if (!ticker) return;
 
+  var demoTag = apiAvailable === false ? '<span class="ticker-demo-tag">DEMO DATA</span>' : '';
+
   if (LIVE_MATCHES.length === 0) {
     ticker.className = 'score-ticker no-live';
-    ticker.innerHTML = '<div class="ticker-no-live">Next: Mexico vs South Africa · Jun 11 · 15:00 ET</div>';
+    ticker.innerHTML = demoTag + '<div class="ticker-no-live">No live matches right now</div>';
     return;
   }
 
@@ -125,7 +127,7 @@ function buildTicker() {
       '</div>';
   }).join('');
 
-  ticker.innerHTML = '<div class="ticker-inner">' + items + '</div>';
+  ticker.innerHTML = demoTag + '<div class="ticker-inner">' + items + '</div>';
 }
 
 // ─── LIVE POLLING ─────────────────────────────────────────────────────────────
@@ -137,11 +139,73 @@ function startLivePoll() {
 function stopLivePoll() {
   if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
 }
-function fetchLiveData() {
-  // Uncomment when API is wired:
-  // fetch('/api/fixtures?live=all') ...
+// League/season for API-Football — Summer of Soccer tournament, 2026
+var API_LEAGUE = 1;
+var API_SEASON = 2026;
+var apiAvailable = null; // null = unknown, true/false once tested
+
+async function fetchLiveData() {
+  try {
+    var [liveRes, todayRes] = await Promise.all([
+      fetch('/api/fixtures?live=all'),
+      fetch('/api/fixtures?date=' + new Date().toISOString().slice(0,10) + '&league=' + API_LEAGUE + '&season=' + API_SEASON)
+    ]);
+
+    if (!liveRes.ok || !todayRes.ok) throw new Error('API not configured');
+
+    var liveData  = await liveRes.json();
+    var todayData = await todayRes.json();
+    if (liveData.error || todayData.error) throw new Error(liveData.error || todayData.error);
+
+    apiAvailable = true;
+
+    // Rebuild LIVE_MATCHES from API response
+    LIVE_MATCHES.length = 0;
+    (liveData.response || []).forEach(function(f) {
+      LIVE_MATCHES.push({
+        h: f.teams.home.name, hc: teamCodeFromApi(f.teams.home),
+        a: f.teams.away.name, ac: teamCodeFromApi(f.teams.away),
+        hs: f.goals.home ?? 0, as: f.goals.away ?? 0,
+        min: f.fixture.status.elapsed ?? 0,
+        g: f.league.round ? f.league.round.replace('Group ','') : '',
+        events: (f.events || []).map(function(e) {
+          return {
+            min: e.time.elapsed,
+            team: teamCodeFromApi(e.team),
+            text: (e.type === 'Goal' ? 'GOAL — ' : 'RED CARD — ') + e.player.name + (e.detail && e.detail.includes('Penalty') ? ' (pen)' : '')
+          };
+        })
+      });
+    });
+
+    // Rebuild COMPLETED from today's finished matches
+    COMPLETED.length = 0;
+    (todayData.response || [])
+      .filter(function(f){ return f.fixture.status.short === 'FT'; })
+      .forEach(function(f) {
+        COMPLETED.push({
+          h: f.teams.home.name, hc: teamCodeFromApi(f.teams.home),
+          a: f.teams.away.name, ac: teamCodeFromApi(f.teams.away),
+          hs: f.goals.home, as: f.goals.away,
+          g: f.league.round ? f.league.round.replace('Group ','') : ''
+        });
+      });
+
+  } catch (e) {
+    // API not configured yet, or request failed — fall back to mock/demo data silently
+    apiAvailable = false;
+  }
+
   buildLive();
   buildTicker();
+}
+
+// Map API-Football team object to our 3-letter team codes via TEAMS lookup
+function teamCodeFromApi(apiTeam) {
+  var match = TEAMS.find(function(t) {
+    return t.n.toLowerCase() === apiTeam.name.toLowerCase();
+  });
+  return match ? match.c : apiTeam.code || apiTeam.name.slice(0,3).toUpperCase();
 }
 
 // ─── LIVE TAB ─────────────────────────────────────────────────────────────────

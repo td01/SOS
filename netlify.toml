@@ -19,8 +19,7 @@
   [headers.values]
     Cache-Control = "public, max-age=3600"
 
-# When API is wired up, proxy calls through a function to protect the key
-# [[redirects]]
-#   from = "/api/*"
-#   to = "/.netlify/functions/scores/:splat"
-#   status = 200
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/scores/:splat"
+  status = 200
