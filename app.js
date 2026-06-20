@@ -1,6 +1,29 @@
 // ─── STATE ────────────────────────────────────────────────────────────────────
 
-var chosen  = [];
+var STORAGE_KEY_TEAMS = 'sos_chosen_teams';
+var STORAGE_KEY_REGION = 'sos_region';
+
+function loadSavedTeams() {
+  try {
+    var raw = localStorage.getItem(STORAGE_KEY_TEAMS);
+    if (!raw) return [];
+    var parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed.filter(function(c){ return TEAMS.some(function(t){ return t.c === c; }); }) : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function saveChosenTeams() {
+  try {
+    localStorage.setItem(STORAGE_KEY_TEAMS, JSON.stringify(chosen));
+  } catch (e) {
+    // localStorage unavailable (private browsing, storage full, etc.) — fail silently,
+    // selection just won't persist across visits.
+  }
+}
+
+var chosen  = loadSavedTeams();
 var curRgn  = 'ALL';
 var pollTimer = null;
 
@@ -23,6 +46,7 @@ function renderPick(region) {
 function toggleTeam(code) {
   var i = chosen.indexOf(code);
   if (i > -1) chosen.splice(i, 1); else chosen.push(code);
+  saveChosenTeams();
   renderPick(curRgn);
 }
 
@@ -281,6 +305,170 @@ function teamCodeFromApi(apiTeam) {
   return match ? match.c : apiTeam.code || apiTeam.name.slice(0,3).toUpperCase();
 }
 
+// ─── MATCH DETAIL OVERLAY ───────────────────────────────────────────────────────
+
+async function openMatchDetail(fixtureId) {
+  var overlay = document.getElementById('match-overlay');
+  var content = document.getElementById('match-content');
+  if (!overlay || !content) return;
+
+  content.innerHTML =
+    '<div class="pp-header">' +
+      '<button class="pp-back" onclick="closeMatchDetail()">‹ Back</button>' +
+    '</div>' +
+    '<div class="pp-body"><div class="empty-state"><div class="empty-state-title">Loading match…</div></div></div>';
+  overlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+
+  if (!LIVE_API_ENABLED) {
+    content.querySelector('.pp-body').innerHTML =
+      '<div class="empty-state"><div class="empty-state-title">Match details not available</div>' +
+      '<div class="empty-state-body">Connect the live data feed to see stats, scorers and lineups.</div></div>';
+    return;
+  }
+
+  try {
+    var res = await fetch('/api/fixtures?id=' + fixtureId);
+    var data = await res.json();
+    if (data.error) {
+      console.error('Summer of Soccer — match detail error:', data.error, data);
+      throw new Error(data.error);
+    }
+    if (!Array.isArray(data.response) || !data.response.length) {
+      throw new Error('No match data returned');
+    }
+
+    renderMatchDetail(data.response[0]);
+  } catch (e) {
+    content.querySelector('.pp-body').innerHTML =
+      '<div class="empty-state"><div class="empty-state-title">Couldn\u2019t load match details</div>' +
+      '<div class="empty-state-body">Please try again in a moment.</div></div>';
+  }
+}
+
+function closeMatchDetail() {
+  document.getElementById('match-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function renderMatchDetail(f) {
+  var content = document.getElementById('match-content');
+  var hc = teamCodeFromApi(f.teams.home);
+  var ac = teamCodeFromApi(f.teams.away);
+  var venue = f.fixture.venue || {};
+  var kickoff = new Date(f.fixture.date);
+  var dateStr = kickoff.toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric' });
+
+  // ── Scorers from events ──
+  var goalEvents = (f.events || []).filter(function(e){ return e.type === 'Goal'; });
+  var scorersHtml = goalEvents.length
+    ? goalEvents.map(function(e) {
+        var isHome = e.team.id === f.teams.home.id;
+        var detail = e.detail && e.detail !== 'Normal Goal' ? ' (' + e.detail.replace(' Goal','').toLowerCase() + ')' : '';
+        return '<div class="md-scorer ' + (isHome ? 'md-home' : 'md-away') + '">' +
+          '<span class="md-scorer-min">' + e.time.elapsed + '\'</span>' +
+          '<span class="md-scorer-name">⚽ ' + e.player.name + detail + '</span>' +
+          (e.assist && e.assist.name ? '<span class="md-scorer-assist">assist: ' + e.assist.name + '</span>' : '') +
+          '</div>';
+      }).join('')
+    : '<div class="md-empty-row">No goals in this match</div>';
+
+  // ── Cards from events ──
+  var cardEvents = (f.events || []).filter(function(e){ return e.type === 'Card'; });
+  var cardsHtml = cardEvents.length
+    ? cardEvents.map(function(e) {
+        var isHome = e.team.id === f.teams.home.id;
+        var icon = e.detail.includes('Red') ? '🟥' : '🟨';
+        return '<div class="md-scorer ' + (isHome ? 'md-home' : 'md-away') + '">' +
+          '<span class="md-scorer-min">' + e.time.elapsed + '\'</span>' +
+          '<span class="md-scorer-name">' + icon + ' ' + e.player.name + '</span>' +
+          '</div>';
+      }).join('')
+    : '';
+
+  // ── Match statistics (possession, shots, etc.) ──
+  var statsHtml = '';
+  if (f.statistics && f.statistics.length === 2) {
+    var homeStats = f.statistics[0].statistics || [];
+    var awayStats = f.statistics[1].statistics || [];
+    var keys = ['Ball Possession', 'Total Shots', 'Shots on Goal', 'Corner Kicks', 'Fouls', 'Yellow Cards', 'Red Cards'];
+    statsHtml = keys.map(function(key) {
+      var h = homeStats.find(function(s){ return s.type === key; });
+      var a = awayStats.find(function(s){ return s.type === key; });
+      if (!h && !a) return '';
+      var hv = h ? h.value : 0, av = a ? a.value : 0;
+      var hNum = parseFloat(hv) || 0, aNum = parseFloat(av) || 0;
+      var total = hNum + aNum || 1;
+      var hPct = (hNum / total) * 100;
+      return '<div class="md-stat-row">' +
+        '<span class="md-stat-val">' + (hv ?? '0') + '</span>' +
+        '<div class="md-stat-bar"><div class="md-stat-bar-fill" style="width:' + hPct + '%"></div></div>' +
+        '<span class="md-stat-label">' + key + '</span>' +
+        '<div class="md-stat-bar md-stat-bar-away"><div class="md-stat-bar-fill away" style="width:' + (100-hPct) + '%"></div></div>' +
+        '<span class="md-stat-val">' + (av ?? '0') + '</span>' +
+        '</div>';
+    }).join('');
+  }
+
+  // ── Lineups ──
+  var lineupHtml = '';
+  if (f.lineups && f.lineups.length === 2) {
+    lineupHtml = f.lineups.map(function(side, i) {
+      var code = teamCodeFromApi(side.team);
+      var starters = (side.startXI || []).map(function(p) {
+        return '<div class="md-player-row">' +
+          '<span class="md-player-num">' + (p.player.number || '') + '</span>' +
+          '<span class="md-player-name">' + p.player.name + '</span>' +
+          '<span class="md-player-pos">' + (p.player.pos || '') + '</span>' +
+          '</div>';
+      }).join('');
+      var subs = (side.substitutes || []).map(function(p) {
+        return '<div class="md-player-row md-sub">' +
+          '<span class="md-player-num">' + (p.player.number || '') + '</span>' +
+          '<span class="md-player-name">' + p.player.name + '</span>' +
+          '<span class="md-player-pos">' + (p.player.pos || '') + '</span>' +
+          '</div>';
+      }).join('');
+      return '<div class="md-lineup-col">' +
+        '<div class="md-lineup-hd">' + ff(code, 24, 17) + (side.formation ? '<span class="md-formation">' + side.formation + '</span>' : '') + '</div>' +
+        '<div class="md-lineup-label">Starting XI</div>' +
+        starters +
+        (subs ? '<div class="md-lineup-label">Substitutes</div>' + subs : '') +
+        '</div>';
+    }).join('');
+  }
+
+  content.innerHTML =
+    '<div class="pp-header">' +
+      '<button class="pp-back" onclick="closeMatchDetail()">‹ Back</button>' +
+      '<span class="md-header-status">' + (f.fixture.status.long || '') + '</span>' +
+    '</div>' +
+    '<div class="pp-body">' +
+      '<div class="md-scoreline">' +
+        '<div class="md-scoreline-team" onclick="closeMatchDetail();setTimeout(function(){openTeam(\'' + hc + '\')},250)">' +
+          ff(hc, 44, 30) + '<div class="md-scoreline-name">' + f.teams.home.name + '</div>' +
+        '</div>' +
+        '<div class="md-scoreline-center">' +
+          '<div class="md-scoreline-score">' + (f.goals.home ?? '–') + ' \u2013 ' + (f.goals.away ?? '–') + '</div>' +
+          '<div class="md-scoreline-meta">' + dateStr + '</div>' +
+        '</div>' +
+        '<div class="md-scoreline-team" onclick="closeMatchDetail();setTimeout(function(){openTeam(\'' + ac + '\')},250)">' +
+          ff(ac, 44, 30) + '<div class="md-scoreline-name">' + f.teams.away.name + '</div>' +
+        '</div>' +
+      '</div>' +
+      (venue.name ? '<div class="md-venue">' + venue.name + (venue.city ? ', ' + venue.city : '') + '</div>' : '') +
+
+      '<div class="md-section-label">Scorers</div>' +
+      '<div class="md-section">' + scorersHtml + '</div>' +
+
+      (cardsHtml ? '<div class="md-section-label">Cards</div><div class="md-section">' + cardsHtml + '</div>' : '') +
+
+      (statsHtml ? '<div class="md-section-label">Match Stats</div><div class="md-section">' + statsHtml + '</div>' : '') +
+
+      (lineupHtml ? '<div class="md-section-label">Lineups</div><div class="md-lineups">' + lineupHtml + '</div>' : '') +
+    '</div>';
+}
+
 // ─── LIVE TAB ─────────────────────────────────────────────────────────────────
 
 function matchCard(m, live) {
@@ -414,13 +602,21 @@ async function fetchFixtures() {
       .filter(function(f){ return f.league && Number(f.league.id) === Number(API_LEAGUE); })
       .map(function(f) {
       var kickoff = new Date(f.fixture.date);
+      var isDone  = f.fixture.status.short === 'FT' || f.fixture.status.short === 'AET' || f.fixture.status.short === 'PEN';
+      var isLive  = ['1H','2H','HT','ET','P','BT'].includes(f.fixture.status.short);
       return {
+        id: f.fixture.id,
         h: f.teams.home.name, hc: teamCodeFromApi(f.teams.home),
         a: f.teams.away.name, ac: teamCodeFromApi(f.teams.away),
         g: f.league.round ? f.league.round.replace('Group ','') : '',
         date: kickoff.toLocaleDateString('en-US', { month:'short', day:'numeric' }),
         t: kickoff.toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit', timeZone:'America/New_York' }) + ' ET',
         status: f.fixture.status.short,
+        isDone: isDone,
+        isLive: isLive,
+        hs: f.goals.home,
+        as: f.goals.away,
+        elapsed: f.fixture.status.elapsed,
         _sortKey: kickoff.getTime()
       };
     }).sort(function(a,b){ return a._sortKey - b._sortKey; });
@@ -430,10 +626,30 @@ async function fetchFixtures() {
 }
 
 function fixtureRow(f, mine) {
-  return '<div class="fix-card' + (mine ? ' mine' : '') + '">' +
-    '<div class="fix-t" onclick="openTeam(\'' + f.hc + '\')" style="cursor:pointer">' + ff(f.hc, 28, 20) + ' ' + f.h + '</div>' +
-    '<div class="fix-c"><span class="fix-vs">vs</span><span class="fix-time">' + f.t + '</span><div class="fix-grp">Grp ' + f.g + '</div></div>' +
-    '<div class="fix-t r" onclick="openTeam(\'' + f.ac + '\')" style="cursor:pointer">' + ff(f.ac, 28, 20) + ' ' + f.a + '</div>' +
+  var clickable = f.isDone ? ' onclick="openMatchDetail(' + f.id + ')" style="cursor:pointer"' : '';
+  var centerHtml;
+
+  if (f.isDone) {
+    centerHtml =
+      '<span class="fix-score">' + f.hs + '\u2013' + f.as + '</span>' +
+      '<span class="fix-ft-badge">FULL TIME</span>' +
+      '<div class="fix-grp">Grp ' + f.g + '</div>';
+  } else if (f.isLive) {
+    centerHtml =
+      '<span class="fix-score live">' + f.hs + '\u2013' + f.as + '</span>' +
+      '<span class="fix-live-badge">' + (f.elapsed || 0) + '\' LIVE</span>' +
+      '<div class="fix-grp">Grp ' + f.g + '</div>';
+  } else {
+    centerHtml =
+      '<span class="fix-vs">vs</span>' +
+      '<span class="fix-time">' + f.t + '</span>' +
+      '<div class="fix-grp">Grp ' + f.g + '</div>';
+  }
+
+  return '<div class="fix-card' + (mine ? ' mine' : '') + (f.isDone ? ' fix-tappable' : '') + '"' + clickable + '>' +
+    '<div class="fix-t" onclick="event.stopPropagation();openTeam(\'' + f.hc + '\')" style="cursor:pointer">' + ff(f.hc, 28, 20) + ' ' + f.h + '</div>' +
+    '<div class="fix-c">' + centerHtml + '</div>' +
+    '<div class="fix-t r" onclick="event.stopPropagation();openTeam(\'' + f.ac + '\')" style="cursor:pointer">' + ff(f.ac, 28, 20) + ' ' + f.a + '</div>' +
     '</div>';
 }
 
@@ -875,6 +1091,8 @@ function initTabSwipe() {
     var playerOv = document.getElementById('player-overlay');
     if (teamOv && teamOv.classList.contains('open')) return;
     if (playerOv && playerOv.classList.contains('open')) return;
+    var matchOv = document.getElementById('match-overlay');
+    if (matchOv && matchOv.classList.contains('open')) return;
 
     startX = e.touches[0].clientX;
     startY = e.touches[0].clientY;
@@ -966,3 +1184,9 @@ renderPick('ALL');
 startCountdown();
 initPullToRefresh();
 initTabSwipe();
+
+// If the person has previously picked teams, skip straight to the app —
+// they can still tap "Change Teams" in the header to come back and edit.
+if (chosen.length > 0) {
+  launch();
+}

@@ -213,9 +213,17 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('player-overlay').addEventListener('click', function(e) {
     if (e.target === this) closePlayer();
   });
+  // Close match overlay on backdrop tap
+  var matchOv = document.getElementById('match-overlay');
+  if (matchOv) {
+    matchOv.addEventListener('click', function(e) {
+      if (e.target === this) closeMatchDetail();
+    });
+  }
 
   initDragToDismiss('team-overlay', 'team-content', closeTeam);
   initDragToDismiss('player-overlay', 'player-content', closePlayer);
+  initDragToDismiss('match-overlay', 'match-content', closeMatchDetail);
 });
 
 // ── DRAG TO DISMISS ───────────────────────────────────────────────────────────
