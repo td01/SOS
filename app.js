@@ -287,20 +287,24 @@ async function fetchLiveData() {
 
     // Rebuild LIVE_MATCHES from API response
     var newLive = liveData.response.filter(isOurTournament).map(function(f) {
+      var round = f.league.round || '';
+      var stage = stageFromRound(round);
       return {
         id: f.fixture.id,
         h: f.teams.home.name, hc: teamCodeFromApi(f.teams.home),
         a: f.teams.away.name, ac: teamCodeFromApi(f.teams.away),
         hs: f.goals.home ?? 0, as: f.goals.away ?? 0,
         min: f.fixture.status.elapsed ?? 0,
-        g: f.league.round ? f.league.round.replace('Group ','') : '',
+        stage: stage,
+        // Only a genuine group letter for group-stage matches — for
+        // knockout rounds (Round of 16, QF, etc.) there's no group to
+        // adjust, and previously this held the raw round string (e.g.
+        // "Round of 16"), which silently broke groupsShowLive's live-score
+        // adjustment for those matches instead of cleanly excluding them.
+        g: stage === 'group' ? round.replace('Group ','') : '',
         events: (f.events || []).map(function(e) {
-          return {
-            min: e.time.elapsed,
-            team: teamCodeFromApi(e.team),
-            text: (e.type === 'Goal' ? 'GOAL — ' : 'RED CARD — ') + e.player.name + (e.detail && e.detail.includes('Penalty') ? ' (pen)' : '')
-          };
-        })
+          return classifyMatchEvent(e);
+        }).filter(Boolean)
       };
     });
 
@@ -308,12 +312,15 @@ async function fetchLiveData() {
       .filter(isOurTournament)
       .filter(function(f){ return f.fixture.status.short === 'FT'; })
       .map(function(f) {
+        var round = f.league.round || '';
+        var stage = stageFromRound(round);
         return {
           id: f.fixture.id,
           h: f.teams.home.name, hc: teamCodeFromApi(f.teams.home),
           a: f.teams.away.name, ac: teamCodeFromApi(f.teams.away),
           hs: f.goals.home, as: f.goals.away,
-          g: f.league.round ? f.league.round.replace('Group ','') : ''
+          stage: stage,
+          g: stage === 'group' ? round.replace('Group ','') : ''
         };
       });
 
@@ -340,6 +347,52 @@ function teamCodeFromApi(apiTeam) {
     return t.n.toLowerCase() === apiTeam.name.toLowerCase();
   });
   return match ? match.c : apiTeam.code || apiTeam.name.slice(0,3).toUpperCase();
+}
+
+// Classify a raw API-Football fixture event into a display-ready shape.
+// API-Football's event.type is one of: 'Goal', 'Card', 'subst' (substitution,
+// lowercase) — and Card events carry the actual color in event.detail
+// ('Yellow Card', 'Red Card', or 'Yellow-Red Card' for a second-booking
+// sending off). Treating anything non-Goal as a red card (the previous bug)
+// wrongly flagged every yellow card and every substitution as a red card.
+function classifyMatchEvent(e) {
+  var team = teamCodeFromApi(e.team);
+  var min  = e.time.elapsed;
+
+  if (e.type === 'Goal') {
+    var goalKind = e.detail && e.detail.includes('Penalty') ? ' (pen)'
+                 : e.detail && e.detail.includes('Own Goal') ? ' (OG)'
+                 : '';
+    return { min: min, team: team, kind: 'goal', icon: '⚽', text: 'GOAL — ' + e.player.name + goalKind };
+  }
+
+  if (e.type === 'Card') {
+    var detail = (e.detail || '').toLowerCase();
+    if (detail.includes('yellow-red') || detail.includes('second yellow')) {
+      return { min: min, team: team, kind: 'red', icon: '🟥', text: 'RED CARD — ' + e.player.name + ' (2nd yellow)' };
+    }
+    if (detail.includes('red')) {
+      return { min: min, team: team, kind: 'red', icon: '🟥', text: 'RED CARD — ' + e.player.name };
+    }
+    if (detail.includes('yellow')) {
+      return { min: min, team: team, kind: 'yellow', icon: '🟨', text: 'YELLOW CARD — ' + e.player.name };
+    }
+    // Unrecognized card detail — show generically rather than guessing red.
+    return { min: min, team: team, kind: 'card', icon: '🟨', text: 'CARD — ' + e.player.name };
+  }
+
+  if (e.type === 'subst') {
+    // API-Football: player.name is who came ON, assist.name is who went OFF.
+    var off = e.assist && e.assist.name ? e.assist.name : null;
+    return {
+      min: min, team: team, kind: 'sub', icon: '🔄',
+      text: 'SUB — ' + e.player.name + (off ? ' on for ' + off : ' on')
+    };
+  }
+
+  // Unknown/unhandled event type from the API we don't specifically handle
+  // (e.g. VAR) — skip rather than mislabel it as something it isn't.
+  return null;
 }
 
 // ─── MATCH DETAIL OVERLAY ───────────────────────────────────────────────────────
@@ -533,8 +586,8 @@ function matchCard(m, live) {
     eventsHtml = '<div class="mc-events">' +
       m.events.map(function(e){
         var isHome = e.team === m.hc;
-        var icon   = e.text.includes('RED') ? '🟥' : '⚽';
-        var name   = e.text.replace(/^(GOAL — |RED CARD — )/, '');
+        var icon   = e.icon || '⚽';
+        var name   = e.text.replace(/^(GOAL|RED CARD|YELLOW CARD|CARD|SUB) — /, '');
         return '<div class="mc-event ' + (isHome ? 'ev-home' : 'ev-away') + '">' +
           '<span class="ev-min">' + e.min + '\'</span>' +
           '<span>' + icon + '</span>' +
@@ -864,6 +917,7 @@ function getAdjustedGroups(groups) {
   });
 
   LIVE_MATCHES.forEach(function(m) {
+    if (m.stage && m.stage !== 'group') return; // knockout matches don't affect group standings
     var grp = adj[m.g];
     if (!grp) return;
     var home = grp.find(function(t){ return t.c === m.hc; });
