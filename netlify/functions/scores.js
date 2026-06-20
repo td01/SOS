@@ -51,8 +51,14 @@ exports.handler = async (event) => {
       ? { 'x-rapidapi-host': RAPIDAPI_HOST, 'x-rapidapi-key': key }
       : { 'x-apisports-key': key };
 
-    // Strip the /api/ prefix added by the Netlify redirect
-    const path  = event.path.replace('/.netlify/functions/scores', '');
+    // event.path can appear as either the original request path
+    // ("/api/standings") or the rewritten function path
+    // ("/.netlify/functions/scores/standings") depending on Netlify's
+    // redirect/runtime version. Strip whichever prefix is present so we
+    // always end up with just "/standings".
+    const path  = event.path
+      .replace('/.netlify/functions/scores', '')
+      .replace(/^\/api/, '');
     const query = event.queryStringParameters
       ? '?' + new URLSearchParams(event.queryStringParameters).toString()
       : '';
