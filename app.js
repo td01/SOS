@@ -176,7 +176,10 @@ async function fetchLiveData() {
 
     var liveData  = await liveRes.json();
     var todayData = await todayRes.json();
-    if (liveData.error || todayData.error) throw new Error(liveData.error || todayData.error);
+    if (liveData.error || todayData.error) {
+      console.error('Summer of Soccer — live data error:', liveData.error || todayData.error, liveData, todayData);
+      throw new Error(liveData.error || todayData.error);
+    }
 
     // Sanity check: API-Football returns an array under .response —
     // if it's missing or not an array, treat as a failed/misconfigured call
@@ -395,8 +398,11 @@ async function fetchStandings() {
   if (!LIVE_API_ENABLED) return null;
   try {
     var res = await fetch('/api/standings?league=' + API_LEAGUE + '&season=' + API_SEASON);
-    if (!res.ok) throw new Error('Standings API failed');
     var data = await res.json();
+    if (data.error) {
+      console.error('Summer of Soccer — standings error:', data.error, data);
+      throw new Error(data.error);
+    }
     if (!Array.isArray(data.response)) throw new Error('Unexpected standings shape');
 
     // API-Football groups standings as response[0].league.standings = [[group1 teams], [group2 teams], ...]
@@ -579,11 +585,15 @@ async function fetchTournamentStats() {
       fetch('/api/players/topassists?league=' + API_LEAGUE + '&season=' + API_SEASON),
       fetch('/api/standings?league=' + API_LEAGUE + '&season=' + API_SEASON),
     ]);
-    if (!scorersRes.ok || !assistsRes.ok || !standingsRes.ok) throw new Error('Stats API failed');
 
     var scorersData   = await scorersRes.json();
     var assistsData   = await assistsRes.json();
     var standingsData = await standingsRes.json();
+
+    if (scorersData.error || assistsData.error || standingsData.error) {
+      console.error('Summer of Soccer — stats error:', scorersData.error || assistsData.error || standingsData.error, { scorersData, assistsData, standingsData });
+      throw new Error(scorersData.error || assistsData.error || standingsData.error);
+    }
 
     if (!Array.isArray(scorersData.response) || !Array.isArray(assistsData.response)) {
       throw new Error('Unexpected stats response shape');
