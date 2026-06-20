@@ -253,6 +253,7 @@ async function fetchLiveData() {
     // Rebuild LIVE_MATCHES from API response
     var newLive = liveData.response.filter(isOurTournament).map(function(f) {
       return {
+        id: f.fixture.id,
         h: f.teams.home.name, hc: teamCodeFromApi(f.teams.home),
         a: f.teams.away.name, ac: teamCodeFromApi(f.teams.away),
         hs: f.goals.home ?? 0, as: f.goals.away ?? 0,
@@ -273,6 +274,7 @@ async function fetchLiveData() {
       .filter(function(f){ return f.fixture.status.short === 'FT'; })
       .map(function(f) {
         return {
+          id: f.fixture.id,
           h: f.teams.home.name, hc: teamCodeFromApi(f.teams.home),
           a: f.teams.away.name, ac: teamCodeFromApi(f.teams.away),
           hs: f.goals.home, as: f.goals.away,
@@ -481,6 +483,12 @@ function matchCard(m, live) {
   var matchKey = m.hc + '-' + m.ac;
   var scoreStr = m.hs + '-' + m.as;
 
+  // Both live and completed matches can open the match detail overlay —
+  // live games show events/stats as they happen, completed games show
+  // the final scorers, stats and lineups.
+  var tapAttr = m.id ? ' onclick="openMatchDetail(' + m.id + ')" style="cursor:pointer"' : '';
+  var tapCls  = m.id ? ' mc-tappable' : '';
+
   var eventsHtml = '';
   if (live && m.events && m.events.length) {
     eventsHtml = '<div class="mc-events">' +
@@ -497,10 +505,10 @@ function matchCard(m, live) {
       '</div>';
   }
 
-  return '<div class="match-card ' + cls + '" data-match-key="' + matchKey + '" data-score="' + scoreStr + '">' +
+  return '<div class="match-card ' + cls + tapCls + '" data-match-key="' + matchKey + '" data-score="' + scoreStr + '"' + tapAttr + '>' +
     '<div class="mc-badge">' + badge + '</div>' +
     '<div class="mc-teams">' +
-      '<div class="mc-t" onclick="openTeam(\'' + m.hc + '\')" style="cursor:pointer">' +
+      '<div class="mc-t" onclick="event.stopPropagation();openTeam(\'' + m.hc + '\')" style="cursor:pointer">' +
         ff(m.hc, 48, 33) +
         '<div class="mc-tn">' + m.h + '</div>' +
       '</div>' +
@@ -508,7 +516,7 @@ function matchCard(m, live) {
         '<div class="mc-score" data-score-el>' + m.hs + '–' + m.as + '</div>' +
         '<div class="mc-min">' + (live ? 'LIVE' : 'FT') + '</div>' +
       '</div>' +
-      '<div class="mc-t r" onclick="openTeam(\'' + m.ac + '\')" style="cursor:pointer">' +
+      '<div class="mc-t r" onclick="event.stopPropagation();openTeam(\'' + m.ac + '\')" style="cursor:pointer">' +
         ff(m.ac, 48, 33) +
         '<div class="mc-tn">' + m.a + '</div>' +
       '</div>' +

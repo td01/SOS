@@ -65,7 +65,7 @@ body{
 /* Hero */
 .pick-hero{
   background:var(--ink);
-  padding:14px var(--pad) 12px;
+  padding:calc(14px + env(safe-area-inset-top)) var(--pad) 12px;
   position:relative;
   border-bottom:3px solid var(--yellow);
 }
@@ -184,7 +184,7 @@ body{
 /* Top bar */
 .app-top{
   background:var(--ink);
-  padding:12px var(--pad);
+  padding:calc(12px + env(safe-area-inset-top)) var(--pad) 12px;
   display:flex;align-items:center;justify-content:space-between;
   position:sticky;top:0;z-index:50;
   border-bottom:3px solid var(--yellow);
@@ -279,6 +279,7 @@ body{
   display:grid;grid-template-columns:repeat(5,1fr);
   border-top:3px solid var(--ink);
   position:sticky;bottom:0;z-index:50;
+  padding-bottom:env(safe-area-inset-bottom);
 }
 .bnav-btn{
   display:flex;flex-direction:column;align-items:center;gap:3px;
@@ -1765,4 +1766,12 @@ body{
   .md-scoreline-score{ font-size:60px }
   .md-scoreline-name{ font-size:18px }
   .md-lineups{ grid-template-columns:1fr 1fr }
+}
+
+/* ── Tappable match card (opens match detail overlay) ────────────────────────*/
+.match-card.mc-tappable{
+  cursor:pointer;
+}
+.match-card.mc-tappable:active{
+  filter:brightness(.96);
 }
