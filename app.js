@@ -156,7 +156,7 @@ var apiAvailable = null; // null = unknown, true/false once tested
 // the API — there is no mock/placeholder data anywhere in this app.
 // Until this is true, screens will show an honest "not connected" state.
 // ════════════════════════════════════════════════════════════════════════════
-var LIVE_API_ENABLED = false;
+var LIVE_API_ENABLED = true;
 
 async function fetchLiveData() {
   if (!LIVE_API_ENABLED) {
