@@ -113,7 +113,7 @@ function buildTicker() {
   var ticker = document.getElementById('score-ticker');
   if (!ticker) return;
 
-  var demoTag = apiAvailable === false ? '<span class="ticker-demo-tag">DEMO DATA</span>' : '';
+  var demoTag = apiAvailable === false ? '<span class="ticker-demo-tag">NOT CONNECTED</span>' : '';
 
   if (LIVE_MATCHES.length === 0) {
     ticker.className = 'score-ticker no-live';
@@ -149,9 +149,13 @@ var API_LEAGUE = 1;
 var API_SEASON = 2026;
 var apiAvailable = null; // null = unknown, true/false once tested
 
-// Set this to true only once API_FOOTBALL_KEY is configured in Netlify
-// and the site has been redeployed. Until then we skip the fetch entirely
-// so the curated mock/demo data stays on screen without flashing away.
+// ════════════════════════════════════════════════════════════════════════════
+// IMPORTANT — set this to true once API_FOOTBALL_KEY is configured in
+// Netlify (Site settings → Environment variables) and the site has been
+// redeployed. All match data, standings, and stats are fetched live from
+// the API — there is no mock/placeholder data anywhere in this app.
+// Until this is true, screens will show an honest "not connected" state.
+// ════════════════════════════════════════════════════════════════════════════
 var LIVE_API_ENABLED = false;
 
 async function fetchLiveData() {
@@ -385,6 +389,36 @@ function buildSchedule() {
 // ─── GROUPS ───────────────────────────────────────────────────────────────────
 
 var groupsShowLive = false;
+var standingsCache = null; // cached live standings from API
+
+async function fetchStandings() {
+  if (!LIVE_API_ENABLED) return null;
+  try {
+    var res = await fetch('/api/standings?league=' + API_LEAGUE + '&season=' + API_SEASON);
+    if (!res.ok) throw new Error('Standings API failed');
+    var data = await res.json();
+    if (!Array.isArray(data.response)) throw new Error('Unexpected standings shape');
+
+    // API-Football groups standings as response[0].league.standings = [[group1 teams], [group2 teams], ...]
+    var groups = {};
+    (data.response[0]?.league.standings || []).forEach(function(group) {
+      if (!group.length) return;
+      // Derive a group letter from the group label, e.g. "Group A" -> "A"
+      var label = group[0].group || '';
+      var letter = (label.match(/[A-L]$/) || [])[0] || label;
+      groups[letter] = group.map(function(t) {
+        return {
+          n: t.team.name, c: teamCodeFromApi(t.team),
+          p: t.all.played, w: t.all.win, d: t.all.draw, l: t.all.lose,
+          gf: t.all.goals.for, ga: t.all.goals.against, pts: t.points
+        };
+      });
+    });
+    return groups;
+  } catch (e) {
+    return null;
+  }
+}
 
 function toggleGroupsLive(btn) {
   groupsShowLive = !groupsShowLive;
@@ -393,25 +427,23 @@ function toggleGroupsLive(btn) {
   buildGroups();
 }
 
-// Apply live match results to standings
-function getAdjustedGroups() {
-  if (!groupsShowLive || !LIVE_MATCHES.length) return GROUPS;
+// Apply any in-progress live match scores on top of the official standings,
+// so the table reflects what would happen if matches ended right now.
+function getAdjustedGroups(groups) {
+  if (!groupsShowLive || !LIVE_MATCHES.length) return groups;
 
-  // Deep clone
   var adj = {};
-  Object.entries(GROUPS).forEach(function(e) {
+  Object.entries(groups).forEach(function(e) {
     adj[e[0]] = e[1].map(function(t){ return Object.assign({},t); });
   });
 
   LIVE_MATCHES.forEach(function(m) {
-    // Find which group this match belongs to
     var grp = adj[m.g];
     if (!grp) return;
     var home = grp.find(function(t){ return t.c === m.hc; });
     var away = grp.find(function(t){ return t.c === m.ac; });
     if (!home || !away) return;
 
-    // Apply current live score on top of existing stats
     home.gf = (home.gf||0) + m.hs;
     home.ga = (home.ga||0) + m.as;
     away.gf = (away.gf||0) + m.as;
@@ -433,9 +465,26 @@ function getAdjustedGroups() {
   return adj;
 }
 
-function buildGroups() {
+async function buildGroups() {
   var mn = myTeamNames();
-  var groups = getAdjustedGroups();
+  var pane = document.getElementById('p-groups');
+  if (!pane) return;
+
+  pane.innerHTML = '<div class="empty-state"><div class="empty-state-title">Loading standings…</div></div>';
+
+  if (standingsCache === null) {
+    standingsCache = await fetchStandings();
+  }
+
+  if (!standingsCache) {
+    pane.innerHTML = '<div class="empty-state">' +
+      '<div class="empty-state-title">Live standings not available</div>' +
+      '<div class="empty-state-body">Group tables will appear here once the tournament data feed is connected.</div>' +
+    '</div>';
+    return;
+  }
+
+  var groups = getAdjustedGroups(standingsCache);
 
   // Build toggle button
   var toggleHtml = '<div class="groups-toolbar">' +
@@ -446,11 +495,7 @@ function buildGroups() {
     (groupsShowLive ? '<span class="live-toggle-note">Standings updated with live scores</span>' : '') +
     '</div>';
 
-  document.getElementById('p-groups').innerHTML = groupsShowLive
-    ? groupsShowLive && '<div class="groups-live-bar">● Live standings — updates as matches progress</div>'
-    : '';
-
-  document.getElementById('p-groups').innerHTML = toggleHtml + Object.entries(groups).map(function(entry){
+  pane.innerHTML = toggleHtml + Object.entries(groups).map(function(entry){
     var grp = entry[0], rows = entry[1];
     var sorted = rows.slice().sort(function(a,b){
       return (b.pts - a.pts) || ((b.gf - b.ga) - (a.gf - a.ga));
@@ -523,66 +568,62 @@ function buildHistory() {
 
 // ─── STATS TAB ────────────────────────────────────────────────────────────────
 
-// Derive stats from mock live + completed data
-function getTournamentStats() {
-  var allMatches = [...LIVE_MATCHES, ...COMPLETED];
-  var mn = myTeamNames();
+var statsCache = null; // cached API response so we don't refetch every tab switch
 
-  // Top scorers — from events
-  var scorers = {};
-  LIVE_MATCHES.forEach(function(m) {
-    (m.events || []).forEach(function(e) {
-      if (!e.text.includes('GOAL')) return;
-      var name = e.text.replace('GOAL — ', '').replace(' (pen)','');
-      var team = e.team;
-      if (!scorers[name]) scorers[name] = { name:name, team:team, goals:0, pen:0 };
-      scorers[name].goals++;
-      if (e.text.includes('pen')) scorers[name].pen++;
+async function fetchTournamentStats() {
+  if (!LIVE_API_ENABLED) return null;
+
+  try {
+    var [scorersRes, assistsRes, standingsRes] = await Promise.all([
+      fetch('/api/players/topscorers?league=' + API_LEAGUE + '&season=' + API_SEASON),
+      fetch('/api/players/topassists?league=' + API_LEAGUE + '&season=' + API_SEASON),
+      fetch('/api/standings?league=' + API_LEAGUE + '&season=' + API_SEASON),
+    ]);
+    if (!scorersRes.ok || !assistsRes.ok || !standingsRes.ok) throw new Error('Stats API failed');
+
+    var scorersData   = await scorersRes.json();
+    var assistsData   = await assistsRes.json();
+    var standingsData = await standingsRes.json();
+
+    if (!Array.isArray(scorersData.response) || !Array.isArray(assistsData.response)) {
+      throw new Error('Unexpected stats response shape');
+    }
+
+    var scorerList = scorersData.response.slice(0,10).map(function(p) {
+      var stat = p.statistics[0];
+      return {
+        name: p.player.name, team: teamCodeFromApi(stat.team),
+        goals: stat.goals.total, pen: stat.penalty.scored || 0
+      };
     });
-  });
-  // Add some mock scorers for completed games
-  var mockScorers = [
-    { name:'Vinicius Jr',  team:'BRA', goals:2, pen:0 },
-    { name:'Endrick',      team:'BRA', goals:1, pen:0 },
-    { name:'Mbappé',       team:'FRA', goals:2, pen:0 },
-    { name:'Griezmann',    team:'FRA', goals:1, pen:0 },
-    { name:'Thuram',       team:'FRA', goals:1, pen:0 },
-    { name:'Harry Kane',   team:'ENG', goals:1, pen:1 },
-    { name:'Morgan Rogers',team:'ENG', goals:1, pen:0 },
-    { name:'Marc Guehi',   team:'ENG', goals:1, pen:0 },
-    { name:'Musiala',      team:'GER', goals:1, pen:0 },
-    { name:'Havertz',      team:'GER', goals:1, pen:0 },
-    { name:'Wirtz',        team:'GER', goals:1, pen:0 },
-    { name:'Lionel Messi', team:'ARG', goals:1, pen:0 },
-    { name:'McTominay',    team:'SCO', goals:1, pen:0 },
-    { name:'Raúl Jiménez', team:'MEX', goals:2, pen:0 },
-    { name:'H. Ziyech',    team:'MAR', goals:1, pen:0 },
-    { name:'Raphinha',     team:'BRA', goals:1, pen:0 },
-  ];
-  mockScorers.forEach(function(s) {
-    if (!scorers[s.name]) scorers[s.name] = s;
-    else scorers[s.name].goals += s.goals;
-  });
-  var scorerList = Object.values(scorers).sort(function(a,b){ return b.goals - a.goals; }).slice(0,10);
 
-  // Team goals
-  var teamGoals = {};
-  allMatches.forEach(function(m) {
-    teamGoals[m.hc] = (teamGoals[m.hc]||0) + m.hs;
-    teamGoals[m.ac] = (teamGoals[m.ac]||0) + m.as;
-  });
-  var teamGoalList = Object.entries(teamGoals)
-    .map(function(e){ var t=TEAMS.find(function(x){return x.c===e[0];}); return { code:e[0], name:t?t.n:e[0], goals:e[1] }; })
-    .sort(function(a,b){ return b.goals-a.goals; }).slice(0,6);
+    var assistList = assistsData.response.slice(0,10).map(function(p) {
+      var stat = p.statistics[0];
+      return {
+        name: p.player.name, team: teamCodeFromApi(stat.team),
+        assists: stat.goals.assists || 0
+      };
+    });
 
-  // Clean sheets (mock)
-  var cleanSheets = [
-    { name:'Yassine Bounou', team:'MAR', code:'MAR', cs:1 },
-    { name:'Matt Turner',    team:'USA', code:'USA', cs:1 },
-    { name:'Emiliano Martínez', team:'ARG', code:'ARG', cs:1 },
-  ];
+    // Team goals derived from standings (goals for, across all groups)
+    var teamGoalList = [];
+    (standingsData.response || []).forEach(function(league) {
+      (league.league.standings || []).forEach(function(group) {
+        group.forEach(function(t) {
+          teamGoalList.push({
+            code: teamCodeFromApi(t.team), name: t.team.name,
+            goals: t.all.goals.for
+          });
+        });
+      });
+    });
+    teamGoalList.sort(function(a,b){ return b.goals - a.goals; });
+    teamGoalList = teamGoalList.slice(0,6);
 
-  return { scorerList:scorerList, teamGoalList:teamGoalList, cleanSheets:cleanSheets };
+    return { scorerList:scorerList, assistList:assistList, teamGoalList:teamGoalList };
+  } catch (e) {
+    return null;
+  }
 }
 
 function statsRow(rank, code, name, sub, val, valClass, isMineRow) {
@@ -598,13 +639,40 @@ function statsRow(rank, code, name, sub, val, valClass, isMineRow) {
     '</div>';
 }
 
-function buildStats() {
+function statsConnectPrompt(label) {
+  return '<div class="stats-section">' +
+    '<div class="stats-section-hd"><div class="stats-section-title">' + label + '</div></div>' +
+    '<div class="empty-state">' +
+      '<div class="empty-state-title">Live data not connected</div>' +
+      '<div class="empty-state-body">Connect the tournament API to show real-time ' + label.toLowerCase().replace(/^[^a-z]*/,'') + '.</div>' +
+    '</div>' +
+  '</div>';
+}
+
+async function buildStats() {
   var mn = myTeamNames();
-  var s  = getTournamentStats();
   var pane = document.getElementById('p-stats');
   if (!pane) return;
 
+  // Show a lightweight loading state while we fetch
+  pane.innerHTML = '<div class="empty-state"><div class="empty-state-title">Loading stats…</div></div>';
+
+  if (statsCache === null) {
+    statsCache = await fetchTournamentStats();
+  }
+  var s = statsCache;
+
   var html = '';
+
+  if (!s) {
+    // No live data available — explain why, no fabricated numbers shown
+    html += '<div class="empty-state">' +
+      '<div class="empty-state-title">Live stats not available</div>' +
+      '<div class="empty-state-body">Top scorers, assists and team goals will appear here once the tournament data feed is connected.</div>' +
+    '</div>';
+    pane.innerHTML = html;
+    return;
+  }
 
   // ── TOP SCORERS ──
   html += '<div class="stats-section">' +
@@ -613,6 +681,15 @@ function buildStats() {
     var t = TEAMS.find(function(x){return x.c===p.team;});
     var sub = (t?t.n:p.team) + (p.pen?' · '+p.pen+' pen':'');
     html += statsRow(i+1, p.team, p.name, sub, p.goals, 'goals', mn.includes(t?t.n:''));
+  });
+  html += '</div>';
+
+  // ── TOP ASSISTS ──
+  html += '<div class="stats-section">' +
+    '<div class="stats-section-hd"><div class="stats-section-title">🎯 Top Assists</div></div>';
+  s.assistList.forEach(function(p, i) {
+    var t = TEAMS.find(function(x){return x.c===p.team;});
+    html += statsRow(i+1, p.team, p.name, t?t.n:p.team, p.assists, 'assists', mn.includes(t?t.n:''));
   });
   html += '</div>';
 
@@ -633,16 +710,7 @@ function buildStats() {
   });
   html += '</div></div>';
 
-  // ── CLEAN SHEETS ──
-  html += '<div class="stats-section">' +
-    '<div class="stats-section-hd"><div class="stats-section-title">🧤 Clean Sheets</div></div>';
-  s.cleanSheets.forEach(function(p, i) {
-    var t = TEAMS.find(function(x){return x.c===p.code;});
-    html += statsRow(i+1, p.code, p.name, t?t.n:p.team, p.cs, 'clean', mn.includes(t?t.n:''));
-  });
-  html += '</div>';
-
-  // ── TOURNAMENT OVERVIEW ──
+  // ── TOURNAMENT OVERVIEW ── (derived from live matches we already have)
   var totalGoals   = [...LIVE_MATCHES,...COMPLETED].reduce(function(s,m){return s+m.hs+m.as;},0);
   var totalMatches = [...LIVE_MATCHES,...COMPLETED].length;
   var avgGoals     = totalMatches ? (totalGoals/totalMatches).toFixed(1) : '—';
@@ -653,11 +721,10 @@ function buildStats() {
       '<div class="stats-team-cell"><div><div class="stats-team-label">Matches played</div><div class="stats-team-name">All groups</div></div><div class="stats-team-val" style="color:var(--ink)">' + totalMatches + '</div></div>' +
       '<div class="stats-team-cell"><div><div class="stats-team-label">Goals scored</div><div class="stats-team-name">Tournament</div></div><div class="stats-team-val">' + totalGoals + '</div></div>' +
       '<div class="stats-team-cell"><div><div class="stats-team-label">Goals per game</div><div class="stats-team-name">Average</div></div><div class="stats-team-val" style="color:var(--purple)">' + avgGoals + '</div></div>' +
-      '<div class="stats-team-cell"><div><div class="stats-team-label">Red cards</div><div class="stats-team-name">Tournament</div></div><div class="stats-team-val" style="color:#cc2200">2</div></div>' +
     '</div>' +
   '</div>';
 
-  // ── ALL-TIME HISTORY (top 5 each) ──
+  // ── ALL-TIME HISTORY (top 5 each) — static historical records, not live ──
   html += '<div class="stats-section">' +
     '<div class="stats-section-hd"><div class="stats-section-title">⚽ All-time Scorers</div></div>' +
     ALL_TIME_SCORERS.slice(0,5).map(function(s,i){ return statsRow(i+1,s.c,s.n,s.c+' · '+s.yrs,s.goals,'goals',false); }).join('') +

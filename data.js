@@ -119,44 +119,13 @@ var FIXTURES = [
 ];
 
 // ─── LIVE & COMPLETED ─────────────────────────────────────────────────────────
-// Empty until Jun 11 — replaced by API calls in production.
+// Populated entirely from the live API at runtime (see fetchLiveData() in app.js).
+// Empty by default — no mock/placeholder matches.
 // Shape: { h, hc, a, ac, hs, as, min, g } for live
 //        { h, hc, a, ac, hs, as, g }       for completed
 
-var LIVE_MATCHES = [
-  {
-    h:'Scotland', hc:'SCO', a:'Morocco', ac:'MAR',
-    hs:0, as:1, min:83, g:'C',
-    events:[
-      { min:2, team:'MAR', text:'GOAL — Ismael Saibari' },
-    ]
-  },
-];
-
-var COMPLETED = [
-  // Day 9 — 19 June
-  { h:'USA',     hc:'USA', a:'Australia',   ac:'AUS', hs:2, as:0, g:'D' },
-  { h:'Mexico',  hc:'MEX', a:'South Korea', ac:'KOR', hs:1, as:0, g:'A' },
-  { h:'Brazil',  hc:'BRA', a:'Haiti',       ac:'HAI', hs:3, as:0, g:'C' },
-  // Day 8 — 18 June
-  { h:'Türkiye', hc:'TUR', a:'Paraguay',    ac:'PAR', hs:1, as:1, g:'D' },
-  { h:'England', hc:'ENG', a:'Croatia',     ac:'CRO', hs:4, as:2, g:'I' },
-  { h:'Ghana',   hc:'GHA', a:'Panama',      ac:'PAN', hs:1, as:0, g:'I' },
-  { h:'Portugal',hc:'POR', a:'DR Congo',    ac:'COD', hs:1, as:1, g:'K' },
-  { h:'Colombia',hc:'COL', a:'Uzbekistan',  ac:'UZB', hs:3, as:1, g:'K' },
-  // Day 7 — 17 June
-  { h:'Belgium', hc:'BEL', a:'Egypt',       ac:'EGY', hs:1, as:1, g:'G' },
-  { h:'Iran',    hc:'IRN', a:'New Zealand', ac:'NZL', hs:2, as:2, g:'G' },
-  { h:'Spain',   hc:'ESP', a:'Cape Verde',  ac:'CPV', hs:0, as:0, g:'H' },
-  { h:'Saudi Arabia', hc:'KSA', a:'Uruguay', ac:'URU', hs:1, as:1, g:'H' },
-  { h:'Sweden',  hc:'SWE', a:'Tunisia',     ac:'TUN', hs:5, as:1, g:'F' },
-  { h:'Netherlands', hc:'NED', a:'Japan',   ac:'JPN', hs:2, as:2, g:'F' },
-  { h:'Germany', hc:'GER', a:'Curaçao',     ac:'CUW', hs:7, as:1, g:'E' },
-  { h:'Ivory Coast', hc:'CIV', a:'Ecuador', ac:'ECU', hs:1, as:0, g:'E' },
-  { h:'Canada',  hc:'CAN', a:'Qatar',       ac:'QAT', hs:6, as:0, g:'B' },
-  { h:'France',  hc:'FRA', a:'Senegal',     ac:'SEN', hs:3, as:1, g:'J' },
-  { h:'Iraq',    hc:'IRQ', a:'Norway',      ac:'NOR', hs:1, as:4, g:'J' },
-];
+var LIVE_MATCHES = [];
+var COMPLETED = [];
 
 // ─── GROUP STANDINGS ──────────────────────────────────────────────────────────
 // All zeroed — updated by API in production, or updated manually after matches.
