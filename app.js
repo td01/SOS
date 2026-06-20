@@ -1316,11 +1316,14 @@ if (chosen.length > 0) {
 
 // Hide the loading screen once the initial UI is ready. A small minimum
 // display time avoids an unpleasant flash on fast connections while still
-// feeling instant on slower ones.
+// feeling instant on slower ones. The exit transition (scale + fade, see
+// CSS) is timed to feel like one continuous motion with the content
+// underneath animating in, rather than an abrupt cut.
 (function hideLoadingScreen() {
   var loading = document.getElementById('s-loading');
   if (!loading) return;
-  var MIN_DISPLAY_MS = 350;
+  var MIN_DISPLAY_MS = 400;
+  var EXIT_TRANSITION_MS = 500; // must match #s-loading's CSS transition duration
   setTimeout(function() {
     loading.classList.add('hidden');
     // After the fade-out transition finishes, fully remove it from layout/
@@ -1328,6 +1331,6 @@ if (chosen.length > 0) {
     // top of the app (e.g. if a refresh happens mid-transition).
     setTimeout(function() {
       loading.style.display = 'none';
-    }, 450);
+    }, EXIT_TRANSITION_MS + 50);
   }, MIN_DISPLAY_MS);
 })();
