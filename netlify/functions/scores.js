@@ -1,15 +1,19 @@
 // netlify/functions/scores.js
 // Proxies requests to API-Football so the key never reaches the client.
 //
-// Set API_FOOTBALL_KEY in Netlify → Site settings → Environment variables.
-// Uncomment [[redirects]] in netlify.toml when ready to activate.
+// Works with either signup path:
+//  - Direct at api-football.com → set API_FOOTBALL_KEY (uses v3.football.api-sports.io)
+//  - Via RapidAPI               → set API_FOOTBALL_KEY + API_FOOTBALL_VIA_RAPIDAPI=true
 //
 // Usage (from client):
 //   fetch('/api/fixtures?league=1&season=2026')
 //   fetch('/api/standings?league=1&season=2026')
-//   fetch('/api/fixtures?id=12345')   ← single game for live score
+//   fetch('/api/players/topscorers?league=1&season=2026')
+//   fetch('/api/players/topassists?league=1&season=2026')
 
-const BASE = 'https://api-football-v1.p.rapidapi.com/v3';
+const DIRECT_BASE   = 'https://v3.football.api-sports.io';
+const RAPIDAPI_BASE = 'https://api-football-v1.p.rapidapi.com/v3';
+const RAPIDAPI_HOST = 'api-football-v1.p.rapidapi.com';
 
 exports.handler = async (event) => {
   const key = process.env.API_FOOTBALL_KEY;
@@ -17,21 +21,22 @@ exports.handler = async (event) => {
     return { statusCode: 500, body: JSON.stringify({ error: 'API key not configured' }) };
   }
 
+  const viaRapidApi = process.env.API_FOOTBALL_VIA_RAPIDAPI === 'true';
+  const base    = viaRapidApi ? RAPIDAPI_BASE : DIRECT_BASE;
+  const headers = viaRapidApi
+    ? { 'x-rapidapi-host': RAPIDAPI_HOST, 'x-rapidapi-key': key }
+    : { 'x-apisports-key': key };
+
   // Strip the /api/ prefix added by the Netlify redirect
-  const path    = event.path.replace('/.netlify/functions/scores', '');
-  const query   = event.queryStringParameters
+  const path  = event.path.replace('/.netlify/functions/scores', '');
+  const query = event.queryStringParameters
     ? '?' + new URLSearchParams(event.queryStringParameters).toString()
     : '';
 
-  const url = `${BASE}${path}${query}`;
+  const url = `${base}${path}${query}`;
 
   try {
-    const res  = await fetch(url, {
-      headers: {
-        'x-rapidapi-host': 'api-football-v1.p.rapidapi.com',
-        'x-rapidapi-key':  key,
-      },
-    });
+    const res  = await fetch(url, { headers });
     const data = await res.json();
     return {
       statusCode: 200,
