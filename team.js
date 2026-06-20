@@ -213,4 +213,50 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('player-overlay').addEventListener('click', function(e) {
     if (e.target === this) closePlayer();
   });
+
+  initDragToDismiss('team-overlay', 'team-content', closeTeam);
+  initDragToDismiss('player-overlay', 'player-content', closePlayer);
 });
+
+// ── DRAG TO DISMISS ───────────────────────────────────────────────────────────
+
+function initDragToDismiss(overlayId, panelId, closeFn) {
+  const overlay = document.getElementById(overlayId);
+  const panel   = document.getElementById(panelId);
+  if (!overlay || !panel) return;
+
+  let startY = 0, currentDy = 0, dragging = false;
+  const DISMISS_THRESHOLD = 120;
+
+  panel.addEventListener('touchstart', function(e) {
+    // Only start a panel drag if the inner scrollable body is at the top —
+    // otherwise this would fight with normal content scrolling.
+    const body = panel.querySelector('.td-body, .pp-body');
+    if (body && body.scrollTop > 2) return;
+
+    startY = e.touches[0].clientY;
+    dragging = true;
+    panel.classList.add('dragging');
+  }, { passive: true });
+
+  panel.addEventListener('touchmove', function(e) {
+    if (!dragging) return;
+    currentDy = e.touches[0].clientY - startY;
+    if (currentDy < 0) currentDy = 0; // only allow dragging downward
+    panel.style.transform = 'translateY(' + currentDy + 'px)';
+    overlay.style.opacity = String(1 - Math.min(currentDy / 400, 0.6));
+  }, { passive: true });
+
+  panel.addEventListener('touchend', function() {
+    if (!dragging) return;
+    dragging = false;
+    panel.classList.remove('dragging');
+    overlay.style.opacity = '';
+
+    if (currentDy > DISMISS_THRESHOLD) {
+      closeFn();
+    }
+    panel.style.transform = '';
+    currentDy = 0;
+  }, { passive: true });
+}

@@ -83,6 +83,8 @@ function back() {
   document.getElementById('s-pick').style.display = 'block';
 }
 
+var TAB_ORDER = ['live', 'sched', 'groups', 'stats', 'dyk'];
+
 function tab(id, btn) {
   document.querySelectorAll('.pane').forEach(function(p){ p.classList.remove('on'); });
   document.getElementById('p-' + id).classList.add('on');
@@ -91,6 +93,32 @@ function tab(id, btn) {
   if (id === 'dyk')   buildDyk();
   if (id === 'live')  buildLive();
   if (id === 'stats') buildStats();
+}
+
+// Switch tabs by index offset (-1 = previous, +1 = next), used by swipe gestures
+function swipeToTab(direction) {
+  var activeBtn = document.querySelector('.bnav-btn.on');
+  if (!activeBtn) return;
+  var match = activeBtn.getAttribute('onclick').match(/tab\('(\w+)'/);
+  if (!match) return;
+  var currentId = match[1];
+  var idx = TAB_ORDER.indexOf(currentId);
+  if (idx === -1) return;
+  var nextIdx = idx + direction;
+  if (nextIdx < 0 || nextIdx >= TAB_ORDER.length) return;
+
+  var nextId  = TAB_ORDER[nextIdx];
+  var nextBtn = document.querySelectorAll('.bnav-btn')[nextIdx];
+  if (nextBtn) {
+    // Direction-aware pane animation
+    var pane = document.getElementById('p-' + nextId);
+    if (pane) {
+      pane.classList.remove('swipe-in-left', 'swipe-in-right');
+      void pane.offsetWidth;
+      pane.classList.add(direction > 0 ? 'swipe-in-right' : 'swipe-in-left');
+    }
+    tab(nextId, nextBtn);
+  }
 }
 
 // ─── HELPERS ──────────────────────────────────────────────────────────────────
@@ -262,6 +290,9 @@ function matchCard(m, live) {
     ? '<span class="mc-live-dot"></span> ' + m.min + '\' LIVE'
     : 'Full time';
 
+  var matchKey = m.hc + '-' + m.ac;
+  var scoreStr = m.hs + '-' + m.as;
+
   var eventsHtml = '';
   if (live && m.events && m.events.length) {
     eventsHtml = '<div class="mc-events">' +
@@ -278,7 +309,7 @@ function matchCard(m, live) {
       '</div>';
   }
 
-  return '<div class="match-card ' + cls + '">' +
+  return '<div class="match-card ' + cls + '" data-match-key="' + matchKey + '" data-score="' + scoreStr + '">' +
     '<div class="mc-badge">' + badge + '</div>' +
     '<div class="mc-teams">' +
       '<div class="mc-t" onclick="openTeam(\'' + m.hc + '\')" style="cursor:pointer">' +
@@ -286,7 +317,7 @@ function matchCard(m, live) {
         '<div class="mc-tn">' + m.h + '</div>' +
       '</div>' +
       '<div class="mc-center">' +
-        '<div class="mc-score">' + m.hs + '–' + m.as + '</div>' +
+        '<div class="mc-score" data-score-el>' + m.hs + '–' + m.as + '</div>' +
         '<div class="mc-min">' + (live ? 'LIVE' : 'FT') + '</div>' +
       '</div>' +
       '<div class="mc-t r" onclick="openTeam(\'' + m.ac + '\')" style="cursor:pointer">' +
@@ -296,6 +327,30 @@ function matchCard(m, live) {
     '</div>' +
     eventsHtml +
     '</div>';
+}
+
+// Track last-seen scores so we can detect changes and trigger a flash animation
+var lastSeenScores = {};
+
+function flashChangedScores() {
+  document.querySelectorAll('.match-card[data-match-key]').forEach(function(card) {
+    var key = card.getAttribute('data-match-key');
+    var newScore = card.getAttribute('data-score');
+    var oldScore = lastSeenScores[key];
+
+    if (oldScore !== undefined && oldScore !== newScore) {
+      var scoreEl = card.querySelector('[data-score-el]');
+      if (scoreEl) {
+        scoreEl.classList.remove('score-flash');
+        void scoreEl.offsetWidth; // force reflow to restart animation
+        scoreEl.classList.add('score-flash');
+      }
+      card.classList.remove('card-goal-pulse');
+      void card.offsetWidth;
+      card.classList.add('card-goal-pulse');
+    }
+    lastSeenScores[key] = newScore;
+  });
 }
 
 function buildLive() {
@@ -315,6 +370,8 @@ function buildLive() {
   document.getElementById('live-wrap').innerHTML = liveSorted.length
     ? liveSorted.map(function(m){ return matchCard(m, true); }).join('')
     : buildEmptyState();
+
+  flashChangedScores();
 
   // Completed
   document.getElementById('done-wrap').innerHTML = COMPLETED.length
@@ -795,5 +852,117 @@ async function buildStats() {
 
 // ─── INIT ─────────────────────────────────────────────────────────────────────
 
+// ─── PULL TO REFRESH ──────────────────────────────────────────────────────────
+
+var ptrStartY = 0;
+var ptrDragging = false;
+var ptrTriggered = false;
+var PTR_THRESHOLD = 70;
+
+// ─── SWIPE BETWEEN TABS ───────────────────────────────────────────────────────
+
+function initTabSwipe() {
+  var appScreen = document.getElementById('s-app');
+  if (!appScreen) return;
+
+  var startX = 0, startY = 0, tracking = false;
+
+  appScreen.addEventListener('touchstart', function(e) {
+    // Don't hijack swipes inside the Did You Know card (it has its own gesture)
+    // or inside open overlays.
+    if (e.target.closest('#dyk-card')) return;
+    var teamOv   = document.getElementById('team-overlay');
+    var playerOv = document.getElementById('player-overlay');
+    if (teamOv && teamOv.classList.contains('open')) return;
+    if (playerOv && playerOv.classList.contains('open')) return;
+
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+    tracking = true;
+  }, { passive: true });
+
+  appScreen.addEventListener('touchend', function(e) {
+    if (!tracking) return;
+    tracking = false;
+    var dx = e.changedTouches[0].clientX - startX;
+    var dy = e.changedTouches[0].clientY - startY;
+    if (Math.abs(dx) < 60 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
+
+    swipeToTab(dx < 0 ? 1 : -1);
+  }, { passive: true });
+}
+
+function initPullToRefresh() {
+  var appScreen = document.getElementById('s-app');
+  var indicator = document.getElementById('ptr-indicator');
+  if (!appScreen || !indicator) return;
+
+  appScreen.addEventListener('touchstart', function(e) {
+    // Only allow pull-to-refresh when the page is scrolled to the very top
+    if (window.scrollY > 4) return;
+    ptrStartY = e.touches[0].clientY;
+    ptrDragging = true;
+    ptrTriggered = false;
+  }, { passive: true });
+
+  appScreen.addEventListener('touchmove', function(e) {
+    if (!ptrDragging) return;
+    var dy = e.touches[0].clientY - ptrStartY;
+    if (dy <= 0) { indicator.classList.remove('visible'); return; }
+    if (window.scrollY > 4) { ptrDragging = false; return; }
+
+    var pull = Math.min(dy * 0.45, 90);
+    indicator.style.transform = 'translate(-50%, ' + (pull - 60) + 'px)';
+    indicator.classList.add('visible');
+    indicator.querySelector('.ptr-label').textContent =
+      pull > PTR_THRESHOLD ? 'Release to refresh' : 'Pull to refresh';
+    ptrTriggered = pull > PTR_THRESHOLD;
+  }, { passive: true });
+
+  appScreen.addEventListener('touchend', function() {
+    if (!ptrDragging) return;
+    ptrDragging = false;
+    indicator.style.transform = 'translate(-50%, -60px)';
+    indicator.classList.remove('visible');
+
+    if (ptrTriggered) {
+      doRefresh();
+    }
+  }, { passive: true });
+}
+
+function doRefresh() {
+  var indicator = document.getElementById('ptr-indicator');
+  if (!indicator) return;
+  indicator.classList.add('visible', 'refreshing');
+  indicator.style.transform = 'translate(-50%, 8px)';
+  indicator.querySelector('.ptr-label').textContent = 'Refreshing…';
+
+  // Invalidate caches so the active tab re-fetches fresh data
+  statsCache = null;
+  standingsCache = null;
+  fixturesCache = null;
+
+  var activeTab = document.querySelector('.bnav-btn.on');
+  var tabId = activeTab ? activeTab.getAttribute('onclick').match(/tab\('(\w+)'/)[1] : 'live';
+
+  var refreshPromise;
+  if (tabId === 'live')        refreshPromise = fetchLiveData();
+  else if (tabId === 'sched')  refreshPromise = buildSchedule();
+  else if (tabId === 'groups') refreshPromise = buildGroups();
+  else if (tabId === 'stats')  refreshPromise = buildStats();
+  else { buildTicker(); refreshPromise = Promise.resolve(); }
+
+  Promise.resolve(refreshPromise).finally(function() {
+    setTimeout(function() {
+      indicator.classList.remove('visible', 'refreshing');
+      indicator.style.transform = 'translate(-50%, -60px)';
+    }, 400);
+  });
+}
+
+
 renderPick('ALL');
 startCountdown();
+initPullToRefresh();
+initTabSwipe();
