@@ -149,7 +149,19 @@ var API_LEAGUE = 1;
 var API_SEASON = 2026;
 var apiAvailable = null; // null = unknown, true/false once tested
 
+// Set this to true only once API_FOOTBALL_KEY is configured in Netlify
+// and the site has been redeployed. Until then we skip the fetch entirely
+// so the curated mock/demo data stays on screen without flashing away.
+var LIVE_API_ENABLED = false;
+
 async function fetchLiveData() {
+  if (!LIVE_API_ENABLED) {
+    apiAvailable = false;
+    buildLive();
+    buildTicker();
+    return;
+  }
+
   try {
     var [liveRes, todayRes] = await Promise.all([
       fetch('/api/fixtures?live=all'),
@@ -162,12 +174,18 @@ async function fetchLiveData() {
     var todayData = await todayRes.json();
     if (liveData.error || todayData.error) throw new Error(liveData.error || todayData.error);
 
+    // Sanity check: API-Football returns an array under .response —
+    // if it's missing or not an array, treat as a failed/misconfigured call
+    // and do NOT touch the existing mock data.
+    if (!Array.isArray(liveData.response) || !Array.isArray(todayData.response)) {
+      throw new Error('Unexpected API response shape');
+    }
+
     apiAvailable = true;
 
     // Rebuild LIVE_MATCHES from API response
-    LIVE_MATCHES.length = 0;
-    (liveData.response || []).forEach(function(f) {
-      LIVE_MATCHES.push({
+    var newLive = liveData.response.map(function(f) {
+      return {
         h: f.teams.home.name, hc: teamCodeFromApi(f.teams.home),
         a: f.teams.away.name, ac: teamCodeFromApi(f.teams.away),
         hs: f.goals.home ?? 0, as: f.goals.away ?? 0,
@@ -180,24 +198,30 @@ async function fetchLiveData() {
             text: (e.type === 'Goal' ? 'GOAL — ' : 'RED CARD — ') + e.player.name + (e.detail && e.detail.includes('Penalty') ? ' (pen)' : '')
           };
         })
-      });
+      };
     });
 
-    // Rebuild COMPLETED from today's finished matches
-    COMPLETED.length = 0;
-    (todayData.response || [])
+    var newCompleted = todayData.response
       .filter(function(f){ return f.fixture.status.short === 'FT'; })
-      .forEach(function(f) {
-        COMPLETED.push({
+      .map(function(f) {
+        return {
           h: f.teams.home.name, hc: teamCodeFromApi(f.teams.home),
           a: f.teams.away.name, ac: teamCodeFromApi(f.teams.away),
           hs: f.goals.home, as: f.goals.away,
           g: f.league.round ? f.league.round.replace('Group ','') : ''
-        });
+        };
       });
 
+    // Only swap in the new data once both calls have fully succeeded —
+    // never leave the arrays empty mid-fetch.
+    LIVE_MATCHES.length = 0;
+    LIVE_MATCHES.push.apply(LIVE_MATCHES, newLive);
+    COMPLETED.length = 0;
+    COMPLETED.push.apply(COMPLETED, newCompleted);
+
   } catch (e) {
-    // API not configured yet, or request failed — fall back to mock/demo data silently
+    // API not configured yet, or request failed — keep existing mock/demo
+    // data exactly as it is, just flag that we're showing demo content.
     apiAvailable = false;
   }
 
