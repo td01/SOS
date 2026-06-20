@@ -99,7 +99,22 @@ function launch() {
   buildSchedule();
   buildGroups();
   startLivePoll();
+  syncHeaderHeight();
 }
+
+// Measure the actual rendered header height (varies with safe-area-inset-top
+// across devices) and expose it as a CSS variable so the tab nav can stick
+// directly beneath it instead of a guessed/hardcoded pixel value.
+function syncHeaderHeight() {
+  var header = document.querySelector('.app-top');
+  if (!header) return;
+  var h = header.getBoundingClientRect().height;
+  document.documentElement.style.setProperty('--header-h', h + 'px');
+}
+window.addEventListener('resize', syncHeaderHeight);
+window.addEventListener('orientationchange', function() {
+  setTimeout(syncHeaderHeight, 150);
+});
 
 function back() {
   stopLivePoll();
@@ -595,6 +610,19 @@ function getCountdown(target) {
 
 var fixturesCache = null; // cached full tournament fixture list from API
 
+// Classify an API-Football round string into one of our stage filter buckets
+function stageFromRound(round) {
+  if (!round) return 'group';
+  var r = round.toLowerCase();
+  if (r.includes('final') && !r.includes('quarter') && !r.includes('semi')) return 'final';
+  if (r.includes('semi'))   return 'sf';
+  if (r.includes('quarter')) return 'qf';
+  if (r.includes('16'))     return 'r16';
+  if (r.includes('32'))     return 'r32';
+  if (r.includes('group'))  return 'group';
+  return 'group';
+}
+
 async function fetchFixtures() {
   if (!LIVE_API_ENABLED) return null;
   try {
@@ -612,11 +640,13 @@ async function fetchFixtures() {
       var kickoff = new Date(f.fixture.date);
       var isDone  = f.fixture.status.short === 'FT' || f.fixture.status.short === 'AET' || f.fixture.status.short === 'PEN';
       var isLive  = ['1H','2H','HT','ET','P','BT'].includes(f.fixture.status.short);
+      var round   = f.league.round || '';
       return {
         id: f.fixture.id,
         h: f.teams.home.name, hc: teamCodeFromApi(f.teams.home),
         a: f.teams.away.name, ac: teamCodeFromApi(f.teams.away),
-        g: f.league.round ? f.league.round.replace('Group ','') : '',
+        g: round.replace('Group ',''),
+        stage: stageFromRound(round),
         date: kickoff.toLocaleDateString('en-US', { month:'short', day:'numeric' }),
         t: kickoff.toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit', timeZone:'America/New_York' }) + ' ET',
         status: f.fixture.status.short,
@@ -661,6 +691,66 @@ function fixtureRow(f, mine) {
     '</div>';
 }
 
+var schedStage = 'ALL'; // current schedule stage filter
+
+var SCHED_STAGES = [
+  { id: 'ALL',   label: 'All' },
+  { id: 'group', label: 'Groups' },
+  { id: 'r32',   label: 'Last 32' },
+  { id: 'r16',   label: 'Last 16' },
+  { id: 'qf',    label: 'QF' },
+  { id: 'sf',    label: 'SF' },
+  { id: 'final', label: 'Final' },
+];
+
+function schedStageFilter(stage) {
+  schedStage = stage;
+  renderScheduleList();
+  // Sync active state on the buttons
+  document.querySelectorAll('.sched-stage-btn').forEach(function(b) {
+    b.classList.toggle('on', b.getAttribute('data-stage') === stage);
+  });
+}
+
+function renderScheduleList() {
+  var listEl = document.getElementById('sched-list');
+  if (!listEl || !fixturesCache) return;
+
+  var fixtures = schedStage === 'ALL'
+    ? fixturesCache
+    : fixturesCache.filter(function(f){ return f.stage === schedStage; });
+
+  var mn   = myTeamNames();
+  var mine = fixtures.filter(function(f){ return mn.includes(f.h) || mn.includes(f.a); });
+  var html = '';
+
+  if (mine.length) {
+    html += sec('Your fixtures');
+    html += mine.map(function(f){ return fixtureRow(f, true); }).join('');
+  }
+  html += sec('Full schedule');
+
+  if (!fixtures.length) {
+    html += '<div class="empty-state"><div class="empty-state-title">No fixtures yet</div>' +
+      '<div class="empty-state-body">This stage hasn\u2019t been scheduled yet \u2014 check back once earlier rounds conclude.</div></div>';
+  } else {
+    var byDate = {};
+    fixtures.forEach(function(f){
+      if (!byDate[f.date]) byDate[f.date] = [];
+      byDate[f.date].push(f);
+    });
+    Object.entries(byDate).forEach(function(entry){
+      var date = entry[0], matches = entry[1];
+      html += '<div class="day-lbl span-all">' + date + '</div>';
+      html += matches.map(function(f){
+        return fixtureRow(f, mn.includes(f.h) || mn.includes(f.a));
+      }).join('');
+    });
+  }
+
+  listEl.innerHTML = html;
+}
+
 async function buildSchedule() {
   var pane = document.getElementById('p-sched');
   if (!pane) return;
@@ -679,30 +769,20 @@ async function buildSchedule() {
     return;
   }
 
-  var mn   = myTeamNames();
-  var mine = fixturesCache.filter(function(f){ return mn.includes(f.h) || mn.includes(f.a); });
-  var html = '';
-
-  if (mine.length) {
-    html += sec('Your fixtures');
-    html += mine.map(function(f){ return fixtureRow(f, true); }).join('');
-  }
-  html += sec('Full schedule');
-
-  var byDate = {};
-  fixturesCache.forEach(function(f){
-    if (!byDate[f.date]) byDate[f.date] = [];
-    byDate[f.date].push(f);
-  });
-  Object.entries(byDate).forEach(function(entry){
-    var date = entry[0], matches = entry[1];
-    html += '<div class="day-lbl span-all">' + date + '</div>';
-    html += matches.map(function(f){
-      return fixtureRow(f, mn.includes(f.h) || mn.includes(f.a));
+  // Only show stage tabs that actually have fixtures (e.g. don't show "Final"
+  // before the bracket exists yet)
+  var availableStages = new Set(fixturesCache.map(function(f){ return f.stage; }));
+  var stageBtns = SCHED_STAGES
+    .filter(function(s){ return s.id === 'ALL' || availableStages.has(s.id); })
+    .map(function(s) {
+      return '<button class="sched-stage-btn' + (s.id === schedStage ? ' on' : '') + '" data-stage="' + s.id + '" onclick="schedStageFilter(\'' + s.id + '\')">' + s.label + '</button>';
     }).join('');
-  });
 
-  pane.innerHTML = html;
+  pane.innerHTML =
+    '<div class="sched-stage-bar">' + stageBtns + '</div>' +
+    '<div id="sched-list"></div>';
+
+  renderScheduleList();
 }
 
 // ─── GROUPS ───────────────────────────────────────────────────────────────────
@@ -952,13 +1032,18 @@ async function fetchTournamentStats() {
   }
 }
 
-function statsRow(rank, code, name, sub, val, valClass, isMineRow) {
+function statsRow(rank, code, name, sub, val, valClass, isMineRow, playerName) {
   var rc = rank===1?'g':rank===2?'s':rank===3?'b':'';
-  return '<div class="stats-row' + (isMineRow?' mine':'') + '">' +
+  // playerName is passed for scorer/assist rows so we can look up a profile;
+  // team-only rows (e.g. all-time records list) pass nothing and stay inert.
+  var hasProfile = playerName && typeof findPlayer === 'function' && !!findPlayer(code, playerName);
+  var tapAttr = hasProfile ? ' onclick="openPlayer(\'' + code + '\',\'' + playerName.replace(/'/g,"\\'") + '\')" style="cursor:pointer"' : '';
+  var tapCls  = hasProfile ? ' stats-row-tappable' : '';
+  return '<div class="stats-row' + (isMineRow?' mine':'') + tapCls + '"' + tapAttr + '>' +
     '<div class="stats-rank' + (rc?' '+rc:'') + '">' + rank + '</div>' +
     ff(code, 28, 20) +
     '<div class="stats-info">' +
-      '<div class="stats-name">' + name + '</div>' +
+      '<div class="stats-name">' + name + (hasProfile ? ' <span class="stats-row-arrow">›</span>' : '') + '</div>' +
       '<div class="stats-sub">' + sub + '</div>' +
     '</div>' +
     '<div class="stats-val ' + valClass + '">' + val + '</div>' +
@@ -1006,7 +1091,7 @@ async function buildStats() {
   s.scorerList.forEach(function(p, i) {
     var t = TEAMS.find(function(x){return x.c===p.team;});
     var sub = (t?t.n:p.team) + (p.pen?' · '+p.pen+' pen':'');
-    html += statsRow(i+1, p.team, p.name, sub, p.goals, 'goals', mn.includes(t?t.n:''));
+    html += statsRow(i+1, p.team, p.name, sub, p.goals, 'goals', mn.includes(t?t.n:''), p.name);
   });
   html += '</div>';
 
@@ -1015,7 +1100,7 @@ async function buildStats() {
     '<div class="stats-section-hd"><div class="stats-section-title">🎯 Top Assists</div></div>';
   s.assistList.forEach(function(p, i) {
     var t = TEAMS.find(function(x){return x.c===p.team;});
-    html += statsRow(i+1, p.team, p.name, t?t.n:p.team, p.assists, 'assists', mn.includes(t?t.n:''));
+    html += statsRow(i+1, p.team, p.name, t?t.n:p.team, p.assists, 'assists', mn.includes(t?t.n:''), p.name);
   });
   html += '</div>';
 
@@ -1126,6 +1211,12 @@ function initPullToRefresh() {
   appScreen.addEventListener('touchstart', function(e) {
     // Only allow pull-to-refresh when the page is scrolled to the very top
     if (window.scrollY > 4) return;
+    // Don't start tracking a pull gesture if the touch began on a tappable
+    // card/row — otherwise a normal tap that has a few pixels of incidental
+    // drift can trigger a refresh mid-tap, destroying the element being
+    // tapped before its click event fires.
+    if (e.target.closest('.match-card, .fix-card, .stats-row, .ctry-tile, .grp-tbl tr, .td-player, .bnav-btn, .sched-stage-btn, .rbtn')) return;
+
     ptrStartY = e.touches[0].clientY;
     ptrDragging = true;
     ptrTriggered = false;
@@ -1160,6 +1251,18 @@ function initPullToRefresh() {
 function doRefresh() {
   var indicator = document.getElementById('ptr-indicator');
   if (!indicator) return;
+
+  // Never refresh while an overlay is open — the person is reading detail,
+  // not browsing the list, and a mid-read rebuild would be jarring/lossy.
+  var teamOv  = document.getElementById('team-overlay');
+  var playerOv = document.getElementById('player-overlay');
+  var matchOv  = document.getElementById('match-overlay');
+  if ((teamOv && teamOv.classList.contains('open')) ||
+      (playerOv && playerOv.classList.contains('open')) ||
+      (matchOv && matchOv.classList.contains('open'))) {
+    return;
+  }
+
   indicator.classList.add('visible', 'refreshing');
   indicator.style.transform = 'translate(-50%, 8px)';
   indicator.querySelector('.ptr-label').textContent = 'Refreshing…';
@@ -1198,3 +1301,15 @@ initTabSwipe();
 if (chosen.length > 0) {
   launch();
 }
+
+// Hide the loading screen once the initial UI is ready. A small minimum
+// display time avoids an unpleasant flash on fast connections while still
+// feeling instant on slower ones.
+(function hideLoadingScreen() {
+  var loading = document.getElementById('s-loading');
+  if (!loading) return;
+  var MIN_DISPLAY_MS = 500;
+  setTimeout(function() {
+    loading.classList.add('hidden');
+  }, MIN_DISPLAY_MS);
+})();

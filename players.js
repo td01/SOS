@@ -135,17 +135,44 @@ function findPlayer(teamCode, playerName) {
   const parts = playerName.replace(/['']/g,"'").split(' ');
   const last  = parts[parts.length - 1].replace(/[^a-zA-ZÀ-ÿ]/g,'');
   const first = parts[0].replace(/[^a-zA-ZÀ-ÿ]/g,'');
+  const fullLower = playerName.toLowerCase().trim();
 
-  // Direct last name match
-  if (PLAYERS[teamCode+'_'+last])  return PLAYERS[teamCode+'_'+last];
-  // First name match (e.g. Alisson, Endrick, Casemiro)
-  if (PLAYERS[teamCode+'_'+first]) return PLAYERS[teamCode+'_'+first];
-  // Fuzzy: any key for team where full name contains last name
-  const entry = Object.entries(PLAYERS).find(([k,v]) =>
-    k.startsWith(teamCode+'_') &&
-    v.full.toLowerCase().includes(last.toLowerCase())
+  // 1. Exact full-name match — most precise, avoids surname collisions
+  //    (e.g. "Dean Henderson" vs "Jordan Henderson" on the same team).
+  const exactEntry = Object.entries(PLAYERS).find(([k, v]) =>
+    k.startsWith(teamCode + '_') && v.full.toLowerCase() === fullLower
   );
-  return entry ? entry[1] : null;
+  if (exactEntry) return exactEntry[1];
+
+  // 2. Direct last-name key match — but ONLY if the resolved profile's own
+  //    full name also matches on first name/initial, so two different
+  //    players who happen to share a surname on the same team don't get
+  //    silently merged into one profile.
+  const lastNameEntry = PLAYERS[teamCode + '_' + last];
+  if (lastNameEntry) {
+    const entryFirst = lastNameEntry.full.split(' ')[0].toLowerCase();
+    if (entryFirst === first.toLowerCase()) return lastNameEntry;
+    // Surname matches but first name doesn't — this is a different person
+    // sharing a surname (the Henderson case). Don't return a mismatched
+    // profile; fall through so the caller can use an auto-generated one.
+  } else {
+    // No surname collision risk — safe to use the key-based match as-is.
+    if (PLAYERS[teamCode + '_' + last]) return PLAYERS[teamCode + '_' + last];
+  }
+
+  // 3. First name match (e.g. Alisson, Endrick, Casemiro — mononym-style keys)
+  if (PLAYERS[teamCode + '_' + first]) return PLAYERS[teamCode + '_' + first];
+
+  // 4. Fuzzy fallback: any key for this team where the full name contains
+  //    the last name AND first name/initial also lines up, to avoid the
+  //    same surname-collision problem in the fuzzy path too.
+  const fuzzyEntry = Object.entries(PLAYERS).find(([k, v]) => {
+    if (!k.startsWith(teamCode + '_')) return false;
+    if (!v.full.toLowerCase().includes(last.toLowerCase())) return false;
+    const vFirst = v.full.split(' ')[0].toLowerCase();
+    return vFirst === first.toLowerCase();
+  });
+  return fuzzyEntry ? fuzzyEntry[1] : null;
 }
 
 // ─── AUTO-GENERATED PROFILE FALLBACK ─────────────────────────────────────────
@@ -211,13 +238,38 @@ findPlayer = function(teamCode, playerName) {
   // Try to find in squad data and auto-generate
   var sq = SQUADS[teamCode];
   if (!sq || !sq.squad) return null;
+
+  var fullLower = playerName.toLowerCase().trim();
+
+  // 1. Exact full-name match first — critical when multiple squad members
+  //    share a surname or first name (e.g. three Martínez on Argentina);
+  //    OR-based matching below would otherwise grab whichever one happens
+  //    to appear first in the squad array.
   var squadPlayer = sq.squad.find(function(p) {
+    return p.n.toLowerCase().trim() === fullLower;
+  });
+
+  // 2. Only fall back to last/first-name OR-matching if there's no exact
+  //    match AND it's unambiguous (exactly one squad player shares that
+  //    last name or first name) — avoids the multi-Martínez collision.
+  if (!squadPlayer) {
     var last  = playerName.split(' ').pop().toLowerCase().replace(/[^a-zà-ÿ]/gi,'');
     var first = playerName.split(' ')[0].toLowerCase().replace(/[^a-zà-ÿ]/gi,'');
-    var pLast  = p.n.split(' ').pop().toLowerCase().replace(/[^a-zà-ÿ]/gi,'');
-    var pFirst = p.n.split(' ')[0].toLowerCase().replace(/[^a-zà-ÿ]/gi,'');
-    return pLast === last || pFirst === first || p.n === playerName;
-  });
+    var lastMatches = sq.squad.filter(function(p) {
+      var pLast = p.n.split(' ').pop().toLowerCase().replace(/[^a-zà-ÿ]/gi,'');
+      return pLast === last;
+    });
+    if (lastMatches.length === 1) {
+      squadPlayer = lastMatches[0];
+    } else {
+      var firstMatches = sq.squad.filter(function(p) {
+        var pFirst = p.n.split(' ')[0].toLowerCase().replace(/[^a-zà-ÿ]/gi,'');
+        return pFirst === first;
+      });
+      if (firstMatches.length === 1) squadPlayer = firstMatches[0];
+    }
+  }
+
   if (squadPlayer) return autoProfile(teamCode, squadPlayer);
   return null;
 };

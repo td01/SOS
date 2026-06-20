@@ -41,6 +41,29 @@
 }
 
 /* ── BASE ── */
+
+/* ── LOADING SCREEN ───────────────────────────────────────────────────────── */
+#s-loading{
+  position:fixed;
+  inset:0;
+  background:var(--yellow);
+  display:flex;align-items:center;justify-content:center;
+  z-index:999;
+  transition:opacity .4s ease-out, visibility .4s ease-out;
+}
+#s-loading.hidden{
+  opacity:0;
+  visibility:hidden;
+  pointer-events:none;
+}
+.loading-icon{
+  width:110px;height:110px;
+  animation:loadingPulse 1.4s ease-in-out infinite;
+}
+@keyframes loadingPulse{
+  0%, 100% { transform:scale(1);   opacity:1;  }
+  50%      { transform:scale(.92); opacity:.7; }
+}
 html,body{
   margin:0;padding:0;
 }
@@ -192,6 +215,10 @@ body{
 }
 .app-logo{ cursor:pointer;display:flex;align-items:center;gap:10px }
 .app-icon{ flex-shrink:0;display:block }
+.app-logo-icon{
+  width:32px;height:32px;
+  display:block;
+}
 .app-logo-text{
   font-family:var(--display);
   font-size:20px;letter-spacing:.05em;
@@ -278,7 +305,9 @@ body{
   background:var(--ink);
   display:grid;grid-template-columns:repeat(5,1fr);
   border-top:3px solid var(--ink);
-  position:sticky;bottom:0;z-index:50;
+  position:sticky;
+  top:var(--header-h, 54px);
+  z-index:49;
   padding-bottom:env(safe-area-inset-bottom);
 }
 .bnav-btn{
@@ -1328,6 +1357,14 @@ body{
   gap:12px;
 }
 .stats-row.mine{ background:var(--lav) }
+.stats-row-tappable{ cursor:pointer }
+.stats-row-tappable:active{ background:var(--faint) }
+.stats-row.mine.stats-row-tappable:active{ background:#e8e4fb }
+.stats-row-arrow{
+  color:var(--pink);
+  font-size:14px;
+  margin-left:2px;
+}
 .stats-rank{
   font-family:var(--display);
   font-size:39px;color:var(--muted);
@@ -1452,7 +1489,7 @@ body{
 /* ── Global tap feedback ──────────────────────────────────────────────────── */
 .ctry-tile, .team-pill, .bnav-btn, .rbtn, .go-btn, .live-toggle,
 .dyk-filter-btn, .grp-tbl tr, .fix-card, .stats-row, .td-player.tappable,
-.team-overlay-panel .td-fixture, .mc-t, .app-logo, .dyk-ctrl-btn {
+.team-overlay-panel .td-fixture, .mc-t, .app-logo, .dyk-ctrl-btn, .match-card.mc-tappable {
   transition: transform .12s cubic-bezier(.4,0,.2,1), opacity .12s, background .12s;
   -webkit-tap-highlight-color: transparent;
   will-change: transform;
@@ -1460,7 +1497,7 @@ body{
 .ctry-tile:active, .team-pill:active, .bnav-btn:active, .rbtn:active,
 .live-toggle:active, .dyk-filter-btn:active, .fix-card:active,
 .stats-row:active, .td-player.tappable:active, .mc-t:active,
-.grp-tbl tr:active {
+.grp-tbl tr:active, .match-card.mc-tappable:active {
   transform: scale(.96);
 }
 .go-btn:not(:disabled):active {
@@ -1775,3 +1812,23 @@ body{
 .match-card.mc-tappable:active{
   filter:brightness(.96);
 }
+
+/* ── Schedule stage filter bar (same style as region-bar) ───────────────────*/
+.sched-stage-bar{
+  display:flex;overflow-x:auto;
+  background:var(--card);
+  border-bottom:2px solid var(--ink);
+  position:sticky;
+  top:calc(var(--header-h, 54px) + 56px);
+  z-index:30;
+}
+.sched-stage-bar::-webkit-scrollbar{display:none}
+.sched-stage-btn{
+  font-family:var(--display);
+  font-size:14px;letter-spacing:.07em;
+  padding:12px 16px;border:none;
+  border-right:1px solid var(--rule);
+  background:transparent;color:var(--muted);
+  cursor:pointer;white-space:nowrap;flex-shrink:0;
+}
+.sched-stage-btn.on{background:var(--ink);color:var(--yellow)}

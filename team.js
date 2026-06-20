@@ -77,10 +77,11 @@ function openTeam(code) {
         squadHtml += `<div class="td-pos-label" style="background:${posColor[p.pos]}">${posLabel[p.pos]}</div>`;
         lastPos = p.pos;
       }
-      const hasProfile = !!findPlayer(code, p.n);
+      // Every squad player is tappable: bespoke profile if we have one,
+      // otherwise an auto-generated profile from their squad data.
       squadHtml += `
-        <div class="td-player${hasProfile ? ' tappable' : ''}" ${hasProfile ? `onclick="openPlayer('${code}','${p.n.replace(/'/g,'\\\'')}')"` : ''}>
-          <div class="td-player-name">${p.n}${hasProfile ? ' <span class="td-player-arrow">›</span>' : ''}</div>
+        <div class="td-player tappable" onclick="openPlayer('${code}','${p.n.replace(/'/g,"\\'")}')">
+          <div class="td-player-name">${p.n} <span class="td-player-arrow">›</span></div>
           <div class="td-player-meta">
             <span class="td-player-club">${p.club}</span>
             <span class="td-player-caps">${p.caps} caps</span>

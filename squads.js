@@ -72,7 +72,6 @@ var SQUADS = {
       { n:'Thiago Almada',     pos:'FW', club:'Lyon',            caps:12  },
       { n:'Valentín Barco',    pos:'DF', club:'Strasbourg',      caps:6   },
       { n:'José M. López',     pos:'FW', club:'Palmeiras',       caps:4   },
-      { n:'Nico Paz',          pos:'MF', club:'Como',            caps:8   },
     ]
   },
 
