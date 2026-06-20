@@ -928,42 +928,81 @@ function toggleGroupsLive(btn) {
   buildGroups();
 }
 
-// Apply any in-progress live match scores on top of the official standings,
-// so the table reflects what would happen if matches ended right now.
+// The official /standings endpoint can lag behind individual match results
+// for a while after a game ends — the result itself is already correct via
+// /fixtures, but the provider's aggregate table recompute can trail by
+// minutes. To make sure the table is never visibly wrong/stale once a
+// match has finished, we overlay today's in-progress AND just-completed
+// matches on top of the official standings.
+//
+// To avoid double-counting once /standings catches up on its own, we
+// remember each team's "played" count from the last time we fetched
+// standings (prevPlayedByTeam). If the official count has already gone up
+// for both teams in a finished match, that means /standings has already
+// absorbed this result — so we skip applying it again on top.
+//
+// The groupsShowLive toggle still controls whether *in-progress* (not yet
+// final) matches are projected onto the table — that part is genuinely
+// optional/speculative ("what if this game ended right now"). Applying a
+// match that has ALREADY finished is not speculative, so that correction
+// always runs regardless of the toggle.
+var prevPlayedByTeam = {}; // team code -> played count, from the last fetched standings snapshot
+
 function getAdjustedGroups(groups) {
-  if (!groupsShowLive || !LIVE_MATCHES.length) return groups;
+  var matchesToApply = COMPLETED.slice(); // always apply finished-today results
+  if (groupsShowLive) {
+    matchesToApply = matchesToApply.concat(LIVE_MATCHES); // optionally also project in-progress games
+  }
 
   var adj = {};
   Object.entries(groups).forEach(function(e) {
     adj[e[0]] = e[1].map(function(t){ return Object.assign({},t); });
   });
 
-  LIVE_MATCHES.forEach(function(m) {
-    if (m.stage && m.stage !== 'group') return; // knockout matches don't affect group standings
-    var grp = adj[m.g];
-    if (!grp) return;
-    var home = grp.find(function(t){ return t.c === m.hc; });
-    var away = grp.find(function(t){ return t.c === m.ac; });
-    if (!home || !away) return;
+  if (matchesToApply.length) {
+    matchesToApply.forEach(function(m) {
+      if (m.stage && m.stage !== 'group') return; // knockout matches don't affect group standings
+      var grp = adj[m.g];
+      if (!grp) return;
+      var home = grp.find(function(t){ return t.c === m.hc; });
+      var away = grp.find(function(t){ return t.c === m.ac; });
+      if (!home || !away) return;
 
-    home.gf = (home.gf||0) + m.hs;
-    home.ga = (home.ga||0) + m.as;
-    away.gf = (away.gf||0) + m.as;
-    away.ga = (away.ga||0) + m.hs;
-    home.p  = (home.p||0) + 1;
-    away.p  = (away.p||0) + 1;
+      // If both teams' official played-count has already increased since
+      // we last checked, /standings has caught up and already includes
+      // this result on its own — applying it again would double-count it.
+      var homePrevP = prevPlayedByTeam[m.hc];
+      var awayPrevP = prevPlayedByTeam[m.ac];
+      var alreadyCaughtUp =
+        homePrevP !== undefined && awayPrevP !== undefined &&
+        home.p > homePrevP && away.p > awayPrevP;
+      if (alreadyCaughtUp) return;
 
-    if (m.hs > m.as) {
-      home.w = (home.w||0)+1; home.pts = (home.pts||0)+3;
-      away.l = (away.l||0)+1;
-    } else if (m.as > m.hs) {
-      away.w = (away.w||0)+1; away.pts = (away.pts||0)+3;
-      home.l = (home.l||0)+1;
-    } else {
-      home.d = (home.d||0)+1; home.pts = (home.pts||0)+1;
-      away.d = (away.d||0)+1; away.pts = (away.pts||0)+1;
-    }
+      home.gf = (home.gf||0) + m.hs;
+      home.ga = (home.ga||0) + m.as;
+      away.gf = (away.gf||0) + m.as;
+      away.ga = (away.ga||0) + m.hs;
+      home.p  = (home.p||0) + 1;
+      away.p  = (away.p||0) + 1;
+
+      if (m.hs > m.as) {
+        home.w = (home.w||0)+1; home.pts = (home.pts||0)+3;
+        away.l = (away.l||0)+1;
+      } else if (m.as > m.hs) {
+        away.w = (away.w||0)+1; away.pts = (away.pts||0)+3;
+        home.l = (home.l||0)+1;
+      } else {
+        home.d = (home.d||0)+1; home.pts = (home.pts||0)+1;
+        away.d = (away.d||0)+1; away.pts = (away.pts||0)+1;
+      }
+    });
+  }
+
+  // Snapshot this fetch's official played-counts for next time's comparison.
+  Object.values(groups).forEach(function(teams) {
+    teams.forEach(function(t) { prevPlayedByTeam[t.c] = t.p; });
   });
+
   return adj;
 }
 
