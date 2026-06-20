@@ -130,6 +130,18 @@ function back() {
   document.getElementById('s-pick').style.display = 'block';
 }
 
+// Tapping the header icon goes to the app's home (Live tab) and stays
+// within the in-app yellow header — distinct from "Change teams", which
+// exits to the team-selection screen entirely.
+function goHome() {
+  var liveBtn = document.querySelector('.bnav-btn[onclick*="\'live\'"]');
+  if (liveBtn) {
+    tab('live', liveBtn);
+  }
+  var pane = document.querySelector('.pane.on');
+  if (pane) pane.scrollTop = 0;
+}
+
 var TAB_ORDER = ['live', 'sched', 'groups', 'stats', 'dyk'];
 
 function tab(id, btn) {

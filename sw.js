@@ -3,7 +3,7 @@
 // and degrades gracefully offline. Live data (API calls) always goes to
 // the network — we never cache /api/* responses here.
 
-const CACHE_NAME = 'summer-of-soccer-v1';
+const CACHE_NAME = 'summer-of-soccer-v2';
 const APP_SHELL = [
   '/',
   '/index.html',
@@ -43,20 +43,19 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // App shell: cache-first, falling back to network, then updating the cache.
+  // App shell: network-first, falling back to cache only if offline.
+  // (Previously cache-first — that meant CSS/JS fixes could be masked by a
+  // stale cached copy until the *next* visit. Network-first means updates
+  // land immediately; the cache is purely an offline fallback now.)
   event.respondWith(
-    caches.match(event.request).then((cached) => {
-      const networkFetch = fetch(event.request)
-        .then((res) => {
-          if (res && res.status === 200) {
-            const resClone = res.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, resClone));
-          }
-          return res;
-        })
-        .catch(() => cached); // offline — fall back to cache if network fails
-
-      return cached || networkFetch;
-    })
+    fetch(event.request)
+      .then((res) => {
+        if (res && res.status === 200) {
+          const resClone = res.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, resClone));
+        }
+        return res;
+      })
+      .catch(() => caches.match(event.request))
   );
 });
