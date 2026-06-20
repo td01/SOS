@@ -168,7 +168,7 @@ async function fetchLiveData() {
 
   try {
     var [liveRes, todayRes] = await Promise.all([
-      fetch('/api/fixtures?live=all'),
+      fetch('/api/fixtures?live=all&league=' + API_LEAGUE + '&season=' + API_SEASON),
       fetch('/api/fixtures?date=' + new Date().toISOString().slice(0,10) + '&league=' + API_LEAGUE + '&season=' + API_SEASON)
     ]);
 
@@ -190,8 +190,16 @@ async function fetchLiveData() {
 
     apiAvailable = true;
 
+    // Defensive hard filter: only ever accept fixtures whose league.id
+    // matches our tournament, regardless of what the query string asked
+    // for. This guards against any endpoint (like ?live=all) ignoring
+    // the league filter and returning unrelated club matches.
+    var isOurTournament = function(f) {
+      return f.league && Number(f.league.id) === Number(API_LEAGUE);
+    };
+
     // Rebuild LIVE_MATCHES from API response
-    var newLive = liveData.response.map(function(f) {
+    var newLive = liveData.response.filter(isOurTournament).map(function(f) {
       return {
         h: f.teams.home.name, hc: teamCodeFromApi(f.teams.home),
         a: f.teams.away.name, ac: teamCodeFromApi(f.teams.away),
@@ -209,6 +217,7 @@ async function fetchLiveData() {
     });
 
     var newCompleted = todayData.response
+      .filter(isOurTournament)
       .filter(function(f){ return f.fixture.status.short === 'FT'; })
       .map(function(f) {
         return {
@@ -344,7 +353,9 @@ async function fetchFixtures() {
     }
     if (!Array.isArray(data.response)) throw new Error('Unexpected fixtures shape');
 
-    return data.response.map(function(f) {
+    return data.response
+      .filter(function(f){ return f.league && Number(f.league.id) === Number(API_LEAGUE); })
+      .map(function(f) {
       var kickoff = new Date(f.fixture.date);
       return {
         h: f.teams.home.name, hc: teamCodeFromApi(f.teams.home),

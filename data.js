@@ -92,14 +92,19 @@ var COMPLETED = [];
 
 // ─── ALL-TIME HISTORY ─────────────────────────────────────────────────────────
 
+// NOTE: this is a hand-maintained historical record, not pulled from the
+// live API (no endpoint provides cross-tournament all-time totals). Since
+// the 2026 tournament is in progress, these figures can go stale with any
+// match — last manually verified 20 Jun 2026 (Messi's hat-trick vs Algeria
+// took him to 16, tying Klose; Mbappé sits on 14, tied with Müller).
 var ALL_TIME_SCORERS = [
   { n:'Miroslav Klose',  c:'GER', goals:16, yrs:'2002–2014' },
+  { n:'Lionel Messi',    c:'ARG', goals:16, yrs:'2006–2026'  },
   { n:'Ronaldo',         c:'BRA', goals:15, yrs:'1994–2006' },
+  { n:'Kylian Mbappé',   c:'FRA', goals:14, yrs:'2018–2026'  },
   { n:'Gerd Müller',     c:'GER', goals:14, yrs:'1970–74'   },
   { n:'Just Fontaine',   c:'FRA', goals:13, yrs:'1958'      },
-  { n:'Lionel Messi',    c:'ARG', goals:13, yrs:'2006–2022'  },
   { n:'Pelé',            c:'BRA', goals:12, yrs:'1958–70'   },
-  { n:'Sandor Kocsis',   c:'HUN', goals:11, yrs:'1954'      },
 ];
 
 var GOLDEN_SHOE = [
