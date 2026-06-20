@@ -13,6 +13,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Soccer">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
 <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
 
@@ -62,7 +64,10 @@
   </div>
   <div class="ctry-list" id="ctry-list"></div>
   <div class="pick-footer">
-    <div class="pick-cnt" id="pick-cnt">None selected</div>
+    <div class="pick-cnt-row">
+      <div class="pick-cnt" id="pick-cnt">None selected</div>
+      <button class="pick-clear-btn" id="pick-clear-btn" onclick="clearTeamSelection()" style="display:none">Clear</button>
+    </div>
     <button class="go-btn" id="go-btn" disabled onclick="launch()">Let's Go →</button>
   </div>
 </div>
@@ -71,7 +76,7 @@
 <div id="s-app">
   <div class="app-top">
     <div class="app-logo" onclick="back()" title="Home">
-      <img src="icon-header.png" alt="Summer of Soccer" class="app-logo-icon">
+      <img src="icon-header-blue.png" alt="Summer of Soccer" class="app-logo-icon">
     </div>
     <button class="edit-btn" onclick="back()">✎ Change teams</button>
   </div>

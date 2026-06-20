@@ -131,11 +131,25 @@ var PLAYERS = {
   BEL_Carrasco:  { full:'Yannick Carrasco', age:32, pos:'Winger', club:'Al Shabab', foot:'Left', caps:68, intlGoals:14, wcGoals:2, wcApps:3, height:'178cm', number:11, stats:{goals:14,assists:18,wcGoals:2,clubGoals25_26:10}, facts:['One of Belgium\'s most reliable wide threats for a decade','Scored in the 2016 Champions League final for Atlético vs Real Madrid','Has played in Spain, China and Saudi Arabia','Pacy, direct and a constant outlet on the left side','Third World Cup — Belgium\'s golden generation\'s last dance'], quote:null },
 };
 
+// True if `inputFirst` matches `profileFirst` exactly, OR is a single-letter
+// initial of it (e.g. "L" matches "Lionel") — API-Football's topscorers/
+// topassists endpoints often abbreviate to "L. Messi" rather than the full
+// first name, so strict equality alone would wrongly treat this as "unknown".
+function firstNameMatches(inputFirst, profileFirst) {
+  var a = inputFirst.toLowerCase();
+  var b = profileFirst.toLowerCase();
+  if (a === b) return true;
+  if (a.length === 1 && b.charAt(0) === a) return true;
+  if (b.length === 1 && a.charAt(0) === b) return true;
+  return false;
+}
+
 function findPlayer(teamCode, playerName) {
   const parts = playerName.replace(/['']/g,"'").split(' ');
   const last  = parts[parts.length - 1].replace(/[^a-zA-ZÀ-ÿ]/g,'');
   const first = parts[0].replace(/[^a-zA-ZÀ-ÿ]/g,'');
   const fullLower = playerName.toLowerCase().trim();
+  const isSingleWord = parts.length === 1;
 
   // 1. Exact full-name match — most precise, avoids surname collisions
   //    (e.g. "Dean Henderson" vs "Jordan Henderson" on the same team).
@@ -144,33 +158,72 @@ function findPlayer(teamCode, playerName) {
   );
   if (exactEntry) return exactEntry[1];
 
-  // 2. Direct last-name key match — but ONLY if the resolved profile's own
-  //    full name also matches on first name/initial, so two different
-  //    players who happen to share a surname on the same team don't get
+  // 2. Direct last-name key match. If the input was just one word (a bare
+  //    surname, e.g. "Mbappé" with no first name to compare), accept the
+  //    key match as-is — there's nothing to collide-check against. If the
+  //    input had a first name/initial, require it to line up so two
+  //    different players sharing a surname on the same team don't get
   //    silently merged into one profile.
   const lastNameEntry = PLAYERS[teamCode + '_' + last];
   if (lastNameEntry) {
-    const entryFirst = lastNameEntry.full.split(' ')[0].toLowerCase();
-    if (entryFirst === first.toLowerCase()) return lastNameEntry;
-    // Surname matches but first name doesn't — this is a different person
-    // sharing a surname (the Henderson case). Don't return a mismatched
-    // profile; fall through so the caller can use an auto-generated one.
+    if (isSingleWord) {
+      // Bare surname with no first name to disambiguate — only safe to use
+      // if no other player on this TEAM'S SQUAD (not just the curated
+      // profile database) shares the same surname. Checking only against
+      // PLAYERS would miss teammates who don't have a bespoke entry yet
+      // (e.g. Dean Henderson has no profile, but he's still on the squad
+      // alongside Jordan Henderson, so "Henderson" alone is ambiguous).
+      var sq = (typeof SQUADS !== 'undefined') ? SQUADS[teamCode] : null;
+      var squadSameSurname = sq && sq.squad
+        ? sq.squad.filter(function(p) { return p.n.split(' ').pop().toLowerCase() === last.toLowerCase(); })
+        : [];
+      var ambiguous = squadSameSurname.length > 1;
+      if (!ambiguous) return lastNameEntry;
+    } else {
+      const entryFirst = lastNameEntry.full.split(' ')[0];
+      if (firstNameMatches(first, entryFirst)) return lastNameEntry;
+    }
+    // Surname matches but is ambiguous or first name doesn't line up —
+    // this may be a different person sharing a surname (the Henderson
+    // case). Don't return a possibly-mismatched profile; fall through so
+    // the caller can use an auto-generated one instead.
   } else {
     // No surname collision risk — safe to use the key-based match as-is.
     if (PLAYERS[teamCode + '_' + last]) return PLAYERS[teamCode + '_' + last];
   }
 
-  // 3. First name match (e.g. Alisson, Endrick, Casemiro — mononym-style keys)
-  if (PLAYERS[teamCode + '_' + first]) return PLAYERS[teamCode + '_' + first];
+  // 3. First name match (e.g. Alisson, Endrick, Casemiro — mononym-style
+  //    keys). For single-word inputs this is checking the same key as the
+  //    surname lookup in step 2 (first === last for a 1-word name), so
+  //    apply the same squad-ambiguity guard — otherwise it would just be
+  //    step 2's collision protection sneaking past itself.
+  if (PLAYERS[teamCode + '_' + first]) {
+    if (isSingleWord) {
+      var sqMono = (typeof SQUADS !== 'undefined') ? SQUADS[teamCode] : null;
+      var monoSameSurname = sqMono && sqMono.squad
+        ? sqMono.squad.filter(function(p) { return p.n.split(' ').pop().toLowerCase() === last.toLowerCase(); })
+        : [];
+      if (monoSameSurname.length <= 1) return PLAYERS[teamCode + '_' + first];
+    } else {
+      return PLAYERS[teamCode + '_' + first];
+    }
+  }
 
   // 4. Fuzzy fallback: any key for this team where the full name contains
-  //    the last name AND first name/initial also lines up, to avoid the
-  //    same surname-collision problem in the fuzzy path too.
+  //    the last name AND (first name/initial lines up OR input was a bare
+  //    single-word surname with no first name to check).
   const fuzzyEntry = Object.entries(PLAYERS).find(([k, v]) => {
     if (!k.startsWith(teamCode + '_')) return false;
     if (!v.full.toLowerCase().includes(last.toLowerCase())) return false;
-    const vFirst = v.full.split(' ')[0].toLowerCase();
-    return vFirst === first.toLowerCase();
+    if (isSingleWord) {
+      var sq = (typeof SQUADS !== 'undefined') ? SQUADS[teamCode] : null;
+      var squadSameSurname = sq && sq.squad
+        ? sq.squad.filter(function(p) { return p.n.toLowerCase().includes(last.toLowerCase()); })
+        : [];
+      return squadSameSurname.length <= 1;
+    }
+    const vFirst = v.full.split(' ')[0];
+    return firstNameMatches(first, vFirst);
   });
   return fuzzyEntry ? fuzzyEntry[1] : null;
 }

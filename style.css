@@ -17,6 +17,7 @@
   --lav:     #F0EEFF;
   --sky:     #5BC8F5;
   --green:   #3DBD7D;
+  --header-blue: #1A3CC8; /* deeper blue for the icon/line on the yellow header — needs strong contrast, unlike --sky */
 
   /* Neutrals */
   --ink:     #1A1A2E;
@@ -191,6 +192,16 @@ body{
   font-family:var(--display);
   font-size:16px;letter-spacing:.06em;color:var(--muted);
 }
+.pick-cnt-row{
+  display:flex;align-items:center;gap:12px;
+}
+.pick-clear-btn{
+  font-family:var(--display);
+  font-size:12px;letter-spacing:.07em;
+  background:transparent;border:1px solid var(--rule);
+  color:var(--pink);padding:4px 10px;cursor:pointer;
+}
+.pick-clear-btn:active{background:var(--faint);border-color:var(--pink)}
 .go-btn{
   font-family:var(--display);
   font-size:22px;letter-spacing:.06em;
@@ -206,11 +217,11 @@ body{
 
 /* Top bar */
 .app-top{
-  background:var(--ink);
+  background:var(--yellow);
   padding:calc(12px + env(safe-area-inset-top)) var(--pad) 12px;
   display:flex;align-items:center;justify-content:space-between;
   position:sticky;top:0;z-index:50;
-  border-bottom:3px solid var(--yellow);
+  border-bottom:3px solid var(--header-blue);
   min-height:54px;
 }
 .app-logo{ cursor:pointer;display:flex;align-items:center;gap:10px }
@@ -222,17 +233,17 @@ body{
 .app-logo-text{
   font-family:var(--display);
   font-size:20px;letter-spacing:.05em;
-  color:var(--card);
+  color:var(--ink);
   line-height:1;
 }
-.app-logo-text em{color:var(--yellow);font-style:normal}
+.app-logo-text em{color:var(--header-blue);font-style:normal}
 .edit-btn{
   font-family:var(--display);
   font-size:12px;letter-spacing:.09em;
-  background:transparent;border:1px solid #ffffff25;
-  color:#ffffff60;padding:5px 11px;cursor:pointer;
+  background:transparent;border:1px solid #1a1a2e35;
+  color:var(--ink);opacity:.7;padding:5px 11px;cursor:pointer;
 }
-.edit-btn:active{border-color:#ffffff60;color:#fff}
+.edit-btn:active{border-color:var(--ink);opacity:1}
 
 /* Score ticker */
 .score-ticker{
@@ -1011,6 +1022,22 @@ body{
 }
 .td-fix-date{ font-size:12px;font-weight:600;color:var(--muted) }
 .td-fix-grp{ font-size:10px;color:var(--muted) }
+
+.td-fixture-tappable{ cursor:pointer }
+.td-fixture-tappable:active{ background:var(--faint) }
+.td-fix-score{
+  font-family:var(--display);
+  font-size:20px;color:var(--ink);letter-spacing:.02em;
+}
+.td-fix-score.live{ color:var(--pink) }
+.td-fix-ft{
+  font-family:var(--display);
+  font-size:10px;letter-spacing:.08em;color:var(--muted);
+}
+.td-fix-live{
+  font-family:var(--display);
+  font-size:10px;letter-spacing:.08em;color:var(--pink);
+}
 
 .td-squad{ background:var(--card) }
 .td-pos-label{

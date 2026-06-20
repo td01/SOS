@@ -46,18 +46,26 @@ function openTeam(code) {
       <div class="td-grp-cell"><div class="td-grp-v hot">${grpRow.pts}</div><div class="td-grp-l">Pts</div></div>
     </div>` : '';
 
-  // Fixtures
+  // Fixtures — completed matches show the score and open match detail on tap,
+  // matching the same pattern used in the Schedule and Live tabs.
   const fixHtml = teamFixtures.length ? `
-    <div class="td-section-label">Fixtures</div>
+    <div class="td-section-label">Fixtures & Results</div>
     ${teamFixtures.map(f => {
       const isHome = f.hc === code;
       const opp    = isHome ? f.a : f.h;
       const oppCode= isHome ? f.ac : f.hc;
-      return `<div class="td-fixture">
+      const tapAttr = f.isDone ? ` onclick="openMatchDetail(${f.id})" style="cursor:pointer"` : '';
+      const tapCls  = f.isDone ? ' td-fixture-tappable' : '';
+      const resultHtml = f.isDone
+        ? `<span class="td-fix-score">${f.hs}\u2013${f.as}</span><span class="td-fix-ft">FT</span>`
+        : (f.isLive
+            ? `<span class="td-fix-score live">${f.hs}\u2013${f.as}</span><span class="td-fix-live">${f.elapsed||0}' LIVE</span>`
+            : `<span class="td-fix-date">${f.date} · ${f.t}</span>`);
+      return `<div class="td-fixture${tapCls}"${tapAttr}>
         <div class="td-fix-opp">${ff(oppCode,32,22)} ${opp}</div>
         <div class="td-fix-meta">
           <span class="td-fix-venue">${isHome ? 'Home' : 'Away'}</span>
-          <span class="td-fix-date">${f.date} · ${f.t}</span>
+          ${resultHtml}
           <span class="td-fix-grp">Grp ${f.g}</span>
         </div>
       </div>`;
@@ -101,7 +109,20 @@ function openTeam(code) {
 
 function closeTeam() {
   document.getElementById('team-overlay').classList.remove('open');
-  document.body.style.overflow = '';
+  releaseScrollLockIfNoOverlaysOpen();
+}
+
+// Only clear the body scroll lock if every overlay is now closed — prevents
+// closing an overlay opened on top of another (e.g. match detail opened
+// from inside the team page) from accidentally unlocking scroll while the
+// underlying overlay is still showing.
+function releaseScrollLockIfNoOverlaysOpen() {
+  var ids = ['team-overlay', 'player-overlay', 'match-overlay'];
+  var anyOpen = ids.some(function(id) {
+    var el = document.getElementById(id);
+    return el && el.classList.contains('open');
+  });
+  if (!anyOpen) document.body.style.overflow = '';
 }
 
 // ── PLAYER OVERLAY ────────────────────────────────────────────────────────────
@@ -201,6 +222,7 @@ function fetchWikiImage(name) {
 
 function closePlayer() {
   document.getElementById('player-overlay').classList.remove('open');
+  releaseScrollLockIfNoOverlaysOpen();
 }
 
 // ── INIT ──────────────────────────────────────────────────────────────────────

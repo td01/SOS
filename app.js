@@ -41,11 +41,19 @@ function renderPick(region) {
   document.getElementById('pick-cnt').textContent =
     n === 0 ? 'None selected' : n === 1 ? '1 team' : n + ' teams';
   document.getElementById('go-btn').disabled = n === 0;
+  var clearBtn = document.getElementById('pick-clear-btn');
+  if (clearBtn) clearBtn.style.display = n > 0 ? 'inline-block' : 'none';
 }
 
 function toggleTeam(code) {
   var i = chosen.indexOf(code);
   if (i > -1) chosen.splice(i, 1); else chosen.push(code);
+  saveChosenTeams();
+  renderPick(curRgn);
+}
+
+function clearTeamSelection() {
+  chosen.length = 0;
   saveChosenTeams();
   renderPick(curRgn);
 }
@@ -365,7 +373,11 @@ async function openMatchDetail(fixtureId) {
 
 function closeMatchDetail() {
   document.getElementById('match-overlay').classList.remove('open');
-  document.body.style.overflow = '';
+  if (typeof releaseScrollLockIfNoOverlaysOpen === 'function') {
+    releaseScrollLockIfNoOverlaysOpen();
+  } else {
+    document.body.style.overflow = '';
+  }
 }
 
 function renderMatchDetail(f) {
@@ -1308,8 +1320,14 @@ if (chosen.length > 0) {
 (function hideLoadingScreen() {
   var loading = document.getElementById('s-loading');
   if (!loading) return;
-  var MIN_DISPLAY_MS = 500;
+  var MIN_DISPLAY_MS = 350;
   setTimeout(function() {
     loading.classList.add('hidden');
+    // After the fade-out transition finishes, fully remove it from layout/
+    // paint so there's no possibility of it visually bleeding through on
+    // top of the app (e.g. if a refresh happens mid-transition).
+    setTimeout(function() {
+      loading.style.display = 'none';
+    }, 450);
   }, MIN_DISPLAY_MS);
 })();
