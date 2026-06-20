@@ -314,33 +314,10 @@ function buildLive() {
 }
 
 function buildEmptyState() {
-  var tournamentStarted = Date.now() > new Date('2026-06-11T19:00:00Z').getTime();
-
-  if (tournamentStarted) {
-    // Tournament is live — just no matches kicking off this exact moment
-    return '<div class="empty-state">' +
-      '<div class="empty-state-title">No live games right now</div>' +
-      '<div class="empty-state-body">Check today&#39;s results below, or see the schedule for upcoming fixtures.</div>' +
-      '</div>';
-  }
-
-  // Pre-tournament — show countdown to opener
-  var next = FIXTURES[0];
-  var countdown = getCountdown(new Date('2026-06-11T19:00:00Z'));
+  // Tournament is underway — just no matches kicking off this exact moment
   return '<div class="empty-state">' +
-    '<div class="empty-state-title">No live games</div>' +
-    '<div class="empty-state-body">The tournament kicks off Jun 11 in Mexico City.</div>' +
-    '<div class="empty-state-next">' +
-      '<div>' +
-        '<div class="empty-state-next-label">Opening match</div>' +
-        '<div class="empty-state-next-match">' + next.h + ' vs ' + next.a + '</div>' +
-        '<div class="empty-state-next-time">' + next.date + ' · ' + next.t + '</div>' +
-      '</div>' +
-      '<div>' +
-        '<div class="empty-state-countdown">' + countdown + '</div>' +
-        '<div class="empty-state-countdown-lbl">Until KO</div>' +
-      '</div>' +
-    '</div>' +
+    '<div class="empty-state-title">No live games right now</div>' +
+    '<div class="empty-state-body">Check today&#39;s results below, or see the schedule for upcoming fixtures.</div>' +
     '</div>';
 }
 
@@ -354,6 +331,36 @@ function getCountdown(target) {
 
 // ─── SCHEDULE ─────────────────────────────────────────────────────────────────
 
+var fixturesCache = null; // cached full tournament fixture list from API
+
+async function fetchFixtures() {
+  if (!LIVE_API_ENABLED) return null;
+  try {
+    var res = await fetch('/api/fixtures?league=' + API_LEAGUE + '&season=' + API_SEASON);
+    var data = await res.json();
+    if (data.error) {
+      console.error('Summer of Soccer — fixtures error:', data.error, data);
+      throw new Error(data.error);
+    }
+    if (!Array.isArray(data.response)) throw new Error('Unexpected fixtures shape');
+
+    return data.response.map(function(f) {
+      var kickoff = new Date(f.fixture.date);
+      return {
+        h: f.teams.home.name, hc: teamCodeFromApi(f.teams.home),
+        a: f.teams.away.name, ac: teamCodeFromApi(f.teams.away),
+        g: f.league.round ? f.league.round.replace('Group ','') : '',
+        date: kickoff.toLocaleDateString('en-US', { month:'short', day:'numeric' }),
+        t: kickoff.toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit', timeZone:'America/New_York' }) + ' ET',
+        status: f.fixture.status.short,
+        _sortKey: kickoff.getTime()
+      };
+    }).sort(function(a,b){ return a._sortKey - b._sortKey; });
+  } catch (e) {
+    return null;
+  }
+}
+
 function fixtureRow(f, mine) {
   return '<div class="fix-card' + (mine ? ' mine' : '') + '">' +
     '<div class="fix-t" onclick="openTeam(\'' + f.hc + '\')" style="cursor:pointer">' + ff(f.hc, 28, 20) + ' ' + f.h + '</div>' +
@@ -362,9 +369,26 @@ function fixtureRow(f, mine) {
     '</div>';
 }
 
-function buildSchedule() {
+async function buildSchedule() {
+  var pane = document.getElementById('p-sched');
+  if (!pane) return;
+
+  pane.innerHTML = '<div class="empty-state"><div class="empty-state-title">Loading schedule…</div></div>';
+
+  if (fixturesCache === null) {
+    fixturesCache = await fetchFixtures();
+  }
+
+  if (!fixturesCache) {
+    pane.innerHTML = '<div class="empty-state">' +
+      '<div class="empty-state-title">Live schedule not available</div>' +
+      '<div class="empty-state-body">The full fixture list will appear here once the tournament data feed is connected.</div>' +
+    '</div>';
+    return;
+  }
+
   var mn   = myTeamNames();
-  var mine = FIXTURES.filter(function(f){ return mn.includes(f.h) || mn.includes(f.a); });
+  var mine = fixturesCache.filter(function(f){ return mn.includes(f.h) || mn.includes(f.a); });
   var html = '';
 
   if (mine.length) {
@@ -374,7 +398,7 @@ function buildSchedule() {
   html += sec('Full schedule');
 
   var byDate = {};
-  FIXTURES.forEach(function(f){
+  fixturesCache.forEach(function(f){
     if (!byDate[f.date]) byDate[f.date] = [];
     byDate[f.date].push(f);
   });
@@ -386,7 +410,7 @@ function buildSchedule() {
     }).join('');
   });
 
-  document.getElementById('p-sched').innerHTML = html;
+  pane.innerHTML = html;
 }
 
 // ─── GROUPS ───────────────────────────────────────────────────────────────────

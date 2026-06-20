@@ -5,9 +5,11 @@
 function openTeam(code) {
   const team        = TEAMS.find(t => t.c === code);
   const squad       = SQUADS[code];
-  const groups      = GROUPS[team ? team.g : null];
+  const liveGroups  = (typeof standingsCache !== 'undefined' && standingsCache) ? standingsCache : null;
+  const groups      = liveGroups ? liveGroups[team ? team.g : null] : null;
   const grpRow      = groups ? groups.find(t => t.c === code) : null;
-  const teamFixtures= FIXTURES.filter(f => f.hc === code || f.ac === code);
+  const liveFixtures = (typeof fixturesCache !== 'undefined' && fixturesCache) ? fixturesCache : [];
+  const teamFixtures = liveFixtures.filter(f => f.hc === code || f.ac === code);
 
   const overlay = document.getElementById('team-overlay');
   const content = document.getElementById('team-content');

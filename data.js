@@ -74,49 +74,7 @@ var TEAMS = [
 // Dates in ET (USA local reference). All times ET.
 // Sources: ESPN, Yahoo Sports, CBS Sports confirmed schedule
 
-var FIXTURES = [
-  // ── Matchday 1 ──────────────────────────────────────────────────────────────
-  // Group A — Jun 11
-  { h:'Mexico',      hc:'MEX', a:'South Africa', ac:'RSA', g:'A', date:'Jun 11', t:'15:00 ET' },
-  { h:'South Korea', hc:'KOR', a:'Czechia',      ac:'CZE', g:'A', date:'Jun 11', t:'22:00 ET' },
-  // Group B — Jun 12
-  { h:'Canada',      hc:'CAN', a:'Bosnia-Herz.', ac:'BIH', g:'B', date:'Jun 12', t:'15:00 ET' },
-  // Group D — Jun 12
-  { h:'USA',         hc:'USA', a:'Paraguay',     ac:'PAR', g:'D', date:'Jun 12', t:'21:00 ET' },
-  // Group B — Jun 13
-  { h:'Qatar',       hc:'QAT', a:'Switzerland',  ac:'SUI', g:'B', date:'Jun 13', t:'15:00 ET' },
-  // Group C — Jun 13
-  { h:'Brazil',      hc:'BRA', a:'Morocco',      ac:'MAR', g:'C', date:'Jun 13', t:'18:00 ET' },
-  { h:'Haiti',       hc:'HAI', a:'Scotland',     ac:'SCO', g:'C', date:'Jun 13', t:'21:00 ET' },
-  // Group D — Jun 14
-  { h:'Australia',   hc:'AUS', a:'Türkiye',      ac:'TUR', g:'D', date:'Jun 14', t:'09:00 ET' },
-  // Group E — Jun 14
-  { h:'Germany',     hc:'GER', a:'Curaçao',      ac:'CUW', g:'E', date:'Jun 14', t:'12:00 ET' },
-  // Group F — Jun 14
-  { h:'Netherlands', hc:'NED', a:'Japan',        ac:'JPN', g:'F', date:'Jun 14', t:'15:00 ET' },
-  { h:'Ivory Coast', hc:'CIV', a:'Ecuador',      ac:'ECU', g:'E', date:'Jun 14', t:'18:00 ET' },
-  // Group F — Jun 15
-  { h:'Sweden',      hc:'SWE', a:'Tunisia',      ac:'TUN', g:'F', date:'Jun 15', t:'09:00 ET' },
-  // Group H — Jun 15
-  { h:'Spain',       hc:'ESP', a:'Cape Verde',   ac:'CPV', g:'H', date:'Jun 15', t:'12:00 ET' },
-  { h:'Saudi Arabia',hc:'KSA', a:'Uruguay',      ac:'URU', g:'H', date:'Jun 15', t:'18:00 ET' },
-  // Group G — Jun 15
-  { h:'Belgium',     hc:'BEL', a:'Egypt',        ac:'EGY', g:'L', date:'Jun 15', t:'18:00 ET' },
-  // Group I — Jun 16
-  { h:'France',      hc:'FRA', a:'Senegal',      ac:'SEN', g:'I', date:'Jun 16', t:'15:00 ET' },
-  { h:'Iraq',        hc:'IRQ', a:'Norway',       ac:'NOR', g:'I', date:'Jun 16', t:'18:00 ET' },
-  // Group G — Jun 16
-  { h:'England',     hc:'ENG', a:'Panama',       ac:'PAN', g:'G', date:'Jun 16', t:'12:00 ET' },
-  { h:'Croatia',     hc:'CRO', a:'Ghana',        ac:'GHA', g:'G', date:'Jun 16', t:'21:00 ET' },
-  // Group J — Jun 16
-  { h:'Argentina',   hc:'ARG', a:'Algeria',      ac:'ALG', g:'J', date:'Jun 16', t:'21:00 ET' },
-  { h:'Austria',     hc:'AUT', a:'Jordan',       ac:'JOR', g:'J', date:'Jun 17', t:'00:00 ET' },
-  // Group K — Jun 17
-  { h:'Portugal',    hc:'POR', a:'DR Congo',     ac:'COD', g:'K', date:'Jun 17', t:'13:00 ET' },
-  { h:'Uzbekistan',  hc:'UZB', a:'Colombia',     ac:'COL', g:'K', date:'Jun 17', t:'22:00 ET' },
-  // Group L — Jun 17–18
-  { h:'Iran',        hc:'IRN', a:'New Zealand',  ac:'NZL', g:'L', date:'Jun 18', t:'00:00 ET' },
-];
+// FIXTURES removed — schedule is now fetched live from the API (see fetchFixtures() in app.js)
 
 // ─── LIVE & COMPLETED ─────────────────────────────────────────────────────────
 // Populated entirely from the live API at runtime (see fetchLiveData() in app.js).
@@ -130,80 +88,7 @@ var COMPLETED = [];
 // ─── GROUP STANDINGS ──────────────────────────────────────────────────────────
 // All zeroed — updated by API in production, or updated manually after matches.
 
-var GROUPS = {
-  A: [
-    { n:'Mexico',       c:'MEX', p:0, w:0, d:0, l:0, gf:0, ga:0, pts:0 },
-    { n:'South Africa', c:'RSA', p:0, w:0, d:0, l:0, gf:0, ga:0, pts:0 },
-    { n:'South Korea',  c:'KOR', p:0, w:0, d:0, l:0, gf:0, ga:0, pts:0 },
-    { n:'Czechia',      c:'CZE', p:0, w:0, d:0, l:0, gf:0, ga:0, pts:0 },
-  ],
-  B: [
-    { n:'Canada',       c:'CAN', p:0, w:0, d:0, l:0, gf:0, ga:0, pts:0 },
-    { n:'Bosnia-Herz.', c:'BIH', p:0, w:0, d:0, l:0, gf:0, ga:0, pts:0 },
-    { n:'Qatar',        c:'QAT', p:0, w:0, d:0, l:0, gf:0, ga:0, pts:0 },
-    { n:'Switzerland',  c:'SUI', p:0, w:0, d:0, l:0, gf:0, ga:0, pts:0 },
-  ],
-  C: [
-    { n:'Brazil',       c:'BRA', p:0, w:0, d:0, l:0, gf:0, ga:0, pts:0 },
-    { n:'Morocco',      c:'MAR', p:0, w:0, d:0, l:0, gf:0, ga:0, pts:0 },
-    { n:'Haiti',        c:'HAI', p:0, w:0, d:0, l:0, gf:0, ga:0, pts:0 },
-    { n:'Scotland',     c:'SCO', p:0, w:0, d:0, l:0, gf:0, ga:0, pts:0 },
-  ],
-  D: [
-    { n:'USA',          c:'USA', p:0, w:0, d:0, l:0, gf:0, ga:0, pts:0 },
-    { n:'Paraguay',     c:'PAR', p:0, w:0, d:0, l:0, gf:0, ga:0, pts:0 },
-    { n:'Australia',    c:'AUS', p:0, w:0, d:0, l:0, gf:0, ga:0, pts:0 },
-    { n:'Türkiye',      c:'TUR', p:0, w:0, d:0, l:0, gf:0, ga:0, pts:0 },
-  ],
-  E: [
-    { n:'Germany',      c:'GER', p:0, w:0, d:0, l:0, gf:0, ga:0, pts:0 },
-    { n:'Curaçao',      c:'CUW', p:0, w:0, d:0, l:0, gf:0, ga:0, pts:0 },
-    { n:'Ivory Coast',  c:'CIV', p:0, w:0, d:0, l:0, gf:0, ga:0, pts:0 },
-    { n:'Ecuador',      c:'ECU', p:0, w:0, d:0, l:0, gf:0, ga:0, pts:0 },
-  ],
-  F: [
-    { n:'Netherlands',  c:'NED', p:0, w:0, d:0, l:0, gf:0, ga:0, pts:0 },
-    { n:'Japan',        c:'JPN', p:0, w:0, d:0, l:0, gf:0, ga:0, pts:0 },
-    { n:'Sweden',       c:'SWE', p:0, w:0, d:0, l:0, gf:0, ga:0, pts:0 },
-    { n:'Tunisia',      c:'TUN', p:0, w:0, d:0, l:0, gf:0, ga:0, pts:0 },
-  ],
-  G: [
-    { n:'England',      c:'ENG', p:0, w:0, d:0, l:0, gf:0, ga:0, pts:0 },
-    { n:'Panama',       c:'PAN', p:0, w:0, d:0, l:0, gf:0, ga:0, pts:0 },
-    { n:'Croatia',      c:'CRO', p:0, w:0, d:0, l:0, gf:0, ga:0, pts:0 },
-    { n:'Ghana',        c:'GHA', p:0, w:0, d:0, l:0, gf:0, ga:0, pts:0 },
-  ],
-  H: [
-    { n:'Spain',        c:'ESP', p:0, w:0, d:0, l:0, gf:0, ga:0, pts:0 },
-    { n:'Cape Verde',   c:'CPV', p:0, w:0, d:0, l:0, gf:0, ga:0, pts:0 },
-    { n:'Saudi Arabia', c:'KSA', p:0, w:0, d:0, l:0, gf:0, ga:0, pts:0 },
-    { n:'Uruguay',      c:'URU', p:0, w:0, d:0, l:0, gf:0, ga:0, pts:0 },
-  ],
-  I: [
-    { n:'France',       c:'FRA', p:0, w:0, d:0, l:0, gf:0, ga:0, pts:0 },
-    { n:'Senegal',      c:'SEN', p:0, w:0, d:0, l:0, gf:0, ga:0, pts:0 },
-    { n:'Iraq',         c:'IRQ', p:0, w:0, d:0, l:0, gf:0, ga:0, pts:0 },
-    { n:'Norway',       c:'NOR', p:0, w:0, d:0, l:0, gf:0, ga:0, pts:0 },
-  ],
-  J: [
-    { n:'Argentina',    c:'ARG', p:0, w:0, d:0, l:0, gf:0, ga:0, pts:0 },
-    { n:'Algeria',      c:'ALG', p:0, w:0, d:0, l:0, gf:0, ga:0, pts:0 },
-    { n:'Austria',      c:'AUT', p:0, w:0, d:0, l:0, gf:0, ga:0, pts:0 },
-    { n:'Jordan',       c:'JOR', p:0, w:0, d:0, l:0, gf:0, ga:0, pts:0 },
-  ],
-  K: [
-    { n:'Portugal',     c:'POR', p:0, w:0, d:0, l:0, gf:0, ga:0, pts:0 },
-    { n:'DR Congo',     c:'COD', p:0, w:0, d:0, l:0, gf:0, ga:0, pts:0 },
-    { n:'Uzbekistan',   c:'UZB', p:0, w:0, d:0, l:0, gf:0, ga:0, pts:0 },
-    { n:'Colombia',     c:'COL', p:0, w:0, d:0, l:0, gf:0, ga:0, pts:0 },
-  ],
-  L: [
-    { n:'Belgium',      c:'BEL', p:0, w:0, d:0, l:0, gf:0, ga:0, pts:0 },
-    { n:'Egypt',        c:'EGY', p:0, w:0, d:0, l:0, gf:0, ga:0, pts:0 },
-    { n:'Iran',         c:'IRN', p:0, w:0, d:0, l:0, gf:0, ga:0, pts:0 },
-    { n:'New Zealand',  c:'NZL', p:0, w:0, d:0, l:0, gf:0, ga:0, pts:0 },
-  ],
-};
+// GROUPS removed — standings are now fetched live from the API (see fetchStandings() in app.js)
 
 // ─── ALL-TIME HISTORY ─────────────────────────────────────────────────────────
 
