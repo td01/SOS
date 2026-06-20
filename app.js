@@ -149,9 +149,16 @@ function tab(id, btn) {
   document.getElementById('p-' + id).classList.add('on');
   document.querySelectorAll('.bnav-btn').forEach(function(b){ b.classList.remove('on'); });
   btn.classList.add('on');
-  if (id === 'dyk')   buildDyk();
-  if (id === 'live')  buildLive();
-  if (id === 'stats') buildStats();
+  if (id === 'dyk')    buildDyk();
+  if (id === 'live')   buildLive();
+  if (id === 'stats')  buildStats();
+  // Groups and Schedule were previously only built once on launch() and
+  // never refreshed on tab switch — so a finished match's score/standings
+  // update would never reach the table until a manual pull-to-refresh.
+  // Re-fetch fresh data every time these tabs are opened; silent=true
+  // means no loading-flash if it's already been built once before.
+  if (id === 'groups') buildGroups(true);
+  if (id === 'sched')  buildSchedule(true);
 }
 
 // Switch tabs by index offset (-1 = previous, +1 = next), used by swipe gestures
@@ -226,7 +233,18 @@ function buildTicker() {
 
 function startLivePoll() {
   fetchLiveData();
-  pollTimer = setInterval(fetchLiveData, 60000);
+  pollTimer = setInterval(function() {
+    fetchLiveData();
+    // Also keep the currently-open tab's own data fresh — fetchLiveData()
+    // alone only updates the Live tab's match cards. Without this, someone
+    // sitting on Groups/Schedule while a match finishes would never see the
+    // table update until they switched tabs or manually pulled to refresh.
+    var activeBtn = document.querySelector('.bnav-btn.on');
+    var match = activeBtn && activeBtn.getAttribute('onclick').match(/tab\('(\w+)'/);
+    var activeTab = match ? match[1] : null;
+    if (activeTab === 'groups') buildGroups(true);
+    if (activeTab === 'sched')  buildSchedule(true);
+  }, 60000);
 }
 function stopLivePoll() {
   if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
@@ -828,15 +846,17 @@ function renderScheduleList() {
   listEl.innerHTML = html;
 }
 
-async function buildSchedule() {
+async function buildSchedule(silent) {
   var pane = document.getElementById('p-sched');
   if (!pane) return;
 
-  pane.innerHTML = '<div class="empty-state"><div class="empty-state-title">Loading schedule…</div></div>';
-
-  if (fixturesCache === null) {
-    fixturesCache = await fetchFixtures();
+  var isFirstBuild = !pane.querySelector('.sched-stage-bar, .empty-state');
+  var scrollPos = pane.scrollTop;
+  if (!silent || isFirstBuild) {
+    pane.innerHTML = '<div class="empty-state"><div class="empty-state-title">Loading schedule…</div></div>';
   }
+
+  fixturesCache = await fetchFixtures();
 
   if (!fixturesCache) {
     pane.innerHTML = '<div class="empty-state">' +
@@ -860,6 +880,8 @@ async function buildSchedule() {
     '<div id="sched-list"></div>';
 
   renderScheduleList();
+
+  if (silent && !isFirstBuild) pane.scrollTop = scrollPos;
 }
 
 // ─── GROUPS ───────────────────────────────────────────────────────────────────
@@ -945,16 +967,22 @@ function getAdjustedGroups(groups) {
   return adj;
 }
 
-async function buildGroups() {
+async function buildGroups(silent) {
   var mn = myTeamNames();
   var pane = document.getElementById('p-groups');
   if (!pane) return;
 
-  pane.innerHTML = '<div class="empty-state"><div class="empty-state-title">Loading standings…</div></div>';
-
-  if (standingsCache === null) {
-    standingsCache = await fetchStandings();
+  // Silent refreshes (background poll, returning to an already-built tab)
+  // skip the loading flash and preserve scroll position — a full wipe-and-
+  // reload every time would be jarring if someone's mid-read. Only show
+  // the loading state on a genuine first build (empty pane).
+  var isFirstBuild = !pane.querySelector('.grp-block, .groups-toolbar, .empty-state');
+  var scrollPos = pane.scrollTop;
+  if (!silent || isFirstBuild) {
+    pane.innerHTML = '<div class="empty-state"><div class="empty-state-title">Loading standings…</div></div>';
   }
+
+  standingsCache = await fetchStandings();
 
   if (!standingsCache) {
     pane.innerHTML = '<div class="empty-state">' +
@@ -1005,6 +1033,10 @@ async function buildGroups() {
       '</table>' +
       '</div>';
   }).join('');
+
+  // Restore scroll position on a silent (background) refresh so the person
+  // isn't jumped back to the top of the table mid-read.
+  if (silent && !isFirstBuild) pane.scrollTop = scrollPos;
 }
 
 // ─── HISTORY ──────────────────────────────────────────────────────────────────
