@@ -106,12 +106,13 @@
 }
 html,body{
   margin:0;padding:0;
+  background:var(--paper);
 }
 body{
   background:var(--paper);
   font-family:var(--body);
   color:var(--ink);
-  max-width:390px;
+  width:100%;
   margin:0 auto;
   font-size:15px;
   -webkit-font-smoothing:antialiased;
@@ -274,7 +275,7 @@ body{
 .app-logo{ cursor:pointer;display:flex;align-items:center;gap:10px }
 .app-icon{ flex-shrink:0;display:block }
 .app-logo-icon{
-  width:32px;height:32px;
+  width:40px;height:40px; /* 32px × 1.25, per request */
   display:block;
 }
 .app-logo-text{
@@ -1297,14 +1298,14 @@ body{
    ============================================================ */
 
 @media(min-width:768px){
-  body{ max-width:100%;font-size:25.6px } /* 16px base × 1.6, per request: desktop copy 60% larger */
+  body{ max-width:520px;font-size:25.6px } /* 16px base × 1.6, per request: desktop copy 60% larger. max-width keeps the single-column design from stretching edge-to-edge on a wide monitor. */
 
   /* Pick */
   .pick-hero{ padding:14px 32px 12px }
 
-  .ctry-list{ grid-template-columns:repeat(8,1fr);gap:1px;background:var(--rule) }
-  .ctry-tile .flat-flag{ width:52px!important;height:36px!important }
-  .ctry-tile .flat-flag svg{ width:52px!important;height:36px!important }
+  .ctry-list{ grid-template-columns:repeat(4,1fr);gap:1px;background:var(--rule) }
+  .ctry-tile .flat-flag{ width:44px!important;height:30px!important }
+  .ctry-tile .flat-flag svg{ width:44px!important;height:30px!important }
   .pick-footer{ padding:16px 48px }
   .region-bar .rbtn{ font-size:15px;padding:13px 20px }
 
@@ -1326,36 +1327,21 @@ body{
   .bnav-btn svg{ width:22px;height:22px } /* scaled up to stay proportional to the larger label text */
   .bnav-label{ font-size:19.2px } /* 12px × 1.6, per request */
 
-  /* Pane grids */
-  #p-live.on,#p-hist.on{
-    display:grid!important;
-    grid-template-columns:1fr 1fr;
-    grid-auto-rows:min-content;
-    align-items:start;
-  }
-  #p-sched.on{ display:block!important;max-width:700px;margin:0 auto }
-  #p-groups.on{
-    display:grid!important;
-    grid-template-columns:repeat(3,1fr);
-    grid-auto-rows:min-content;
-    align-items:start;
-  }
+  /* Pane grids — single column within the new contained desktop width
+     (previously multi-column, designed for an unconstrained full-width
+     layout; now stacks vertically instead so content isn't squeezed) */
+  #p-sched.on{ display:block!important;max-width:100%;margin:0 auto }
   #p-dyk.on{ display:block!important }
   #p-stats.on{ display:block!important }
 
-  #stat-row{ grid-column:1/-1;grid-template-columns:repeat(4,1fr) }
   .stat-cell{ padding:20px 28px }
-  .stat-v{ font-size:80px }
+  .stat-v{ font-size:64px }
 
-  .sec.span-all,#p-live.on .sec,#p-hist.on .sec{ grid-column:1/-1 }
   .sec{ padding:11px 28px }
   .day-lbl{ padding:13px 28px;font-size:20px }
 
-  #live-wrap{ grid-column:1;border-right:2px solid var(--ink) }
-  #done-wrap{ grid-column:2 }
-
   .match-card{ padding:20px 28px 18px }
-  .mc-score{ font-size:100px }
+  .mc-score{ font-size:72px }
   .mc-tn{ font-size:18px }
 
   .fix-card{ padding:14px 28px;grid-template-columns:1fr 60px 1fr }
@@ -1369,15 +1355,7 @@ body{
   .t-name{ font-size:18px }
   .t-pts{ font-size:22px }
 
-  #p-hist.on .sec{ grid-column:1/-1 }
-  .rec-grid.span-all{
-    grid-column:1/-1;
-    grid-template-columns:repeat(4,1fr);
-  }
-  .hist-row{ padding:12px 28px }
-  .h-val{ font-size:72px }
-
-  .dyk-card{ padding:32px 40px 40px;max-width:700px;margin:0 auto }
+  .dyk-card{ padding:32px 40px 40px }
   .dyk-title{ font-size:56px }
   .dyk-body{ font-size:18px }
 
@@ -1401,14 +1379,12 @@ body{
 @media(min-width:1200px){
   .pick-hero{ padding:14px 48px 12px }
 
-  .ctry-list{ grid-template-columns:repeat(12,1fr);gap:1px;background:var(--rule) }
+  .ctry-list{ grid-template-columns:repeat(5,1fr);gap:1px;background:var(--rule) }
   .app-top{ padding:16px 48px }
   .bottom-nav{ padding-left:48px }
   .sec,.day-lbl{ padding-left:48px;padding-right:48px }
-  #p-groups.on{ grid-template-columns:repeat(4,1fr) }
   .match-card{ padding:24px 48px 22px }
   .fix-card{ padding:16px 48px }
-  .hist-row,.hist-hd{ padding-left:48px;padding-right:48px }
 }
 
 /* ============================================================
@@ -1663,11 +1639,11 @@ body{
 /* ── Pull-to-refresh ───────────────────────────────────────────────────────── */
 .ptr-indicator{
   position: fixed;
-  top: 0; left: 50%;
-  transform: translate(-50%, -60px);
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%) scale(.6);
   z-index: 90;
-  display: flex; flex-direction: column; align-items: center; gap: 4px;
-  padding: 10px 18px;
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  padding: 18px 22px;
   background: var(--ink);
   opacity: 0;
   transition: transform .2s ease-out, opacity .2s ease-out;
@@ -1675,18 +1651,19 @@ body{
 }
 .ptr-indicator.visible{
   opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
 }
-.ptr-spinner{
-  width: 18px; height: 18px;
-  border: 2.5px solid #ffffff30;
-  border-top-color: var(--pink);
-  border-radius: 50%;
+.ptr-icon{
+  width: 40px; height: 40px;
+  display: block;
+  transition: transform .15s ease-out;
 }
-.ptr-indicator.refreshing .ptr-spinner{
-  animation: ptrSpin .6s linear infinite;
+.ptr-indicator.refreshing .ptr-icon{
+  animation: ptrSpin .7s ease-in-out 1; /* one brief spin, not a continuous loop */
 }
 @keyframes ptrSpin{
-  to { transform: rotate(360deg); }
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
 }
 .ptr-label{
   font-family: var(--display);

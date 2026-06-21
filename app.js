@@ -1419,21 +1419,28 @@ function initPullToRefresh() {
   appScreen.addEventListener('touchmove', function(e) {
     if (!ptrDragging) return;
     var dy = e.touches[0].clientY - ptrStartY;
-    if (dy <= 0) { indicator.classList.remove('visible'); return; }
+    if (dy <= 0) { return; }
     if (window.scrollY > 4) { ptrDragging = false; return; }
 
     var pull = Math.min(dy * 0.45, 90);
-    indicator.style.transform = 'translate(-50%, ' + (pull - 60) + 'px)';
-    indicator.classList.add('visible');
-    indicator.querySelector('.ptr-label').textContent =
-      pull > PTR_THRESHOLD ? 'Release to refresh' : 'Pull to refresh';
-    ptrTriggered = pull > PTR_THRESHOLD;
+    // Indicator is now centered on screen rather than drag-following, so it
+    // only appears once the release threshold is actually reached — a
+    // small visual confirmation that "yes, releasing now will refresh",
+    // rather than tracking finger position the whole way down.
+    var willTrigger = pull > PTR_THRESHOLD;
+    if (willTrigger && !ptrTriggered) {
+      indicator.classList.add('visible');
+      indicator.querySelector('.ptr-label').textContent = 'Release to refresh';
+    } else if (!willTrigger && ptrTriggered) {
+      indicator.classList.remove('visible');
+      indicator.querySelector('.ptr-label').textContent = 'Pull to refresh';
+    }
+    ptrTriggered = willTrigger;
   }, { passive: true });
 
   appScreen.addEventListener('touchend', function() {
     if (!ptrDragging) return;
     ptrDragging = false;
-    indicator.style.transform = 'translate(-50%, -60px)';
     indicator.classList.remove('visible');
 
     if (ptrTriggered) {
@@ -1458,7 +1465,6 @@ function doRefresh() {
   }
 
   indicator.classList.add('visible', 'refreshing');
-  indicator.style.transform = 'translate(-50%, 8px)';
   indicator.querySelector('.ptr-label').textContent = 'Refreshing…';
 
   // Invalidate caches so the active tab re-fetches fresh data
@@ -1479,7 +1485,6 @@ function doRefresh() {
   Promise.resolve(refreshPromise).finally(function() {
     setTimeout(function() {
       indicator.classList.remove('visible', 'refreshing');
-      indicator.style.transform = 'translate(-50%, -60px)';
     }, 400);
   });
 }
