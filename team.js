@@ -1,5 +1,26 @@
 // ─── TEAM & PLAYER DETAIL SCREENS ────────────────────────────────────────────
 
+// Robust scroll lock for overlays. overflow:hidden on body does NOT
+// reliably stop touch-driven scrolling on iOS Safari — the page can still
+// shift slightly while "locked," which is a likely cause of fixed-position
+// overlays appearing to crop/offset after scrolling first, especially in
+// standalone/fullscreen PWA mode. position:fixed genuinely removes body
+// from flow, which iOS does respect; the scroll offset is stored and
+// restored manually since fixing position would otherwise snap to the top.
+var scrollLockY = 0;
+
+function lockBodyScroll() {
+  // Only actually engage the lock if it isn't already active — re-locking
+  // on a second, nested overlay opening on top of a first would otherwise
+  // overwrite scrollLockY with the (already-locked, so effectively 0)
+  // current scroll position, losing the real original offset to restore to.
+  if (document.body.style.position === 'fixed') return;
+  scrollLockY = window.scrollY;
+  document.body.style.position = 'fixed';
+  document.body.style.top = (-scrollLockY) + 'px';
+  document.body.style.width = '100%';
+}
+
 // ── TEAM OVERLAY ──────────────────────────────────────────────────────────────
 
 function openTeam(code) {
@@ -104,7 +125,7 @@ function openTeam(code) {
   content.innerHTML = headerHtml + '<div class="td-body">' + statsHtml + infoHtml + grpHtml + fixHtml + squadHtml + '</div>';
   overlay.classList.add('open');
   content.querySelector('.td-body').scrollTop = 0;
-  document.body.style.overflow = 'hidden';
+  lockBodyScroll();
 }
 
 function closeTeam() {
@@ -122,7 +143,12 @@ function releaseScrollLockIfNoOverlaysOpen() {
     var el = document.getElementById(id);
     return el && el.classList.contains('open');
   });
-  if (!anyOpen) document.body.style.overflow = '';
+  if (!anyOpen) {
+    document.body.style.position = '';
+    document.body.style.top = '';
+    document.body.style.width = '';
+    window.scrollTo(0, scrollLockY);
+  }
 }
 
 // ── PLAYER OVERLAY ────────────────────────────────────────────────────────────
@@ -213,6 +239,7 @@ function openPlayer(teamCode, playerName) {
   overlay.classList.add('open');
   var ppBody = el.querySelector('.pp-body');
   if (ppBody) ppBody.scrollTop = 0;
+  lockBodyScroll();
 
   // Fetch Wikipedia thumbnail asynchronously
   fetchWikiImage(p.full);

@@ -515,7 +515,11 @@ async function openMatchDetail(fixtureId) {
     '</div>' +
     '<div class="pp-body"><div class="empty-state"><div class="empty-state-title">Loading match…</div></div></div>';
   overlay.classList.add('open');
-  document.body.style.overflow = 'hidden';
+  if (typeof lockBodyScroll === 'function') {
+    lockBodyScroll();
+  } else {
+    document.body.style.overflow = 'hidden';
+  }
 
   if (!LIVE_API_ENABLED) {
     content.querySelector('.pp-body').innerHTML =
@@ -548,7 +552,9 @@ function closeMatchDetail() {
   if (typeof releaseScrollLockIfNoOverlaysOpen === 'function') {
     releaseScrollLockIfNoOverlaysOpen();
   } else {
-    document.body.style.overflow = '';
+    document.body.style.position = '';
+    document.body.style.top = '';
+    document.body.style.width = '';
   }
 }
 
@@ -690,18 +696,21 @@ function matchCard(m, live) {
 
   var eventsHtml = '';
   if (live && m.events && m.events.length) {
-    eventsHtml = '<div class="mc-events">' +
-      m.events.map(function(e){
-        var isHome = e.team === m.hc;
-        var icon   = e.icon || '⚽';
-        var name   = e.text.replace(/^(GOAL|RED CARD|YELLOW CARD|CARD|SUB) — /, '');
-        return '<div class="mc-event ' + (isHome ? 'ev-home' : 'ev-away') + '">' +
-          '<span class="ev-min">' + e.min + '\'</span>' +
-          '<span>' + icon + '</span>' +
-          '<span class="ev-text">' + name + '</span>' +
-          '</div>';
-      }).join('') +
-      '</div>';
+    var keyEvents = m.events.filter(function(e){ return e.kind === 'goal' || e.kind === 'red'; });
+    if (keyEvents.length) {
+      eventsHtml = '<div class="mc-events">' +
+        keyEvents.map(function(e){
+          var isHome = e.team === m.hc;
+          var icon   = e.icon || '⚽';
+          var name   = e.text.replace(/^(GOAL|RED CARD|YELLOW CARD|CARD|SUB) — /, '');
+          return '<div class="mc-event ' + (isHome ? 'ev-home' : 'ev-away') + '">' +
+            '<span class="ev-min">' + e.min + '\'</span>' +
+            '<span>' + icon + '</span>' +
+            '<span class="ev-text">' + name + '</span>' +
+            '</div>';
+        }).join('') +
+        '</div>';
+    }
   }
 
   return '<div class="match-card ' + cls + tapCls + '" data-match-key="' + matchKey + '" data-score="' + scoreStr + '"' + tapAttr + '>' +

@@ -295,6 +295,7 @@ body{
 .header-flags{ display:flex;align-items:center;gap:6px;flex-wrap:wrap }
 .header-flag{ cursor:pointer;display:block;flex-shrink:0 }
 .header-flag:active{ opacity:.7 }
+.header-flag .flat-flag{ border:0.5px solid #ffffff; } /* very thin white edge so yellow-containing flags don't blend into the now-yellow header background */
 .app-icon{ flex-shrink:0;display:block }
 .app-logo-icon{
   width:48px;height:48px; /* 40px × 1.2, per request */
@@ -340,13 +341,13 @@ body{
    the way the yellow-background version needed to. */
 .edit-btn{
   font-size:17px;line-height:1;
-  background:transparent;border:1px solid #ffffff35;
-  color:#fff;opacity:.8;cursor:pointer;
+  background:transparent;border:1px solid #1A1A2E35;
+  color:#1A1A2E50;cursor:pointer; /* matches the "PICK YOUR TEAMS" label color exactly (same hex+alpha), per request */
   width:32px;height:32px; /* compact square, icon-only — was a wide text button */
   display:flex;align-items:center;justify-content:center;
   flex-shrink:0;
 }
-.edit-btn:active{border-color:#fff;opacity:1}
+.edit-btn:active{border-color:#1A1A2E;opacity:.7}
 
 /* Score ticker */
 .score-ticker{
@@ -396,7 +397,6 @@ body{
   position:sticky;
   top:var(--header-h, 54px);
   z-index:49;
-  padding-bottom:env(safe-area-inset-bottom);
   transform:translateZ(0);
   will-change:transform;
 }
