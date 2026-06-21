@@ -60,33 +60,16 @@
 }
 .loading-inner{
   display:flex;flex-direction:column;align-items:center;gap:18px;
-  opacity:1; /* the icon-wrap below handles its own entrance now — this just needs to be visible immediately so the ring/icon can animate in */
+  animation:loadingEntrance .6s cubic-bezier(.2,.9,.3,1.2) both;
+}
+@keyframes loadingEntrance{
+  0%   { opacity:0; transform:translateY(10px) scale(.92); }
+  100% { opacity:1; transform:translateY(0)    scale(1);   }
 }
 .loading-icon-wrap{
   position:relative;
   width:110px;height:110px;
   display:flex;align-items:center;justify-content:center;
-}
-.loading-icon-bounce{
-  position:relative;z-index:1;
-  animation:loadingDropBounce .9s linear both; /* linear here — the keyframe percentages below already encode all the easing/pacing of the fall and each bounce; an additional eased curve on top was distorting that timing */
-}
-/* A dropped ball: falls from above (accelerating), hits, rebounds to a
-   lower height each time (energy loss), with a squash at each impact and
-   a stretch while airborne — same physical read as a real bouncing ball,
-   not just an eased slide-in. */
-@keyframes loadingDropBounce{
-  0%   { transform:translateY(-180px) scaleY(1.15) scaleX(.92); opacity:0; }
-  6%   { opacity:1; }
-  38%  { transform:translateY(0)      scaleY(.78)  scaleX(1.18); }  /* impact 1 — squash */
-  46%  { transform:translateY(-34px)  scaleY(1.08) scaleX(.96);  }  /* mid-rebound — stretch */
-  52%  { transform:translateY(-60px)  scaleY(1)     scaleX(1);    }  /* peak of bounce 1 */
-  60%  { transform:translateY(-20px)  scaleY(1.04)  scaleX(.98);  }
-  66%  { transform:translateY(0)      scaleY(.88)   scaleX(1.1);  }  /* impact 2 — smaller squash */
-  76%  { transform:translateY(-22px)  scaleY(1)      scaleX(1);    }  /* peak of bounce 2 */
-  86%  { transform:translateY(0)      scaleY(.94)    scaleX(1.04); }  /* impact 3 — tiny squash */
-  92%  { transform:translateY(-8px)   scaleY(1)       scaleX(1);    }  /* peak of bounce 3 */
-  100% { transform:translateY(0)      scaleY(1)       scaleX(1);    }  /* settled */
 }
 .loading-ring{
   position:absolute;inset:0;
@@ -104,8 +87,8 @@
 }
 .loading-icon{
   width:72px;height:72px;
-  display:block;
-  animation:loadingPulse 1.4s ease-in-out .9s infinite; /* delayed by .9s so the pulse only kicks in once the bounce has fully settled */
+  position:relative;z-index:1;
+  animation:loadingPulse 1.4s ease-in-out infinite;
 }
 @keyframes loadingPulse{
   0%, 100% { transform:scale(1);   opacity:1;  }
@@ -125,6 +108,9 @@ html,body{
   margin:0;padding:0;
   background:var(--paper);
   overscroll-behavior-y:contain; /* prevents elastic bounce-scroll from interacting with stacked sticky elements (header/ticker/nav), a known cause of stray duplicated border-line artifacts on iOS Safari */
+  overscroll-behavior-x:none; /* blocks the horizontal elastic rubber-band gesture itself — overflow-x:hidden below stops content from BEING wide enough to scroll, but doesn't stop the bounce gesture from visually dragging the viewport sideways on iOS Safari */
+  overflow-x:hidden; /* set on both html and body — which element is the actual scroll container varies by browser, so covering both is the standard defensive approach */
+  max-width:100vw;
 }
 body{
   background:var(--paper);
@@ -155,10 +141,10 @@ body{
 
 /* Hero */
 .pick-hero{
-  background:var(--yellow);
+  background:var(--ink); /* was --yellow — now matches the in-app header exactly, per request */
   padding:calc(14px + env(safe-area-inset-top)) var(--pad) 12px;
   position:relative;
-  border-bottom:3px solid var(--header-blue); /* matches the in-app header's accent line now that both share a yellow background */
+  border-bottom:3px solid var(--yellow); /* matches .app-top's border treatment exactly */
 }
 .pick-hero-accent{ display:none }
 .pick-icon-row{ display:none }
@@ -176,27 +162,27 @@ body{
 .pick-meta-val{
   font-family:var(--display);
   font-size:20px;line-height:1;
-  color:var(--ink); /* was --yellow, invisible against a yellow background */
+  color:var(--yellow); /* matches the in-app header's accent color on the same navy background */
 }
 .pick-meta-lbl{
   font-size:10px;font-weight:700;
   letter-spacing:.12em;text-transform:uppercase;
-  color:#1A1A2E80; /* was translucent white, now translucent ink for the same effect on a light background */
+  color:#ffffff80; /* back to translucent white now that the background is navy again */
 }
 .pick-meta-div{
   width:1px;height:32px;
-  background:#1A1A2E30; /* was translucent white */
+  background:#ffffff30; /* back to translucent white */
 }
 /* Countdown */
 .pick-countdown{
   font-family:var(--display);
   font-size:22px;line-height:1;
-  color:var(--pink); /* keeps enough contrast against yellow */
+  color:var(--pink); /* keeps enough contrast against navy too */
 }
 .pick-countdown-lbl{
   font-size:10px;font-weight:700;
   letter-spacing:.12em;text-transform:uppercase;
-  color:#1A1A2E70; /* was translucent white */
+  color:#ffffff70; /* back to translucent white */
   margin-top:2px;
 }
 
@@ -314,6 +300,27 @@ body{
 .app-logo-icon.spin{
   animation:logoSpin .6s cubic-bezier(.45,0,.2,1); /* smooth ease-in/ease-out, not a linear spin */
 }
+/* Homepage-load-only entrance — same physical read as a real dropped ball
+   (falls, hits, rebounds to a lower height each time, squash/stretch at
+   each impact) as the original loading-screen bounce, scaled down for
+   this smaller 48px icon. Triggered explicitly via JS once on first load,
+   not tied to every page paint, so it doesn't replay on tab switches. */
+@keyframes logoBounceIn{
+  0%   { transform:translateY(-120px) scaleY(1.15) scaleX(.92); opacity:0; }
+  6%   { opacity:1; }
+  38%  { transform:translateY(0)      scaleY(.8)   scaleX(1.15); }  /* impact 1 — squash */
+  46%  { transform:translateY(-23px)  scaleY(1.07) scaleX(.96);  }  /* mid-rebound — stretch */
+  52%  { transform:translateY(-40px)  scaleY(1)     scaleX(1);    }  /* peak of bounce 1 */
+  60%  { transform:translateY(-13px)  scaleY(1.03)  scaleX(.98);  }
+  66%  { transform:translateY(0)      scaleY(.9)    scaleX(1.08); }  /* impact 2 — smaller squash */
+  76%  { transform:translateY(-15px)  scaleY(1)      scaleX(1);    }  /* peak of bounce 2 */
+  86%  { transform:translateY(0)      scaleY(.95)    scaleX(1.03); }  /* impact 3 — tiny squash */
+  92%  { transform:translateY(-5px)   scaleY(1)       scaleX(1);    }  /* peak of bounce 3 */
+  100% { transform:translateY(0)      scaleY(1)       scaleX(1);    }  /* settled */
+}
+.app-logo-icon.bounce-in{
+  animation:logoBounceIn .8s linear both; /* linear — the keyframe percentages already encode the fall/bounce pacing; an eased curve on top would distort it, as discovered when tuning the original loading-screen version */
+}
 .app-logo-text{
   font-family:var(--display);
   font-size:20px;letter-spacing:.05em;
@@ -348,7 +355,7 @@ body{
 }
 .ticker-inner{
   display:flex;align-items:center;
-  animation:ticker-scroll 30s linear infinite;
+  animation:ticker-scroll 15s linear infinite; /* was 30s — halved to double the scroll speed, per request */
   white-space:nowrap;
   padding-left:100%;
 }
@@ -378,7 +385,7 @@ body{
 .bottom-nav{
   background:var(--ink);
   display:grid;grid-template-columns:repeat(5,1fr);
-  border-top:3px solid var(--ink);
+  border-bottom:2px solid var(--yellow); /* was an invisible ink-on-ink top border — now a visible yellow keyline below the tabs, on every page, per request */
   position:sticky;
   top:var(--header-h, 54px);
   z-index:49;
@@ -758,7 +765,7 @@ body{
   z-index:40;
   display:flex;overflow-x:auto;
   background:var(--ink);
-  border-bottom:2px solid var(--yellow);
+  border-bottom:1px solid #ffffff25; /* was yellow, matching the tab bar above — now subtler since that line already exists just above this one, and two close-together yellow rules read as redundant rather than intentional */
   padding:0 8px;
 }
 .grp-anchor-bar::-webkit-scrollbar{ display:none }

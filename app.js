@@ -1798,6 +1798,17 @@ if (chosen.length > 0) {
   launch();
 }
 
+// Bounce the top-left logo in on initial homepage load only — whichever
+// screen actually renders first (team picker or straight into the app,
+// depending on whether teams were already saved above). This fires once
+// here and is never retriggered by tab switches or other re-renders.
+(function bounceLogoOnFirstLoad() {
+  var appVisible = document.getElementById('s-app').style.display === 'block';
+  var screen = appVisible ? '#s-app' : '#s-pick';
+  var icon = document.querySelector(screen + ' .app-logo-icon');
+  if (icon) icon.classList.add('bounce-in');
+})();
+
 // Hide the loading screen once the initial UI is ready. A small minimum
 // display time avoids an unpleasant flash on fast connections while still
 // feeling instant on slower ones. The exit transition (scale + fade, see
@@ -1806,7 +1817,7 @@ if (chosen.length > 0) {
 (function hideLoadingScreen() {
   var loading = document.getElementById('s-loading');
   if (!loading) return;
-  var MIN_DISPLAY_MS = 950; // covers the full .9s drop-bounce animation so it's never cut off mid-motion
+  var MIN_DISPLAY_MS = 400;
   var EXIT_TRANSITION_MS = 500; // must match #s-loading's CSS transition duration
   setTimeout(function() {
     loading.classList.add('hidden');
