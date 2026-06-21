@@ -299,15 +299,16 @@ body{
 
 /* Score ticker */
 .score-ticker{
-  background:var(--pink);
+  background:var(--ink); /* was --pink — a fourth full-bleed brand color here clashed with the yellow header right above and white pill bar right below */
   overflow:hidden;
   height:32px;
   display:flex;align-items:center;
-  border-bottom:2px solid var(--ink);
+  border-bottom:2px solid var(--pink); /* keeps a live-signal accent without washing the whole bar */
 }
 .score-ticker.no-live{
   background:var(--ink);
   height:28px;
+  border-bottom-color:var(--rule);
 }
 .ticker-inner{
   display:flex;align-items:center;
@@ -323,10 +324,11 @@ body{
   padding:0 24px 0 0;
   display:inline-flex;align-items:center;gap:8px;
 }
-.ticker-score{font-size:16px;letter-spacing:.02em}
+.ticker-score{font-size:16px;letter-spacing:.02em;color:var(--pink)} /* carries the live-signal color that the background used to */
 .ticker-min{
   font-size:10px;font-weight:700;
-  background:#ffffff25;
+  background:var(--pink);
+  color:#fff;
   padding:1px 5px;
   letter-spacing:.08em;
   animation:pulse-opacity 1.5s ease-in-out infinite;
