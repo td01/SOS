@@ -1572,7 +1572,7 @@ if (chosen.length > 0) {
 
 var deferredInstallPrompt = null; // Android/Chrome's captured beforeinstallprompt event
 var INSTALL_DISMISSED_KEY = 'sos_install_dismissed';
-var INSTALL_ENGAGEMENT_MS = 25000; // show after ~25s of active use, not immediately on load
+var INSTALL_ENGAGEMENT_MS = 12000; // show after ~12s of active use — long enough to not feel immediate, short enough that a normal quick visit actually reaches it
 
 function isStandalone() {
   return window.matchMedia('(display-mode: standalone)').matches ||
