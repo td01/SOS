@@ -319,7 +319,7 @@ async function fetchLiveData() {
 
   try {
     var [liveRes, todayRes] = await Promise.all([
-      fetch('/api/fixtures?live=all&league=' + API_LEAGUE + '&season=' + API_SEASON),
+      fetch('/api/fixtures?live=all'),
       fetch('/api/fixtures?date=' + new Date().toISOString().slice(0,10) + '&league=' + API_LEAGUE + '&season=' + API_SEASON)
     ]);
 
@@ -953,23 +953,6 @@ function renderScheduleList() {
   var mn   = myTeamNames();
   var mine = fixtures.filter(function(f){ return mn.includes(f.h) || mn.includes(f.a); });
   var html = '';
-
-  // Find the fixture date closest to right now — used to mark a "today" /
-  // "current" anchor so the jump-to-latest control has somewhere to go.
-  // Prefers the next upcoming fixture; if every fixture in this stage is
-  // already finished, falls back to the most recent one instead, so the
-  // jump button still does something useful rather than going nowhere.
-  var nowKey = (function() {
-    var now = Date.now();
-    var future = fixtures.filter(function(f){ return f._sortKey >= now; });
-    if (future.length) {
-      return future.reduce(function(a,b){ return a._sortKey < b._sortKey ? a : b; }).date;
-    }
-    if (fixtures.length) {
-      return fixtures.reduce(function(a,b){ return a._sortKey > b._sortKey ? a : b; }).date;
-    }
-    return null;
-  })();
   var usedNowAnchor = false;
 
   if (mine.length) {
@@ -987,16 +970,45 @@ function renderScheduleList() {
   }
   html += sec('Full schedule');
 
-  if (!fixtures.length) {
+  // Everyone's matches except the ones already shown above under "Your
+  // fixtures" — without this exclusion, a selected team's matches were
+  // rendered twice: once in "Your fixtures", then again here since this
+  // section was built from the full, unfiltered fixture list.
+  var rest = mine.length ? fixtures.filter(function(f){ return !mine.includes(f); }) : fixtures;
+
+  // Recompute the "now" anchor from rest, not the original fixtures list —
+  // the anchor id is only ever attached within this section's loop below,
+  // so if it were computed from the full list it could point at a date
+  // that turned out to be made up entirely of "Your fixtures" matches
+  // (now excluded here), leaving the jump button with nothing to find.
+  var nowKey = (function() {
+    var now = Date.now();
+    var future = rest.filter(function(f){ return f._sortKey >= now; });
+    if (future.length) {
+      return future.reduce(function(a,b){ return a._sortKey < b._sortKey ? a : b; }).date;
+    }
+    if (rest.length) {
+      return rest.reduce(function(a,b){ return a._sortKey > b._sortKey ? a : b; }).date;
+    }
+    return null;
+  })();
+
+  if (!rest.length) {
     if (schedStage !== 'ALL' && schedStage !== 'group' && KNOCKOUT_PLACEHOLDER[schedStage]) {
       html += renderKnockoutPlaceholder(schedStage);
+    } else if (mine.length) {
+      // Every fixture in this stage belongs to the selected team(s) — not
+      // actually "no fixtures", just nothing left over once "Your
+      // fixtures" already covered all of them.
+      html += '<div class="empty-state"><div class="empty-state-title">All caught up</div>' +
+        '<div class="empty-state-body">Every fixture in this stage is one of your team\u2019s \u2014 see \u201cYour fixtures\u201d above.</div></div>';
     } else {
       html += '<div class="empty-state"><div class="empty-state-title">No fixtures yet</div>' +
         '<div class="empty-state-body">This stage hasn\u2019t been scheduled yet \u2014 check back once earlier rounds conclude.</div></div>';
     }
   } else {
     var byDate = {};
-    fixtures.forEach(function(f){
+    rest.forEach(function(f){
       if (!byDate[f.date]) byDate[f.date] = [];
       byDate[f.date].push(f);
     });
@@ -1010,7 +1022,7 @@ function renderScheduleList() {
       if (anchorAttr) usedNowAnchor = true;
       html += '<div class="day-lbl span-all"' + anchorAttr + '>' + date + '</div>';
       html += matches.map(function(f){
-        return fixtureRow(f, mn.includes(f.h) || mn.includes(f.a));
+        return fixtureRow(f, false); // mn.includes would always be false here now that mine is excluded, but kept explicit for clarity
       }).join('');
     });
   }

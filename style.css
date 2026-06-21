@@ -107,6 +107,7 @@
 html,body{
   margin:0;padding:0;
   background:var(--paper);
+  overscroll-behavior-y:contain; /* prevents elastic bounce-scroll from interacting with stacked sticky elements (header/ticker/nav), a known cause of stray duplicated border-line artifacts on iOS Safari */
 }
 body{
   background:var(--paper);
@@ -265,17 +266,19 @@ body{
 
 /* Top bar */
 .app-top{
-  background:var(--yellow);
+  background:var(--ink); /* was --yellow — now navy with a yellow logo per request */
   padding:calc(12px + env(safe-area-inset-top)) var(--pad) 12px;
   display:flex;align-items:center;justify-content:space-between;
   position:sticky;top:0;z-index:50;
-  border-bottom:3px solid var(--header-blue);
+  border-bottom:3px solid var(--yellow);
   min-height:54px;
+  transform:translateZ(0); /* own compositing layer — fixes a stray duplicated border-line artifact during scroll on iOS Safari */
+  will-change:transform;
 }
 .app-logo{ cursor:pointer;display:flex;align-items:center;gap:10px }
 .app-icon{ flex-shrink:0;display:block }
 .app-logo-icon{
-  width:40px;height:40px; /* 32px × 1.25, per request */
+  width:48px;height:48px; /* 40px × 1.2, per request */
   display:block;
 }
 .app-logo-text{
@@ -286,29 +289,27 @@ body{
 }
 .app-logo-text em{color:var(--yellow);font-style:normal} /* default: yellow accent on dark bg */
 
-/* In-app header is yellow, not dark — invert both colors for contrast */
-.app-top .app-logo-text{color:var(--ink)}
-.app-top .app-logo-text em{color:var(--header-blue)}
+/* In-app header is navy — light text already works without overriding it
+   the way the yellow-background version needed to. */
 .edit-btn{
   font-family:var(--display);
   font-size:12px;letter-spacing:.09em;
-  background:transparent;border:1px solid #1a1a2e35;
-  color:var(--ink);opacity:.7;padding:5px 11px;cursor:pointer;
+  background:transparent;border:1px solid #ffffff35;
+  color:#fff;opacity:.8;padding:5px 11px;cursor:pointer;
 }
-.edit-btn:active{border-color:var(--ink);opacity:1}
+.edit-btn:active{border-color:#fff;opacity:1}
 
 /* Score ticker */
 .score-ticker{
-  background:var(--ink); /* was --pink — a fourth full-bleed brand color here clashed with the yellow header right above and white pill bar right below */
+  background:var(--pink); /* restored per request, now that the header above is navy rather than yellow — no longer clashes */
   overflow:hidden;
   height:32px;
   display:flex;align-items:center;
-  border-bottom:2px solid var(--pink); /* keeps a live-signal accent without washing the whole bar */
+  border-bottom:2px solid var(--ink);
 }
 .score-ticker.no-live{
   background:var(--ink);
   height:28px;
-  border-bottom-color:var(--rule);
 }
 .ticker-inner{
   display:flex;align-items:center;
@@ -324,11 +325,10 @@ body{
   padding:0 24px 0 0;
   display:inline-flex;align-items:center;gap:8px;
 }
-.ticker-score{font-size:16px;letter-spacing:.02em;color:var(--pink)} /* carries the live-signal color that the background used to */
+.ticker-score{font-size:16px;letter-spacing:.02em}
 .ticker-min{
   font-size:10px;font-weight:700;
-  background:var(--pink);
-  color:#fff;
+  background:#ffffff25;
   padding:1px 5px;
   letter-spacing:.08em;
   animation:pulse-opacity 1.5s ease-in-out infinite;
@@ -368,12 +368,14 @@ body{
   top:var(--header-h, 54px);
   z-index:49;
   padding-bottom:env(safe-area-inset-bottom);
+  transform:translateZ(0);
+  will-change:transform;
 }
 .bnav-btn{
   display:flex;flex-direction:column;align-items:center;gap:3px;
   padding:10px 0 7px;
   border:none;background:transparent;
-  cursor:pointer;color:#ffffff40;
+  cursor:pointer;color:#ffffff80; /* was #ffffff40 — matched to .grp-anchor-btn for consistency, per request */
   border-right:1px solid #222;
 }
 .bnav-btn:last-child{border-right:none}
