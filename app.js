@@ -168,6 +168,32 @@ window.addEventListener('resize', syncHeaderHeight);
 window.addEventListener('orientationchange', function() {
   setTimeout(syncHeaderHeight, 150);
 });
+
+// Shrink the header by ~40% once scrolled, back to full size at the top —
+// maximizes content space while scrolling, full prominence at rest.
+// Threshold of 8px (not 0) avoids flickering the class on/off from tiny
+// rubber-band/overscroll wobble right at the top.
+var headerScrollState = false; // tracks current .scrolled state to avoid redundant class writes on every scroll tick
+function syncHeaderScrollState() {
+  var header = document.querySelector('.app-top');
+  if (!header) return;
+  var shouldShrink = window.scrollY > 8;
+  if (shouldShrink !== headerScrollState) {
+    headerScrollState = shouldShrink;
+    header.classList.toggle('scrolled', shouldShrink);
+  }
+}
+window.addEventListener('scroll', syncHeaderScrollState, { passive: true });
+// Re-measure --header-h once the shrink/grow transition finishes, so the
+// nav bar and everything sticking below it stay correctly positioned
+// against the header's real, current height rather than a stale value
+// captured before the transition completed.
+document.addEventListener('transitionend', function(e) {
+  if (e.target.classList && e.target.classList.contains('app-top')) {
+    syncHeaderHeight();
+  }
+});
+
 // The header/nav use Bebas Neue (loaded via @import, display:swap), so they
 // initially render with a fallback system font and then reflow once the
 // real font finishes loading — which can change their rendered height

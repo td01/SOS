@@ -115,9 +115,8 @@ html,body{
   margin:0;padding:0;
   background:var(--paper);
   overscroll-behavior-y:contain; /* prevents elastic bounce-scroll from interacting with stacked sticky elements (header/ticker/nav), a known cause of stray duplicated border-line artifacts on iOS Safari */
-  overscroll-behavior-x:none; /* blocks the horizontal elastic rubber-band gesture itself — overflow-x:hidden below stops content from BEING wide enough to scroll, but doesn't stop the bounce gesture from visually dragging the viewport sideways on iOS Safari */
-  overflow-x:hidden; /* set on both html and body — which element is the actual scroll container varies by browser, so covering both is the standard defensive approach */
-  max-width:100vw;
+  overscroll-behavior-x:none; /* blocks the horizontal elastic rubber-band gesture itself */
+  max-width:100vw; /* width safety net that does NOT establish a clipping/scroll context the way overflow-x:hidden does — see below */
 }
 body{
   background:var(--paper);
@@ -127,7 +126,14 @@ body{
   margin:0 auto;
   font-size:15px;
   -webkit-font-smoothing:antialiased;
-  overflow-x:hidden;
+  /* overflow-x:hidden intentionally NOT used here (or on html above) — it
+     silently breaks position:sticky for every sticky element in the app
+     (header, nav, Groups letter bar, Schedule filter bar all stopped
+     sticking once this was added in an earlier session). Setting
+     overflow-x to anything but visible forces the element to establish a
+     scrolling/clipping context, which sticky positioning can't see past.
+     overscroll-behavior-x above handles the actual rubber-band gesture
+     this was originally meant to stop, without that side effect. */
   touch-action:manipulation; /* disables double-tap-zoom and pinch-zoom at the CSS level — a second layer alongside the viewport meta tag's user-scalable=no */
 }
 
@@ -281,7 +287,7 @@ body{
 
 /* Top bar */
 .app-top{
-  background:var(--yellow); /* was --ink — back to yellow with a navy logo, per request */
+  background:var(--yellow);
   padding:calc(12px + env(safe-area-inset-top)) var(--pad) 12px;
   display:flex;align-items:center;justify-content:space-between;
   position:sticky;top:0;z-index:50;
@@ -289,6 +295,11 @@ body{
   min-height:54px;
   transform:translateZ(0); /* own compositing layer — fixes a stray duplicated border-line artifact during scroll on iOS Safari */
   will-change:transform;
+  transition:padding .25s cubic-bezier(.4,0,.2,1), min-height .25s cubic-bezier(.4,0,.2,1); /* smooth shrink/grow as the .scrolled class toggles */
+}
+.app-top.scrolled{
+  padding:calc(7.2px + env(safe-area-inset-top)) var(--pad) 7.2px; /* 12px × 0.6 = 40% shorter while scrolled */
+  min-height:32px; /* 54px × ~0.6 */
 }
 .app-logo{ cursor:pointer;display:flex;align-items:center;gap:10px }
 .app-top-right{ display:flex;align-items:center;gap:12px;min-width:0;flex-shrink:0 }
@@ -298,8 +309,12 @@ body{
 .header-flag .flat-flag{ border:0.5px solid #ffffff; } /* very thin white edge so yellow-containing flags don't blend into the now-yellow header background */
 .app-icon{ flex-shrink:0;display:block }
 .app-logo-icon{
-  width:48px;height:48px; /* 40px × 1.2, per request */
+  width:48px;height:48px;
   display:block;
+  transition:width .25s cubic-bezier(.4,0,.2,1), height .25s cubic-bezier(.4,0,.2,1);
+}
+.app-top.scrolled .app-logo-icon{
+  width:32px;height:32px; /* shrinks alongside the header when scrolled, reverts when back at the top */
 }
 @keyframes logoSpin{
   from{ transform:rotate(0deg); }
