@@ -127,7 +127,7 @@ function launch() {
   var myTeams = TEAMS.filter(function(t){ return chosen.includes(t.c); });
   document.getElementById('header-flags').innerHTML = myTeams.map(function(t){
     return '<span class="header-flag" onclick="event.stopPropagation();openTeam(\'' + t.c + '\')" title="' + t.n + '">' +
-      ff(t.c, 28, 20) +
+      ff(t.c, 22, 16) /* 28×20 × 0.8 (20% smaller), per request */ +
       '</span>';
   }).join('');
 
@@ -1216,7 +1216,6 @@ async function buildSchedule(silent) {
 
 // ─── GROUPS ───────────────────────────────────────────────────────────────────
 
-var groupsShowLive = false;
 var standingsCache = null; // cached live standings from API
 
 async function fetchStandings() {
@@ -1251,49 +1250,22 @@ async function fetchStandings() {
   }
 }
 
-async function toggleGroupsLive(btn) {
-  groupsShowLive = !groupsShowLive;
-  btn.textContent = groupsShowLive ? '● LIVE' : 'LIVE VIEW';
-  btn.classList.toggle('live-toggle-on', groupsShowLive);
-
-  if (groupsShowLive) {
-    // LIVE_MATCHES is otherwise only refreshed by the 60s background poll
-    // or a pull-to-refresh — without this, switching the toggle on could
-    // silently show stale (or, right after launch, completely empty)
-    // in-progress match data instead of what's actually happening right now.
-    btn.textContent = '● Loading…';
-    await fetchLiveData();
-    btn.textContent = '● LIVE';
-  }
-
-  buildGroups();
-}
-
 // The official /standings endpoint can lag behind individual match results
 // for a while after a game ends — the result itself is already correct via
 // /fixtures, but the provider's aggregate table recompute can trail by
 // minutes. To make sure the table is never visibly wrong/stale once a
-// match has finished, we overlay today's in-progress AND just-completed
-// matches on top of the official standings.
+// match has finished, we overlay today's just-completed matches on top of
+// the official standings.
 //
 // To avoid double-counting once /standings catches up on its own, we
 // remember each team's "played" count from the last time we fetched
 // standings (prevPlayedByTeam). If the official count has already gone up
 // for both teams in a finished match, that means /standings has already
 // absorbed this result — so we skip applying it again on top.
-//
-// The groupsShowLive toggle still controls whether *in-progress* (not yet
-// final) matches are projected onto the table — that part is genuinely
-// optional/speculative ("what if this game ended right now"). Applying a
-// match that has ALREADY finished is not speculative, so that correction
-// always runs regardless of the toggle.
 var prevPlayedByTeam = {}; // team code -> played count, from the last fetched standings snapshot
 
 function getAdjustedGroups(groups) {
   var matchesToApply = COMPLETED.slice(); // always apply finished-today results
-  if (groupsShowLive) {
-    matchesToApply = matchesToApply.concat(LIVE_MATCHES); // optionally also project in-progress games
-  }
 
   var adj = {};
   Object.entries(groups).forEach(function(e) {
@@ -1356,7 +1328,7 @@ async function buildGroups(silent) {
   // skip the loading flash and preserve scroll position — a full wipe-and-
   // reload every time would be jarring if someone's mid-read. Only show
   // the loading state on a genuine first build (empty pane).
-  var isFirstBuild = !pane.querySelector('.grp-block, .groups-toolbar, .empty-state');
+  var isFirstBuild = !pane.querySelector('.grp-block, .empty-state');
   var scrollPos = pane.scrollTop;
   if (!silent || isFirstBuild) {
     pane.innerHTML = skeletonGroupBlocks(3);
@@ -1377,15 +1349,6 @@ async function buildGroups(silent) {
     return a[0].localeCompare(b[0]); // ensure strict A→L order regardless of API response ordering
   });
 
-  // Build toggle button
-  var toggleHtml = '<div class="groups-toolbar">' +
-    '<button class="live-toggle' + (groupsShowLive ? ' live-toggle-on' : '') +
-    '" onclick="toggleGroupsLive(this)">' +
-    (groupsShowLive ? '● LIVE' : 'LIVE VIEW') +
-    '</button>' +
-    (groupsShowLive ? '<span class="live-toggle-note">Standings updated with live scores</span>' : '') +
-    '</div>';
-
   // Sticky row of group-letter buttons — tapping one jumps straight to that
   // group's table further down the page, rather than scrolling through all
   // 12 groups to find the one you want.
@@ -1395,16 +1358,14 @@ async function buildGroups(silent) {
     }).join('') +
     '</div>';
 
-  pane.innerHTML = toggleHtml + anchorBarHtml + groupEntries.map(function(entry){
+  pane.innerHTML = anchorBarHtml + groupEntries.map(function(entry){
     var grp = entry[0], rows = entry[1];
     var sorted = rows.slice().sort(function(a,b){
       return (b.pts - a.pts) || ((b.gf - b.ga) - (a.gf - a.ga));
     });
-    var isLive = groupsShowLive && LIVE_MATCHES.some(function(m){ return m.g === grp; });
-    return '<div class="grp-block' + (isLive ? ' grp-block-live' : '') + '" id="grp-anchor-' + grp + '">' +
+    return '<div class="grp-block" id="grp-anchor-' + grp + '">' +
       '<div class="grp-hd">' +
         '<div class="grp-title">Group ' + grp + '</div>' +
-        (isLive ? '<span class="grp-live-badge">● LIVE</span>' : '') +
       '</div>' +
       '<table class="grp-tbl">' +
         '<tr><th style="width:54%">Team</th><th style="width:15%">P</th><th style="width:15%">GD</th><th style="width:16%">Pts</th></tr>' +
@@ -1433,7 +1394,7 @@ async function buildGroups(silent) {
 
 // Smoothly scroll to a specific group's table when its letter button is
 // tapped in the sticky anchor bar. Offsets for the sticky header stack
-// (app-top + bottom-nav + groups-toolbar + anchor bar itself) so the
+// (app-top + bottom-nav + anchor bar itself) so the
 // group title doesn't end up hidden underneath them.
 function jumpToGroup(letter) {
   var target = document.getElementById('grp-anchor-' + letter);
@@ -1845,7 +1806,7 @@ if (chosen.length > 0) {
 (function hideLoadingScreen() {
   var loading = document.getElementById('s-loading');
   if (!loading) return;
-  var MIN_DISPLAY_MS = 400;
+  var MIN_DISPLAY_MS = 950; // covers the full .9s drop-bounce animation so it's never cut off mid-motion
   var EXIT_TRANSITION_MS = 500; // must match #s-loading's CSS transition duration
   setTimeout(function() {
     loading.classList.add('hidden');

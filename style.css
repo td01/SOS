@@ -60,16 +60,33 @@
 }
 .loading-inner{
   display:flex;flex-direction:column;align-items:center;gap:18px;
-  animation:loadingEntrance .6s cubic-bezier(.2,.9,.3,1.2) both;
-}
-@keyframes loadingEntrance{
-  0%   { opacity:0; transform:translateY(10px) scale(.92); }
-  100% { opacity:1; transform:translateY(0)    scale(1);   }
+  opacity:1; /* the icon-wrap below handles its own entrance now — this just needs to be visible immediately so the ring/icon can animate in */
 }
 .loading-icon-wrap{
   position:relative;
   width:110px;height:110px;
   display:flex;align-items:center;justify-content:center;
+}
+.loading-icon-bounce{
+  position:relative;z-index:1;
+  animation:loadingDropBounce .9s linear both; /* linear here — the keyframe percentages below already encode all the easing/pacing of the fall and each bounce; an additional eased curve on top was distorting that timing */
+}
+/* A dropped ball: falls from above (accelerating), hits, rebounds to a
+   lower height each time (energy loss), with a squash at each impact and
+   a stretch while airborne — same physical read as a real bouncing ball,
+   not just an eased slide-in. */
+@keyframes loadingDropBounce{
+  0%   { transform:translateY(-180px) scaleY(1.15) scaleX(.92); opacity:0; }
+  6%   { opacity:1; }
+  38%  { transform:translateY(0)      scaleY(.78)  scaleX(1.18); }  /* impact 1 — squash */
+  46%  { transform:translateY(-34px)  scaleY(1.08) scaleX(.96);  }  /* mid-rebound — stretch */
+  52%  { transform:translateY(-60px)  scaleY(1)     scaleX(1);    }  /* peak of bounce 1 */
+  60%  { transform:translateY(-20px)  scaleY(1.04)  scaleX(.98);  }
+  66%  { transform:translateY(0)      scaleY(.88)   scaleX(1.1);  }  /* impact 2 — smaller squash */
+  76%  { transform:translateY(-22px)  scaleY(1)      scaleX(1);    }  /* peak of bounce 2 */
+  86%  { transform:translateY(0)      scaleY(.94)    scaleX(1.04); }  /* impact 3 — tiny squash */
+  92%  { transform:translateY(-8px)   scaleY(1)       scaleX(1);    }  /* peak of bounce 3 */
+  100% { transform:translateY(0)      scaleY(1)       scaleX(1);    }  /* settled */
 }
 .loading-ring{
   position:absolute;inset:0;
@@ -87,8 +104,8 @@
 }
 .loading-icon{
   width:72px;height:72px;
-  position:relative;z-index:1;
-  animation:loadingPulse 1.4s ease-in-out infinite;
+  display:block;
+  animation:loadingPulse 1.4s ease-in-out .9s infinite; /* delayed by .9s so the pulse only kicks in once the bounce has fully settled */
 }
 @keyframes loadingPulse{
   0%, 100% { transform:scale(1);   opacity:1;  }
@@ -281,8 +298,8 @@ body{
   will-change:transform;
 }
 .app-logo{ cursor:pointer;display:flex;align-items:center;gap:10px }
-.app-top-left{ display:flex;align-items:center;gap:14px;min-width:0 }
-.header-flags{ display:flex;align-items:center;gap:8px;flex-wrap:wrap }
+.app-top-right{ display:flex;align-items:center;gap:12px;min-width:0;flex-shrink:0 }
+.header-flags{ display:flex;align-items:center;gap:6px;flex-wrap:wrap }
 .header-flag{ cursor:pointer;display:block;flex-shrink:0 }
 .header-flag:active{ opacity:.7 }
 .app-icon{ flex-shrink:0;display:block }
@@ -308,10 +325,12 @@ body{
 /* In-app header is navy — light text already works without overriding it
    the way the yellow-background version needed to. */
 .edit-btn{
-  font-family:var(--display);
-  font-size:12px;letter-spacing:.09em;
+  font-size:17px;line-height:1;
   background:transparent;border:1px solid #ffffff35;
-  color:#fff;opacity:.8;padding:5px 11px;cursor:pointer;
+  color:#fff;opacity:.8;cursor:pointer;
+  width:32px;height:32px; /* compact square, icon-only — was a wide text button */
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
 }
 .edit-btn:active{border-color:#fff;opacity:1}
 
@@ -405,14 +424,13 @@ body{
 
 .sec{
   font-family:var(--display);
-  font-size:12px;letter-spacing:.2em;
-  text-transform:uppercase;
-  color:var(--muted);
-  padding:10px var(--pad) 8px;
-  background:var(--paper);
-  border-bottom:1px solid var(--rule);
-  border-top:1px solid var(--rule);
+  font-size:24px;letter-spacing:.04em; /* matches .grp-title sizing exactly */
+  text-transform:none; /* the source labels are already cased as intended ("Your fixtures"), unlike .grp-title's already-uppercase "Group A" */
+  color:var(--yellow);
+  background:var(--ink);
+  padding:12px var(--pad) 10px;
   display:block;
+  line-height:1;
 }
 .sec.span-all{grid-column:1/-1}
 
@@ -1517,45 +1535,6 @@ body{
 }
 
 /* ── GROUPS LIVE TOGGLE ──────────────────────────────────────────────────────*/
-.groups-toolbar{
-  display:flex;align-items:center;gap:12px;
-  padding:10px var(--pad);
-  background:var(--paper);
-  border-bottom:2px solid var(--ink);
-  grid-column:1/-1;
-}
-.live-toggle{
-  font-family:var(--display);
-  font-size:14px;letter-spacing:.1em;
-  background:transparent;
-  border:2px solid var(--ink);
-  color:var(--ink);
-  padding:6px 14px;
-  cursor:pointer;
-  transition:all .12s;
-}
-.live-toggle:active{ opacity:.7 }
-.live-toggle.live-toggle-on{
-  background:var(--pink);
-  border-color:var(--pink);
-  color:#fff;
-}
-.live-toggle-note{
-  font-family:var(--display);
-  font-size:11px;letter-spacing:.08em;
-  color:var(--pink);
-  text-transform:uppercase;
-}
-.grp-block-live .grp-hd{
-  background:#1a0a12;
-}
-.grp-live-badge{
-  font-family:var(--display);
-  font-size:12px;letter-spacing:.1em;
-  color:var(--pink);
-  animation:pulse-opacity 1.2s ease-in-out infinite;
-}
-
 /* ── DEMO DATA INDICATOR ──────────────────────────────────────────────────────*/
 .ticker-demo-tag{
   font-family:var(--display);
@@ -1671,7 +1650,7 @@ body{
 .sk-day-lbl .sk-block{ width:110px;height:21px }
 
 /* ── Global tap feedback ──────────────────────────────────────────────────── */
-.ctry-tile, .header-flag, .bnav-btn, .rbtn, .go-btn, .live-toggle,
+.ctry-tile, .header-flag, .bnav-btn, .rbtn, .go-btn,
 .dyk-filter-btn, .grp-tbl tr, .fix-card, .stats-row, .td-player.tappable,
 .team-overlay-panel .td-fixture, .mc-t, .app-logo, .dyk-ctrl-btn, .match-card.mc-tappable,
 .edit-btn, .pick-clear-btn, .sched-stage-btn, .sched-jump-btn,
@@ -1681,7 +1660,7 @@ body{
   will-change: transform;
 }
 .ctry-tile:active, .header-flag:active, .bnav-btn:active, .rbtn:active,
-.live-toggle:active, .dyk-filter-btn:active, .fix-card:active,
+.dyk-filter-btn:active, .fix-card:active,
 .stats-row:active, .td-player.tappable:active, .mc-t:active,
 .grp-tbl tr:active, .match-card.mc-tappable:active,
 .edit-btn:active, .pick-clear-btn:active, .sched-stage-btn:active,
@@ -1742,7 +1721,7 @@ body{
 
 /* ── Disable iOS callout/selection bounce on interactive surfaces ───────────*/
 .ctry-tile, .bnav-btn, .header-flag, .fix-card, .match-card, .grp-tbl tr,
-.stats-row, .dyk-card, .rbtn, .live-toggle {
+.stats-row, .dyk-card, .rbtn {
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   user-select: none;

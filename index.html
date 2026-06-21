@@ -33,7 +33,9 @@
       <svg class="loading-ring" viewBox="0 0 120 120">
         <circle cx="60" cy="60" r="54" fill="none" stroke-width="3"/>
       </svg>
-      <img src="icon-loading.png" alt="" class="loading-icon">
+      <div class="loading-icon-bounce">
+        <img src="icon-loading.png" alt="" class="loading-icon">
+      </div>
     </div>
   </div>
 </div>
@@ -82,13 +84,13 @@
 <!-- APP -->
 <div id="s-app">
   <div class="app-top">
-    <div class="app-top-left">
-      <div class="app-logo" onclick="goHome()" title="Home">
-        <img src="icon-header-yellow.png" alt="Summer of Soccer" class="app-logo-icon">
-      </div>
-      <div class="header-flags" id="header-flags"></div>
+    <div class="app-logo" onclick="goHome()" title="Home">
+      <img src="icon-header-yellow.png" alt="Summer of Soccer" class="app-logo-icon">
     </div>
-    <button class="edit-btn" onclick="back()">✎ Change teams</button>
+    <div class="app-top-right">
+      <div class="header-flags" id="header-flags"></div>
+      <button class="edit-btn" onclick="back()" title="Change teams" aria-label="Change teams">✎</button>
+    </div>
   </div>
   <div class="score-ticker" id="score-ticker"></div>
 
