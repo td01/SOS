@@ -59,6 +59,13 @@ function dykPrev() {
 function animateCard(dir) {
   var card = document.getElementById('dyk-card');
   if (!card) return;
+  // Clear any inline transform/opacity left over from a swipe-exit
+  // animation — inline styles take precedence over CSS classes, so
+  // without this the class-based slide-in below would be silently
+  // overridden by whatever the drag/exit sequence last set.
+  card.style.transform = '';
+  card.style.opacity = '';
+  card.style.transition = '';
   card.classList.remove('slide-in-left','slide-in-right');
   void card.offsetWidth; // force reflow
   card.classList.add(dir === 'next' ? 'slide-in-right' : 'slide-in-left');
@@ -73,6 +80,8 @@ function dykTouchStart(e) {
   dykTouchStartX = e.touches[0].clientX;
   dykTouchStartY = e.touches[0].clientY;
   dykDragging = false;
+  var card = document.getElementById('dyk-card');
+  if (card) card.style.transition = 'none'; // no easing while actively tracking the finger — only on release
 }
 
 function dykTouchMove(e) {
@@ -86,26 +95,55 @@ function dykTouchMove(e) {
     e.preventDefault();
     var card = document.getElementById('dyk-card');
     if (card) {
-      var clamped = Math.max(-120, Math.min(120, dx));
-      card.style.transform = 'translateX(' + (clamped * 0.4) + 'px)';
-      card.style.opacity = 1 - Math.abs(clamped) / 300;
+      var clamped = Math.max(-160, Math.min(160, dx));
+      // A touch of rotation tied to drag distance reads as more physical —
+      // like tilting a real card — rather than a flat horizontal slide.
+      var rotate = clamped * 0.04;
+      card.style.transform = 'translateX(' + clamped + 'px) rotate(' + rotate + 'deg)';
+      card.style.opacity = 1 - Math.abs(clamped) / 400;
     }
   }
 }
 
 function dykTouchEnd(e) {
   var card = document.getElementById('dyk-card');
-  if (card) {
-    card.style.transform = '';
-    card.style.opacity = '';
+  if (!dykDragging) {
+    if (card) card.style.transition = '';
+    return;
   }
-  if (!dykDragging) return;
   var dx = e.changedTouches[0].clientX - dykTouchStartX;
   var dy = e.changedTouches[0].clientY - dykTouchStartY;
-  if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 28) {
-    if (dx < 0) dykNext();
-    else dykPrev();
+  var cleared = Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 60;
+
+  if (card) {
+    card.style.transition = 'transform .28s cubic-bezier(.22,1,.36,1), opacity .28s';
+    if (cleared) {
+      // Let the card continue in the direction it was already being
+      // dragged, out past the edge of the stage — completes the gesture
+      // the person started instead of snapping back to center first and
+      // then replaying a separate "next card" animation from scratch.
+      var exitX = dx < 0 ? -440 : 440;
+      var exitRotate = dx < 0 ? -14 : 14;
+      card.style.transform = 'translateX(' + exitX + 'px) rotate(' + exitRotate + 'deg)';
+      card.style.opacity = '0';
+    } else {
+      // Didn't clear the threshold — ease back to center rather than the
+      // previous instant snap, which read as a glitch more than a release.
+      card.style.transform = '';
+      card.style.opacity = '';
+    }
   }
+
+  if (cleared) {
+    // Wait for the exit animation to actually finish before swapping
+    // content and animating the replacement in — keeps the motion
+    // continuous instead of cutting the exit short.
+    setTimeout(function() {
+      if (dx < 0) dykNext(); else dykPrev();
+      if (card) card.style.transition = 'none';
+    }, 280);
+  }
+
   dykDragging = false;
 }
 

@@ -2,13 +2,18 @@
 
 var STORAGE_KEY_TEAMS = 'sos_chosen_teams';
 var STORAGE_KEY_REGION = 'sos_region';
+var MAX_TEAMS = 3;
 
 function loadSavedTeams() {
   try {
     var raw = localStorage.getItem(STORAGE_KEY_TEAMS);
     if (!raw) return [];
     var parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed.filter(function(c){ return TEAMS.some(function(t){ return t.c === c; }); }) : [];
+    var valid = Array.isArray(parsed) ? parsed.filter(function(c){ return TEAMS.some(function(t){ return t.c === c; }); }) : [];
+    // Retroactively apply the 3-team cap to anyone who selected more before
+    // this limit existed — keeps their first 3 picks rather than discarding
+    // the whole selection.
+    return valid.slice(0, MAX_TEAMS);
   } catch (e) {
     return [];
   }
@@ -47,9 +52,34 @@ function renderPick(region) {
 
 function toggleTeam(code) {
   var i = chosen.indexOf(code);
-  if (i > -1) chosen.splice(i, 1); else chosen.push(code);
+  if (i > -1) {
+    chosen.splice(i, 1);
+  } else {
+    if (chosen.length >= MAX_TEAMS) {
+      flashPickLimitMessage();
+      return; // don't save/re-render — selection didn't actually change
+    }
+    chosen.push(code);
+  }
   saveChosenTeams();
   renderPick(curRgn);
+}
+
+// Briefly swaps the selection-count label for a "max reached" message,
+// then restores it — gives clear feedback for why tapping a 4th team did
+// nothing, rather than the tap silently appearing to fail.
+var pickLimitMsgTimer = null;
+function flashPickLimitMessage() {
+  var el = document.getElementById('pick-cnt');
+  if (!el) return;
+  clearTimeout(pickLimitMsgTimer);
+  el.textContent = 'Max ' + MAX_TEAMS + ' teams — remove one first';
+  el.classList.add('pick-cnt-limit');
+  pickLimitMsgTimer = setTimeout(function() {
+    el.classList.remove('pick-cnt-limit');
+    var n = chosen.length;
+    el.textContent = n === 0 ? 'None selected' : n === 1 ? '1 team' : n + ' teams';
+  }, 1800);
 }
 
 function clearTeamSelection() {
@@ -95,11 +125,10 @@ function launch() {
   document.getElementById('s-app').style.display  = 'block';
 
   var myTeams = TEAMS.filter(function(t){ return chosen.includes(t.c); });
-  document.getElementById('pill-bar').innerHTML = myTeams.map(function(t){
-    return '<div class="team-pill" onclick="openTeam(\'' + t.c + '\')">' +
-      ff(t.c, 44, 31) + /* 35×25 × 1.25 (second 25% bump), per request */
-      '<span class="team-pill-n">' + t.n + '</span>' +
-      '</div>';
+  document.getElementById('header-flags').innerHTML = myTeams.map(function(t){
+    return '<span class="header-flag" onclick="event.stopPropagation();openTeam(\'' + t.c + '\')" title="' + t.n + '">' +
+      ff(t.c, 28, 20) +
+      '</span>';
   }).join('');
 
   buildTicker();
@@ -173,11 +202,24 @@ function goHome() {
 
 var TAB_ORDER = ['live', 'sched', 'groups', 'stats', 'dyk'];
 
+// Spins the header logo a full clockwise rotation on every tab switch.
+// Removing the class, forcing a reflow, then re-adding it is required for
+// the CSS animation to replay on consecutive triggers — simply re-adding
+// an already-present class is a no-op as far as the browser is concerned.
+function spinLogo() {
+  var icon = document.querySelector('.app-top .app-logo-icon');
+  if (!icon) return;
+  icon.classList.remove('spin');
+  void icon.offsetWidth; // force reflow
+  icon.classList.add('spin');
+}
+
 function tab(id, btn) {
   document.querySelectorAll('.pane').forEach(function(p){ p.classList.remove('on'); });
   document.getElementById('p-' + id).classList.add('on');
   document.querySelectorAll('.bnav-btn').forEach(function(b){ b.classList.remove('on'); });
   btn.classList.add('on');
+  spinLogo();
   if (id === 'dyk')    buildDyk();
   if (id === 'live')   buildLive();
   if (id === 'stats')  buildStats();
@@ -706,7 +748,95 @@ function flashChangedScores() {
   });
 }
 
+// Skeleton placeholders shown while the very first data fetch is still in
+// flight (apiAvailable === null) — real content replaces these once
+// fetchLiveData() resolves either way (success or failure).
+function skeletonScheduleList() {
+  return Array(2).fill(0).map(function(){
+    return '<div class="sk-day-lbl"><div class="sk-block"></div></div>' +
+      skeletonMatchCards(2);
+  }).join('');
+}
+
+function skeletonGroupBlocks(count) {
+  return Array(count).fill(0).map(function(){
+    return '<div class="sk-grp-block">' +
+      '<div class="sk-grp-hd"><div class="sk-block"></div></div>' +
+      Array(4).fill(0).map(function(){
+        return '<div class="sk-grp-row">' +
+          '<div class="sk-block sk-grp-team"></div>' +
+          '<div class="sk-block sk-grp-stat"></div>' +
+          '<div class="sk-block sk-grp-stat"></div>' +
+          '<div class="sk-block sk-grp-stat"></div>' +
+        '</div>';
+      }).join('') +
+    '</div>';
+  }).join('');
+}
+
+function skeletonStatsRow() {
+  return '<div class="sk-stats-row">' +
+    '<div class="sk-block sk-stats-rank"></div>' +
+    '<div class="sk-block sk-stats-flag"></div>' +
+    '<div class="sk-stats-info">' +
+      '<div class="sk-block sk-stats-name"></div>' +
+      '<div class="sk-block sk-stats-sub"></div>' +
+    '</div>' +
+    '<div class="sk-block sk-stats-val"></div>' +
+  '</div>';
+}
+function skeletonStatsSections() {
+  return Array(2).fill(0).map(function(){
+    return '<div class="stats-section">' +
+      '<div class="sk-stats-section-hd"><div class="sk-block"></div></div>' +
+      Array(5).fill(0).map(skeletonStatsRow).join('') +
+    '</div>';
+  }).join('');
+}
+
+function skeletonStatRow() {
+  return '<div class="sk-stat-row">' +
+    Array(4).fill(0).map(function(){
+      return '<div class="sk-stat-cell">' +
+        '<div class="sk-block sk-stat-v"></div>' +
+        '<div class="sk-block sk-stat-l"></div>' +
+      '</div>';
+    }).join('') +
+  '</div>';
+}
+function skeletonMatchCards(count) {
+  return Array(count).fill(0).map(function(){
+    return '<div class="sk-match-card">' +
+      '<div class="sk-block sk-match-badge"></div>' +
+      '<div class="sk-match-teams">' +
+        '<div class="sk-match-t">' +
+          '<div class="sk-block sk-flag"></div>' +
+          '<div class="sk-block sk-match-tn"></div>' +
+        '</div>' +
+        '<div class="sk-block sk-match-score"></div>' +
+        '<div class="sk-match-t r">' +
+          '<div class="sk-block sk-flag"></div>' +
+          '<div class="sk-block sk-match-tn"></div>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
 function buildLive() {
+  // First paint, before the initial fetch has resolved either way — show
+  // skeleton placeholders shaped like the real content rather than zeroed
+  // stats and an empty results list, which used to be what briefly showed
+  // on every fresh launch while waiting on the network.
+  if (apiAvailable === null) {
+    document.getElementById('stat-row').innerHTML = skeletonStatRow();
+    var liveSectionEl = document.getElementById('live-section');
+    if (liveSectionEl) liveSectionEl.style.display = '';
+    document.getElementById('live-wrap').innerHTML = skeletonMatchCards(1);
+    document.getElementById('done-wrap').innerHTML = skeletonMatchCards(2);
+    return;
+  }
+
   var myCount   = [...LIVE_MATCHES, ...COMPLETED].filter(isMine).length;
   var totalGoals = [...LIVE_MATCHES, ...COMPLETED].reduce(function(s, m){ return s + m.hs + m.as; }, 0);
 
@@ -1049,7 +1179,7 @@ async function buildSchedule(silent) {
   var isFirstBuild = !pane.querySelector('.sched-stage-bar, .empty-state');
   var scrollPos = pane.scrollTop;
   if (!silent || isFirstBuild) {
-    pane.innerHTML = '<div class="empty-state"><div class="empty-state-title">Loading schedule…</div></div>';
+    pane.innerHTML = skeletonScheduleList();
   }
 
   fixturesCache = await fetchFixtures();
@@ -1229,7 +1359,7 @@ async function buildGroups(silent) {
   var isFirstBuild = !pane.querySelector('.grp-block, .groups-toolbar, .empty-state');
   var scrollPos = pane.scrollTop;
   if (!silent || isFirstBuild) {
-    pane.innerHTML = '<div class="empty-state"><div class="empty-state-title">Loading standings…</div></div>';
+    pane.innerHTML = skeletonGroupBlocks(3);
   }
 
   standingsCache = await fetchStandings();
@@ -1308,8 +1438,20 @@ async function buildGroups(silent) {
 function jumpToGroup(letter) {
   var target = document.getElementById('grp-anchor-' + letter);
   if (!target) return;
+  // Read the sticky offset directly from the same CSS variables the bar's
+  // own `top` is built from, rather than measuring the bar's current
+  // on-screen position. Those two only match once the bar has already
+  // become stuck — on a first tap from near the top of the page (before
+  // any scrolling has happened), the bar is still sitting in its natural,
+  // unstuck position, so its live bounding-rect doesn't yet reflect where
+  // it'll actually end up once scrolled. That mismatch was why only the
+  // first jump landed in the wrong place.
+  var rootStyle = getComputedStyle(document.documentElement);
+  var headerH = parseFloat(rootStyle.getPropertyValue('--header-h')) || 54;
+  var navH    = parseFloat(rootStyle.getPropertyValue('--nav-h')) || 56;
   var anchorBar = document.querySelector('.grp-anchor-bar');
-  var offset = (anchorBar ? anchorBar.getBoundingClientRect().bottom : 0) + 8;
+  var barH = anchorBar ? anchorBar.getBoundingClientRect().height : 0;
+  var offset = headerH + navH + barH + 8;
   var targetTop = target.getBoundingClientRect().top + window.scrollY - offset;
   window.scrollTo({ top: targetTop, behavior: 'smooth' });
 }
@@ -1450,8 +1592,11 @@ async function buildStats() {
   var pane = document.getElementById('p-stats');
   if (!pane) return;
 
-  // Show a lightweight loading state while we fetch
-  pane.innerHTML = '<div class="empty-state"><div class="empty-state-title">Loading stats…</div></div>';
+  // Skeleton placeholders shaped like the real scorer/assist rows, shown
+  // while the stats fetch is in flight — replaces the previous plain
+  // "Loading stats…" text with something that actually previews the
+  // layout about to appear.
+  pane.innerHTML = skeletonStatsSections();
 
   if (statsCache === null) {
     statsCache = await fetchTournamentStats();

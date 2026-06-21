@@ -118,6 +118,7 @@ body{
   font-size:15px;
   -webkit-font-smoothing:antialiased;
   overflow-x:hidden;
+  touch-action:manipulation; /* disables double-tap-zoom and pinch-zoom at the CSS level — a second layer alongside the viewport meta tag's user-scalable=no */
 }
 
 /* ============================================================
@@ -240,6 +241,10 @@ body{
 .pick-cnt{
   font-family:var(--display);
   font-size:16px;letter-spacing:.06em;color:var(--muted);
+  transition:color .15s;
+}
+.pick-cnt-limit{
+  color:var(--pink)!important;
 }
 .pick-cnt-row{
   display:flex;align-items:center;gap:12px;
@@ -276,10 +281,21 @@ body{
   will-change:transform;
 }
 .app-logo{ cursor:pointer;display:flex;align-items:center;gap:10px }
+.app-top-left{ display:flex;align-items:center;gap:14px;min-width:0 }
+.header-flags{ display:flex;align-items:center;gap:8px;flex-wrap:wrap }
+.header-flag{ cursor:pointer;display:block;flex-shrink:0 }
+.header-flag:active{ opacity:.7 }
 .app-icon{ flex-shrink:0;display:block }
 .app-logo-icon{
   width:48px;height:48px; /* 40px × 1.2, per request */
   display:block;
+}
+@keyframes logoSpin{
+  from{ transform:rotate(0deg); }
+  to{ transform:rotate(360deg); }
+}
+.app-logo-icon.spin{
+  animation:logoSpin .6s cubic-bezier(.45,0,.2,1); /* smooth ease-in/ease-out, not a linear spin */
 }
 .app-logo-text{
   font-family:var(--display);
@@ -339,26 +355,6 @@ body{
 }
 
 /* Team pill bar */
-.team-pill-bar{
-  background:var(--paper);
-  display:flex;overflow-x:auto;
-  border-bottom:1px solid var(--rule);
-  min-height:40px;align-items:center;
-}
-.team-pill-bar::-webkit-scrollbar{display:none}
-.team-pill{
-  display:flex;align-items:center;gap:6px;
-  padding:7px 12px;
-  border-right:1px solid var(--rule);
-  flex-shrink:0;cursor:pointer;
-}
-.team-pill:active{background:#DDD8F5}
-.team-pill-n{
-  font-family:var(--display);
-  font-size:13px;letter-spacing:.04em;
-  color:var(--ink);white-space:nowrap;
-}
-
 /* Bottom nav */
 .bottom-nav{
   background:var(--ink);
@@ -902,7 +898,7 @@ body{
 
 .dyk-stage{
   padding:12px var(--pad);
-  min-height:300px;
+  height:400px; /* fixed, not min-height — keeps controls below anchored in place regardless of how long any individual fact's text is */
   display:flex;align-items:stretch;
   background:var(--paper);
   touch-action:pan-y;
@@ -914,7 +910,7 @@ body{
   padding:22px var(--pad) 28px;
   width:100%;
   position:relative;
-  overflow:hidden;
+  overflow-y:auto; /* safety net — scrolls internally on the rare fact long enough to exceed the fixed stage height, rather than pushing the layout */
   will-change:transform;
   user-select:none;
   -webkit-user-select:none;
@@ -1575,18 +1571,121 @@ body{
    APP-LIKE INTERACTIVITY LAYER
    ════════════════════════════════════════════════════════════════════════════ */
 
+/* ── Skeleton loading states ──────────────────────────────────────────────── */
+/* Shimmer-animated placeholder blocks shown while real data is being
+   fetched, shaped to roughly match the layout that will replace them —
+   keeps the screen feeling alive and structured instead of blank or
+   showing a generic "Loading…" text message. */
+@keyframes skeletonShimmer{
+  0%   { background-position:-200% 0; }
+  100% { background-position:200% 0; }
+}
+.sk-block{
+  background:linear-gradient(90deg, var(--rule) 25%, #ECE9E3 50%, var(--rule) 75%);
+  background-size:200% 100%;
+  animation:skeletonShimmer 1.4s ease-in-out infinite;
+}
+.sk-stat-row{
+  display:grid;grid-template-columns:1fr 1fr;
+}
+.sk-stat-cell{
+  padding:20px var(--pad);
+  border-bottom:1px solid var(--rule);
+}
+.sk-stat-cell:nth-child(odd){ border-right:1px solid var(--rule) }
+.sk-stat-v{
+  width:44px;height:34px;
+  margin-bottom:8px;
+}
+.sk-stat-l{
+  width:72px;height:11px;
+}
+.sk-match-card{
+  background:var(--card);
+  padding:14px var(--pad);
+  border-bottom:2px solid var(--rule);
+}
+.sk-match-badge{
+  width:64px;height:11px;
+  margin-bottom:14px;
+}
+.sk-match-teams{
+  display:grid;grid-template-columns:1fr 64px 1fr;
+  align-items:center;gap:8px;
+}
+.sk-match-t{
+  display:flex;align-items:center;gap:8px;
+}
+.sk-match-t.r{ flex-direction:row-reverse }
+.sk-flag{ width:48px;height:33px;flex-shrink:0 }
+.sk-match-tn{ width:64px;height:13px }
+.sk-match-score{ width:36px;height:24px;margin:0 auto }
+
+.sk-stats-section-hd{
+  background:var(--ink);
+  padding:13px var(--pad) 11px;
+}
+.sk-stats-section-hd .sk-block{
+  width:140px;height:22px;
+  background:linear-gradient(90deg, #2a2a42 25%, #34344e 50%, #2a2a42 75%);
+  background-size:200% 100%;
+}
+.sk-stats-row{
+  display:flex;align-items:center;
+  padding:12px var(--pad);
+  border-bottom:1px solid var(--rule);
+  background:var(--card);
+  gap:12px;
+}
+.sk-stats-rank{ width:24px;height:30px;flex-shrink:0 }
+.sk-stats-flag{ width:28px;height:20px;flex-shrink:0 }
+.sk-stats-info{ flex:1;display:flex;flex-direction:column;gap:6px }
+.sk-stats-name{ width:120px;height:17px }
+.sk-stats-sub{ width:80px;height:11px }
+.sk-stats-val{ width:28px;height:24px;flex-shrink:0 }
+
+.sk-grp-block{ border-bottom:1px solid var(--rule) }
+.sk-grp-hd{
+  background:var(--ink);
+  padding:12px var(--pad) 10px;
+}
+.sk-grp-hd .sk-block{
+  width:90px;height:19px;
+  background:linear-gradient(90deg, #2a2a42 25%, #34344e 50%, #2a2a42 75%);
+  background-size:200% 100%;
+}
+.sk-grp-row{
+  display:flex;align-items:center;gap:12px;
+  padding:10px var(--pad) 8px;
+  border-bottom:1px solid var(--rule);
+  background:var(--card);
+}
+.sk-grp-team{ flex:1;height:16px }
+.sk-grp-stat{ width:20px;height:16px;flex-shrink:0 }
+
+.sk-day-lbl{
+  padding:12px var(--pad) 10px;
+  background:var(--paper);
+  border-bottom:2px solid var(--rule);
+}
+.sk-day-lbl .sk-block{ width:110px;height:21px }
+
 /* ── Global tap feedback ──────────────────────────────────────────────────── */
-.ctry-tile, .team-pill, .bnav-btn, .rbtn, .go-btn, .live-toggle,
+.ctry-tile, .header-flag, .bnav-btn, .rbtn, .go-btn, .live-toggle,
 .dyk-filter-btn, .grp-tbl tr, .fix-card, .stats-row, .td-player.tappable,
-.team-overlay-panel .td-fixture, .mc-t, .app-logo, .dyk-ctrl-btn, .match-card.mc-tappable {
+.team-overlay-panel .td-fixture, .mc-t, .app-logo, .dyk-ctrl-btn, .match-card.mc-tappable,
+.edit-btn, .pick-clear-btn, .sched-stage-btn, .sched-jump-btn,
+.install-banner-action, .install-banner-dismiss {
   transition: transform .12s cubic-bezier(.4,0,.2,1), opacity .12s, background .12s;
   -webkit-tap-highlight-color: transparent;
   will-change: transform;
 }
-.ctry-tile:active, .team-pill:active, .bnav-btn:active, .rbtn:active,
+.ctry-tile:active, .header-flag:active, .bnav-btn:active, .rbtn:active,
 .live-toggle:active, .dyk-filter-btn:active, .fix-card:active,
 .stats-row:active, .td-player.tappable:active, .mc-t:active,
-.grp-tbl tr:active, .match-card.mc-tappable:active {
+.grp-tbl tr:active, .match-card.mc-tappable:active,
+.edit-btn:active, .pick-clear-btn:active, .sched-stage-btn:active,
+.install-banner-dismiss:active {
   transform: scale(.96);
 }
 .go-btn:not(:disabled):active {
@@ -1642,7 +1741,7 @@ body{
 }
 
 /* ── Disable iOS callout/selection bounce on interactive surfaces ───────────*/
-.ctry-tile, .bnav-btn, .team-pill, .fix-card, .match-card, .grp-tbl tr,
+.ctry-tile, .bnav-btn, .header-flag, .fix-card, .match-card, .grp-tbl tr,
 .stats-row, .dyk-card, .rbtn, .live-toggle {
   -webkit-touch-callout: none;
   -webkit-user-select: none;

@@ -82,13 +82,15 @@
 <!-- APP -->
 <div id="s-app">
   <div class="app-top">
-    <div class="app-logo" onclick="goHome()" title="Home">
-      <img src="icon-header-yellow.png" alt="Summer of Soccer" class="app-logo-icon">
+    <div class="app-top-left">
+      <div class="app-logo" onclick="goHome()" title="Home">
+        <img src="icon-header-yellow.png" alt="Summer of Soccer" class="app-logo-icon">
+      </div>
+      <div class="header-flags" id="header-flags"></div>
     </div>
     <button class="edit-btn" onclick="back()">✎ Change teams</button>
   </div>
   <div class="score-ticker" id="score-ticker"></div>
-  <div class="team-pill-bar" id="pill-bar"></div>
 
   <div class="bottom-nav">
     <button class="bnav-btn on" onclick="tab('live',this)" aria-label="Live scores">
