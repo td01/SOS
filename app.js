@@ -108,6 +108,11 @@ function launch() {
   buildGroups();
   startLivePoll();
   syncHeaderHeight();
+
+  // Start the "add to home screen" engagement timer from here (actual app
+  // entry), not page load — time spent on the team-picker isn't real usage
+  // of the app and shouldn't count toward the delay before prompting.
+  if (typeof scheduleInstallPrompt === 'function') scheduleInstallPrompt();
 }
 
 // Measure the actual rendered header height (varies with safe-area-inset-top
@@ -316,10 +321,11 @@ async function fetchLiveData() {
         stage: stage,
         // Only a genuine group letter for group-stage matches — for
         // knockout rounds (Round of 16, QF, etc.) there's no group to
-        // adjust, and previously this held the raw round string (e.g.
-        // "Round of 16"), which silently broke groupsShowLive's live-score
-        // adjustment for those matches instead of cleanly excluding them.
-        g: stage === 'group' ? round.replace('Group ','') : '',
+        // adjust. Uses groupLetterFromRound() rather than a naive replace,
+        // since API-Football's round string includes a matchday suffix
+        // (e.g. "Group E - 2"), which a plain .replace('Group ','') would
+        // leave attached, breaking the standings-table lookup.
+        g: stage === 'group' ? groupLetterFromRound(round) : '',
         events: (f.events || []).map(function(e) {
           return classifyMatchEvent(e);
         }).filter(Boolean)
@@ -338,7 +344,7 @@ async function fetchLiveData() {
           a: f.teams.away.name, ac: teamCodeFromApi(f.teams.away),
           hs: f.goals.home, as: f.goals.away,
           stage: stage,
-          g: stage === 'group' ? round.replace('Group ','') : ''
+          g: stage === 'group' ? groupLetterFromRound(round) : ''
         };
       });
 
@@ -673,9 +679,18 @@ function buildLive() {
   var liveSorted = LIVE_MATCHES.slice().sort(function(a,b){
     return (isMine(b) ? 1 : 0) - (isMine(a) ? 1 : 0);
   });
+
+  // When nothing is live, the "0" in the stat strip above already says so —
+  // showing a whole extra section header + empty-state card here is
+  // redundant and pushes the actual results (what people most likely came
+  // to see) below the fold. Hide the section entirely in that case so
+  // results start right after the stat strip; show it normally once
+  // there's something live to display.
+  var liveSection = document.getElementById('live-section');
+  if (liveSection) liveSection.style.display = liveSorted.length ? '' : 'none';
   document.getElementById('live-wrap').innerHTML = liveSorted.length
     ? liveSorted.map(function(m){ return matchCard(m, true); }).join('')
-    : buildEmptyState();
+    : '';
 
   flashChangedScores();
 
@@ -683,14 +698,6 @@ function buildLive() {
   document.getElementById('done-wrap').innerHTML = COMPLETED.length
     ? COMPLETED.map(function(m){ return matchCard(m, false); }).join('')
     : '<div class="empty-state"><div class="empty-state-title">No results yet</div><div class="empty-state-body">Today\'s first results will appear here.</div></div>';
-}
-
-function buildEmptyState() {
-  // Tournament is underway — just no matches kicking off this exact moment
-  return '<div class="empty-state">' +
-    '<div class="empty-state-title">No live games right now</div>' +
-    '<div class="empty-state-body">Check today&#39;s results below, or see the schedule for upcoming fixtures.</div>' +
-    '</div>';
 }
 
 function getCountdown(target) {
@@ -718,6 +725,18 @@ function stageFromRound(round) {
   return 'group';
 }
 
+// API-Football's round string for group matches is like "Group E - 2"
+// (group letter PLUS a trailing matchday number) — not just "Group E".
+// A naive .replace('Group ','') leaves "E - 2", which then never matches
+// the standings table's clean single-letter keys ("A".."L"), silently
+// breaking any code that needs to look up a team's group. This extracts
+// just the letter, ignoring the matchday suffix.
+function groupLetterFromRound(round) {
+  if (!round) return '';
+  var match = round.match(/Group\s+([A-L])\b/i);
+  return match ? match[1].toUpperCase() : round.replace('Group ','');
+}
+
 async function fetchFixtures() {
   if (!LIVE_API_ENABLED) return null;
   try {
@@ -742,8 +761,12 @@ async function fetchFixtures() {
         a: f.teams.away.name, ac: teamCodeFromApi(f.teams.away),
         g: round.replace('Group ',''),
         stage: stageFromRound(round),
-        date: kickoff.toLocaleDateString('en-US', { month:'short', day:'numeric' }),
-        t: kickoff.toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit', timeZone:'America/New_York' }) + ' ET',
+        // Use the viewer's own locale and local timezone (by omitting an
+        // explicit locale/timeZone, both APIs fall back to the browser's
+        // own settings) rather than a hardcoded US-Eastern time — someone
+        // in London shouldn't have to mentally convert from "4:00 PM ET".
+        date: kickoff.toLocaleDateString(undefined, { weekday:'short', month:'short', day:'numeric' }),
+        t: kickoff.toLocaleTimeString(undefined, { hour:'numeric', minute:'2-digit' }),
         status: f.fixture.status.short,
         isDone: isDone,
         isLive: isLive,
@@ -758,25 +781,33 @@ async function fetchFixtures() {
   }
 }
 
+function stageLabel(f) {
+  if (f.stage === 'group') return 'Group ' + f.g;
+  var match = SCHED_STAGES.find(function(s){ return s.id === f.stage; });
+  return match ? match.label : '';
+}
+
 function fixtureRow(f, mine) {
   var clickable = f.isDone ? ' onclick="openMatchDetail(' + f.id + ')" style="cursor:pointer"' : '';
   var centerHtml;
+  var stageHtml = '<div class="fix-grp">' + stageLabel(f) + '</div>';
 
   if (f.isDone) {
     centerHtml =
       '<span class="fix-score">' + f.hs + '\u2013' + f.as + '</span>' +
       '<span class="fix-ft-badge">FULL TIME</span>' +
-      '<div class="fix-grp">Grp ' + f.g + '</div>';
+      stageHtml;
   } else if (f.isLive) {
     centerHtml =
       '<span class="fix-score live">' + f.hs + '\u2013' + f.as + '</span>' +
       '<span class="fix-live-badge">' + (f.elapsed || 0) + '\' LIVE</span>' +
-      '<div class="fix-grp">Grp ' + f.g + '</div>';
+      stageHtml;
   } else {
+    // Time is the primary signal here (date is already the section header
+    // above this row), stage is secondary, per request.
     centerHtml =
-      '<span class="fix-vs">vs</span>' +
       '<span class="fix-time">' + f.t + '</span>' +
-      '<div class="fix-grp">Grp ' + f.g + '</div>';
+      stageHtml;
   }
 
   return '<div class="fix-card' + (mine ? ' mine' : '') + (f.isDone ? ' fix-tappable' : '') + '"' + clickable + '>' +
@@ -866,11 +897,14 @@ async function buildSchedule(silent) {
     return;
   }
 
-  // Only show stage tabs that actually have fixtures (e.g. don't show "Final"
-  // before the bracket exists yet)
-  var availableStages = new Set(fixturesCache.map(function(f){ return f.stage; }));
+  // Always show every stage tab, even before the knockout bracket exists.
+  // API-Football (unlike some providers) doesn't pre-populate Round of 32+
+  // with placeholder fixtures — those rows only appear once the actual
+  // qualifying teams are confirmed after group stage ends. Showing the
+  // tabs upfront lets people see the tournament structure and know to
+  // check back, with renderScheduleList()'s existing empty state handling
+  // the "nothing scheduled yet" case per stage.
   var stageBtns = SCHED_STAGES
-    .filter(function(s){ return s.id === 'ALL' || availableStages.has(s.id); })
     .map(function(s) {
       return '<button class="sched-stage-btn' + (s.id === schedStage ? ' on' : '') + '" data-stage="' + s.id + '" onclick="schedStageFilter(\'' + s.id + '\')">' + s.label + '</button>';
     }).join('');
@@ -906,7 +940,7 @@ async function fetchStandings() {
       if (!group.length) return;
       // Derive a group letter from the group label, e.g. "Group A" -> "A"
       var label = group[0].group || '';
-      var letter = (label.match(/[A-L]$/) || [])[0] || label;
+      var letter = groupLetterFromRound(label) || label;
       groups[letter] = group.map(function(t) {
         return {
           n: t.team.name, c: teamCodeFromApi(t.team),
@@ -921,10 +955,21 @@ async function fetchStandings() {
   }
 }
 
-function toggleGroupsLive(btn) {
+async function toggleGroupsLive(btn) {
   groupsShowLive = !groupsShowLive;
   btn.textContent = groupsShowLive ? '● LIVE' : 'LIVE VIEW';
   btn.classList.toggle('live-toggle-on', groupsShowLive);
+
+  if (groupsShowLive) {
+    // LIVE_MATCHES is otherwise only refreshed by the 60s background poll
+    // or a pull-to-refresh — without this, switching the toggle on could
+    // silently show stale (or, right after launch, completely empty)
+    // in-progress match data instead of what's actually happening right now.
+    btn.textContent = '● Loading…';
+    await fetchLiveData();
+    btn.textContent = '● LIVE';
+  }
+
   buildGroups();
 }
 
@@ -1471,3 +1516,107 @@ if (chosen.length > 0) {
     }, EXIT_TRANSITION_MS + 50);
   }, MIN_DISPLAY_MS);
 })();
+
+// ─── ADD TO HOME SCREEN PROMPT ──────────────────────────────────────────────
+
+var deferredInstallPrompt = null; // Android/Chrome's captured beforeinstallprompt event
+var INSTALL_DISMISSED_KEY = 'sos_install_dismissed';
+var INSTALL_ENGAGEMENT_MS = 25000; // show after ~25s of active use, not immediately on load
+
+function isStandalone() {
+  return window.matchMedia('(display-mode: standalone)').matches ||
+    window.navigator.standalone === true; // iOS Safari's own standalone flag
+}
+
+function isIOS() {
+  return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+}
+
+// Chrome/Android fires this when the app meets installability criteria.
+// Capture it (and prevent the browser's own default mini-prompt) so we can
+// trigger it ourselves at a better moment.
+window.addEventListener('beforeinstallprompt', function(e) {
+  e.preventDefault();
+  deferredInstallPrompt = e;
+});
+
+window.addEventListener('appinstalled', function() {
+  deferredInstallPrompt = null;
+  hideInstallBanner();
+  try { localStorage.setItem(INSTALL_DISMISSED_KEY, '1'); } catch (e) {}
+});
+
+function showInstallBanner() {
+  if (isStandalone()) return; // already installed/running standalone — never show
+  try {
+    if (localStorage.getItem(INSTALL_DISMISSED_KEY) === '1') return;
+  } catch (e) {}
+
+  // Don't interrupt someone reading a team/player/match detail overlay.
+  var overlayOpen = ['team-overlay', 'player-overlay', 'match-overlay'].some(function(id) {
+    var el = document.getElementById(id);
+    return el && el.classList.contains('open');
+  });
+  if (overlayOpen) {
+    setTimeout(showInstallBanner, 5000); // try again shortly rather than losing the opportunity entirely
+    return;
+  }
+
+  var banner = document.getElementById('install-banner');
+  if (!banner) return;
+
+  if (isIOS()) {
+    // Safari has no programmatic install API — show instructions instead
+    // of an "Add" button that would have nothing to trigger.
+    document.getElementById('install-banner-body').textContent =
+      'Tap the Share button, then "Add to Home Screen".';
+    document.getElementById('install-banner-action').style.display = 'none';
+  } else if (deferredInstallPrompt) {
+    document.getElementById('install-banner-body').textContent =
+      'Get the full-screen app experience — no browser bar, faster loading.';
+    document.getElementById('install-banner-action').style.display = '';
+  } else {
+    // Not iOS, and Chrome hasn't (yet, or won't) offer beforeinstallprompt —
+    // nothing useful to show.
+    return;
+  }
+
+  banner.classList.add('visible');
+}
+
+function hideInstallBanner() {
+  var banner = document.getElementById('install-banner');
+  if (banner) banner.classList.remove('visible');
+}
+
+function dismissInstallBanner() {
+  hideInstallBanner();
+  try { localStorage.setItem(INSTALL_DISMISSED_KEY, '1'); } catch (e) {}
+}
+
+async function handleInstallClick() {
+  if (!deferredInstallPrompt) { hideInstallBanner(); return; }
+  hideInstallBanner();
+  deferredInstallPrompt.prompt();
+  try {
+    await deferredInstallPrompt.userChoice;
+  } catch (e) {}
+  deferredInstallPrompt = null;
+  try { localStorage.setItem(INSTALL_DISMISSED_KEY, '1'); } catch (e) {}
+}
+
+// Trigger after a period of genuine engagement rather than immediately on
+// load — much better accepted by people, and is the pattern recommended by
+// both Google's and Apple's own PWA install guidance. Called from launch()
+// so the timer reflects actual time using the app, not time on the picker.
+var _installPromptScheduled = false;
+function scheduleInstallPrompt() {
+  if (_installPromptScheduled) return; // only ever schedule once per session
+  _installPromptScheduled = true;
+  setTimeout(showInstallBanner, INSTALL_ENGAGEMENT_MS);
+}
+
+// Covers the case where someone reloads the page with a team selection
+// already saved — launch() runs immediately on page load in that path too
+// (see the bottom of this file), so this still anchors correctly to app
+// entry rather than literal page load in every scenario.

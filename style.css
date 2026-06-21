@@ -1913,3 +1913,59 @@ body{
   cursor:pointer;white-space:nowrap;flex-shrink:0;
 }
 .sched-stage-btn.on{background:var(--ink);color:var(--yellow)}
+
+/* ── ADD TO HOME SCREEN PROMPT ───────────────────────────────────────────── */
+.install-banner{
+  position:fixed;
+  left:12px;right:12px;
+  bottom:calc(12px + env(safe-area-inset-bottom));
+  max-width:390px;margin:0 auto;
+  background:var(--ink);
+  border:1px solid #ffffff20;
+  border-top:3px solid var(--yellow);
+  display:flex;align-items:center;gap:12px;
+  padding:14px;
+  z-index:90;
+  transform:translateY(120%);
+  opacity:0;
+  transition:transform .35s cubic-bezier(.22,1,.36,1), opacity .35s;
+  pointer-events:none;
+  box-shadow:0 -4px 20px #00000030;
+}
+.install-banner.visible{
+  transform:translateY(0);
+  opacity:1;
+  pointer-events:all;
+}
+.install-banner-icon{
+  width:36px;height:36px;flex-shrink:0;
+}
+.install-banner-text{ flex:1;min-width:0 }
+.install-banner-title{
+  font-family:var(--display);
+  font-size:15px;letter-spacing:.03em;color:#fff;
+  margin-bottom:2px;
+}
+.install-banner-body{
+  font-family:var(--body);
+  font-size:12.5px;line-height:1.35;color:#ffffff90;
+}
+.install-banner-action{
+  font-family:var(--display);
+  font-size:13px;letter-spacing:.05em;
+  background:var(--yellow);color:var(--ink);
+  border:none;padding:9px 16px;
+  flex-shrink:0;cursor:pointer;
+}
+.install-banner-action:active{ opacity:.8 }
+.install-banner-dismiss{
+  background:transparent;border:none;
+  color:#ffffff50;font-size:16px;
+  padding:4px 6px;flex-shrink:0;cursor:pointer;
+  line-height:1;
+}
+.install-banner-dismiss:active{ color:#fff }
+
+@media(min-width:768px){
+  .install-banner{ left:auto;max-width:420px;right:24px;bottom:24px }
+}

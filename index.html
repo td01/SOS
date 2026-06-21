@@ -120,8 +120,10 @@
 
   <div id="p-live" class="pane on">
     <div class="stat-row" id="stat-row"></div>
-    <div class="sec span-all">Live now</div>
-    <div id="live-wrap"></div>
+    <div id="live-section">
+      <div class="sec span-all">Live now</div>
+      <div id="live-wrap"></div>
+    </div>
     <div class="sec span-all">Today&#39;s results</div>
     <div id="done-wrap"></div>
   </div>
@@ -146,6 +148,17 @@
 <!-- MATCH DETAIL OVERLAY -->
 <div id="match-overlay" class="player-overlay">
   <div id="match-content" class="player-overlay-panel"></div>
+</div>
+
+<!-- ADD TO HOME SCREEN PROMPT -->
+<div id="install-banner" class="install-banner">
+  <img src="icon-header-blue.png" alt="" class="install-banner-icon">
+  <div class="install-banner-text">
+    <div class="install-banner-title">Add to Home Screen</div>
+    <div class="install-banner-body" id="install-banner-body">Get the full-screen app experience — no browser bar, faster loading.</div>
+  </div>
+  <button class="install-banner-action" id="install-banner-action" onclick="handleInstallClick()">Add</button>
+  <button class="install-banner-dismiss" onclick="dismissInstallBanner()" aria-label="Dismiss">✕</button>
 </div>
 
 <script src="flags.js"></script>

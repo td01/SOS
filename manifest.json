@@ -1,6 +1,6 @@
 {
   "name": "Summer of Soccer",
-  "short_name": "Soccer",
+  "short_name": "Summer of Soccer",
   "description": "Live scores, fixtures, groups and stats for the Summer of Soccer tournament",
   "start_url": "/",
   "display": "standalone",
