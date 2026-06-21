@@ -135,12 +135,30 @@ function openPlayer(teamCode, playerName) {
   const overlay  = document.getElementById('player-overlay');
   const el       = document.getElementById('player-content');
 
+  // p.wcGoals is a hand-maintained career total that can go stale the
+  // moment a player scores in the current tournament (it's only ever
+  // updated when someone manually edits it). For players who appear in
+  // the live top-scorers list AND have a confirmed pre-2026 baseline
+  // (wcGoalsPre2026), compute their current total dynamically instead:
+  // baseline + goals scored in this tournament so far. Players without a
+  // confirmed baseline fall back to the plain static figure rather than
+  // risk double-counting if that figure was already manually updated.
+  let displayWcGoals = p.wcGoals;
+  if (typeof p.wcGoalsPre2026 === 'number' && typeof statsCache !== 'undefined' && statsCache && statsCache.scorerList) {
+    const live = statsCache.scorerList.find(function(s) {
+      return s.team === teamCode && playerNamesMatch(s.name, p.full);
+    });
+    if (live) {
+      displayWcGoals = p.wcGoalsPre2026 + live.goals;
+    }
+  }
+
   const statItems = [
     { v: p.age,        l: 'Age'        },
     { v: p.caps,       l: 'Caps'       },
     { v: p.intlGoals,  l: 'Intl goals' },
-    { v: p.wcGoals,    l: 'WC goals'   },
-    { v: p.wcApps,     l: 'WC apps'   },
+    { v: displayWcGoals, l: 'WC goals' },
+    { v: p.wcApps,     l: 'World Cups'   },
     { v: p.height,     l: 'Height'     },
   ].filter(s => s.v !== null && s.v !== undefined);
 

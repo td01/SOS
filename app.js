@@ -97,7 +97,7 @@ function launch() {
   var myTeams = TEAMS.filter(function(t){ return chosen.includes(t.c); });
   document.getElementById('pill-bar').innerHTML = myTeams.map(function(t){
     return '<div class="team-pill" onclick="openTeam(\'' + t.c + '\')">' +
-      ff(t.c, 28, 20) +
+      ff(t.c, 35, 25) + /* 28×20 × 1.25, per request */
       '<span class="team-pill-n">' + t.n + '</span>' +
       '</div>';
   }).join('');
@@ -120,9 +120,19 @@ function launch() {
 // directly beneath it instead of a guessed/hardcoded pixel value.
 function syncHeaderHeight() {
   var header = document.querySelector('.app-top');
-  if (!header) return;
-  var h = header.getBoundingClientRect().height;
-  document.documentElement.style.setProperty('--header-h', h + 'px');
+  if (header) {
+    var h = header.getBoundingClientRect().height;
+    document.documentElement.style.setProperty('--header-h', h + 'px');
+  }
+  // Also measure the bottom nav's height, so anything that needs to stick
+  // beneath BOTH the header and the nav (e.g. the group anchor bar) has an
+  // accurate offset rather than a hardcoded guess that breaks if nav
+  // padding/sizing ever changes between mobile and desktop.
+  var nav = document.querySelector('.bottom-nav');
+  if (nav) {
+    var navH = nav.getBoundingClientRect().height;
+    document.documentElement.style.setProperty('--nav-h', navH + 'px');
+  }
 }
 window.addEventListener('resize', syncHeaderHeight);
 window.addEventListener('orientationchange', function() {
@@ -212,15 +222,26 @@ function buildTicker() {
   var ticker = document.getElementById('score-ticker');
   if (!ticker) return;
 
-  var demoTag = apiAvailable === false ? '<span class="ticker-demo-tag">NOT CONNECTED</span>' : '';
-
   if (LIVE_MATCHES.length === 0) {
-    ticker.className = 'score-ticker no-live';
-    ticker.innerHTML = demoTag + '<div class="ticker-no-live">No live matches right now</div>';
+    if (apiAvailable === false) {
+      // The data feed itself is down — that's worth surfacing even though
+      // there's nothing live, since it's a real problem rather than just
+      // "no matches happening right now".
+      ticker.style.display = '';
+      ticker.className = 'score-ticker no-live';
+      ticker.innerHTML = '<span class="ticker-demo-tag">NOT CONNECTED</span>';
+      return;
+    }
+    // API is healthy, simply nothing live right now — collapse the bar
+    // entirely rather than show an empty placeholder taking up space.
+    ticker.style.display = 'none';
+    ticker.innerHTML = '';
     return;
   }
 
+  ticker.style.display = '';
   ticker.className = 'score-ticker';
+  var demoTag = apiAvailable === false ? '<span class="ticker-demo-tag">NOT CONNECTED</span>' : '';
   // Duplicate items for seamless loop
   var items = [...LIVE_MATCHES, ...LIVE_MATCHES].map(function(m){
     return '<div class="ticker-item">' +
@@ -1077,6 +1098,9 @@ async function buildGroups(silent) {
   }
 
   var groups = getAdjustedGroups(standingsCache);
+  var groupEntries = Object.entries(groups).sort(function(a, b) {
+    return a[0].localeCompare(b[0]); // ensure strict A→L order regardless of API response ordering
+  });
 
   // Build toggle button
   var toggleHtml = '<div class="groups-toolbar">' +
@@ -1087,13 +1111,22 @@ async function buildGroups(silent) {
     (groupsShowLive ? '<span class="live-toggle-note">Standings updated with live scores</span>' : '') +
     '</div>';
 
-  pane.innerHTML = toggleHtml + Object.entries(groups).map(function(entry){
+  // Sticky row of group-letter buttons — tapping one jumps straight to that
+  // group's table further down the page, rather than scrolling through all
+  // 12 groups to find the one you want.
+  var anchorBarHtml = '<div class="grp-anchor-bar">' +
+    groupEntries.map(function(entry) {
+      return '<button class="grp-anchor-btn" onclick="jumpToGroup(\'' + entry[0] + '\')">' + entry[0] + '</button>';
+    }).join('') +
+    '</div>';
+
+  pane.innerHTML = toggleHtml + anchorBarHtml + groupEntries.map(function(entry){
     var grp = entry[0], rows = entry[1];
     var sorted = rows.slice().sort(function(a,b){
       return (b.pts - a.pts) || ((b.gf - b.ga) - (a.gf - a.ga));
     });
     var isLive = groupsShowLive && LIVE_MATCHES.some(function(m){ return m.g === grp; });
-    return '<div class="grp-block' + (isLive ? ' grp-block-live' : '') + '">' +
+    return '<div class="grp-block' + (isLive ? ' grp-block-live' : '') + '" id="grp-anchor-' + grp + '">' +
       '<div class="grp-hd">' +
         '<div class="grp-title">Group ' + grp + '</div>' +
         (isLive ? '<span class="grp-live-badge">● LIVE</span>' : '') +
@@ -1121,6 +1154,19 @@ async function buildGroups(silent) {
   // Restore scroll position on a silent (background) refresh so the person
   // isn't jumped back to the top of the table mid-read.
   if (silent && !isFirstBuild) pane.scrollTop = scrollPos;
+}
+
+// Smoothly scroll to a specific group's table when its letter button is
+// tapped in the sticky anchor bar. Offsets for the sticky header stack
+// (app-top + bottom-nav + groups-toolbar + anchor bar itself) so the
+// group title doesn't end up hidden underneath them.
+function jumpToGroup(letter) {
+  var target = document.getElementById('grp-anchor-' + letter);
+  if (!target) return;
+  var anchorBar = document.querySelector('.grp-anchor-bar');
+  var offset = (anchorBar ? anchorBar.getBoundingClientRect().bottom : 0) + 8;
+  var targetTop = target.getBoundingClientRect().top + window.scrollY - offset;
+  window.scrollTo({ top: targetTop, behavior: 'smooth' });
 }
 
 // ─── HISTORY ──────────────────────────────────────────────────────────────────

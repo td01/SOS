@@ -331,12 +331,6 @@ body{
   letter-spacing:.08em;
   animation:pulse-opacity 1.5s ease-in-out infinite;
 }
-.ticker-no-live{
-  font-family:var(--display);
-  font-size:12px;letter-spacing:.12em;
-  color:#ffffff60;
-  padding:0 var(--pad);
-}
 @keyframes ticker-scroll{
   0%{transform:translateX(0)}
   100%{transform:translateX(-50%)}
@@ -727,6 +721,27 @@ body{
 
 .grp-block{ border-bottom:1px solid var(--rule);overflow:hidden;position:relative }
 
+.grp-anchor-bar{
+  position:sticky;
+  top:calc(var(--header-h, 54px) + var(--nav-h, 56px));
+  z-index:40;
+  display:flex;overflow-x:auto;
+  background:var(--ink);
+  border-bottom:2px solid var(--yellow);
+  padding:0 8px;
+}
+.grp-anchor-bar::-webkit-scrollbar{ display:none }
+.grp-anchor-btn{
+  font-family:var(--display);
+  font-size:14px;letter-spacing:.04em;
+  background:transparent;border:none;
+  color:#ffffff80;
+  padding:9px 12px;
+  cursor:pointer;flex-shrink:0;
+  transition:color .1s;
+}
+.grp-anchor-btn:active{ color:var(--yellow) }
+
 .grp-hd{
   background:var(--ink);
   padding:12px var(--pad) 10px;
@@ -734,7 +749,7 @@ body{
 }
 .grp-title{
   font-family:var(--display);
-  font-size:30px;color:var(--yellow);letter-spacing:.04em;
+  font-size:24px;color:var(--yellow);letter-spacing:.04em; /* 30px × 0.8, per request */
   line-height:1;
 }
 
@@ -1315,17 +1330,17 @@ body{
   .bottom-nav{
     position:sticky;top:0;bottom:auto;
     border-top:none;border-bottom:3px solid var(--pink);
-    grid-template-columns:repeat(5,auto);
-    justify-content:start;padding-left:32px;
+    grid-template-columns:repeat(5,1fr); /* equal-fraction, not auto — auto-sized columns at the larger desktop label size overflowed the container width */
+    padding-left:0;
     z-index:60;
   }
   .bnav-btn{
-    flex-direction:row;gap:8px;
-    padding:13px 22px;
+    flex-direction:column;gap:4px;
+    padding:11px 4px;
     border-right:1px solid #333;border-bottom:none;
   }
-  .bnav-btn svg{ width:22px;height:22px } /* scaled up to stay proportional to the larger label text */
-  .bnav-label{ font-size:19.2px } /* 12px × 1.6, per request */
+  .bnav-btn svg{ width:20px;height:20px }
+  .bnav-label{ font-size:13px } /* equal-width columns need a more conservative size than the 60%-bump to actually fit 5 labels side by side */
 
   /* Pane grids — single column within the new contained desktop width
      (previously multi-column, designed for an unconstrained full-width
