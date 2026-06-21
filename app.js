@@ -1806,7 +1806,16 @@ if (chosen.length > 0) {
   var appVisible = document.getElementById('s-app').style.display === 'block';
   var screen = appVisible ? '#s-app' : '#s-pick';
   var icon = document.querySelector(screen + ' .app-logo-icon');
-  if (icon) icon.classList.add('bounce-in');
+  if (!icon) return;
+  icon.classList.add('bounce-in');
+  // Both .bounce-in and .spin set the same `animation` property on this
+  // element, and CSS only lets one such rule win at a time — so bounce-in
+  // has to be removed once it's done, or it permanently shadows every
+  // later .spin trigger from tab switches (exactly what broke the spin).
+  icon.addEventListener('animationend', function onBounceEnd() {
+    icon.classList.remove('bounce-in');
+    icon.removeEventListener('animationend', onBounceEnd);
+  });
 })();
 
 // Hide the loading screen once the initial UI is ready. A small minimum
