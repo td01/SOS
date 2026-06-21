@@ -136,10 +136,10 @@ body{
 
 /* Hero */
 .pick-hero{
-  background:var(--ink);
+  background:var(--yellow);
   padding:calc(14px + env(safe-area-inset-top)) var(--pad) 12px;
   position:relative;
-  border-bottom:3px solid var(--yellow);
+  border-bottom:3px solid var(--header-blue); /* matches the in-app header's accent line now that both share a yellow background */
 }
 .pick-hero-accent{ display:none }
 .pick-icon-row{ display:none }
@@ -157,27 +157,27 @@ body{
 .pick-meta-val{
   font-family:var(--display);
   font-size:20px;line-height:1;
-  color:var(--yellow);
+  color:var(--ink); /* was --yellow, invisible against a yellow background */
 }
 .pick-meta-lbl{
   font-size:10px;font-weight:700;
   letter-spacing:.12em;text-transform:uppercase;
-  color:#ffffff50;
+  color:#1A1A2E80; /* was translucent white, now translucent ink for the same effect on a light background */
 }
 .pick-meta-div{
   width:1px;height:32px;
-  background:#ffffff20;
+  background:#1A1A2E30; /* was translucent white */
 }
 /* Countdown */
 .pick-countdown{
   font-family:var(--display);
   font-size:22px;line-height:1;
-  color:var(--pink);
+  color:var(--pink); /* keeps enough contrast against yellow */
 }
 .pick-countdown-lbl{
   font-size:10px;font-weight:700;
   letter-spacing:.12em;text-transform:uppercase;
-  color:#ffffff40;
+  color:#1A1A2E70; /* was translucent white */
   margin-top:2px;
 }
 
@@ -645,6 +645,19 @@ body{
   grid-template-columns:1fr 64px 1fr;
   align-items:center;gap:8px;
   /* no border-left — never shifts content */
+}
+.ko-placeholder-note{
+  font-family:var(--body);
+  font-size:12.5px;line-height:1.4;color:var(--muted);
+  padding:12px var(--pad);
+  background:var(--paper);
+  border-bottom:1px solid var(--rule);
+}
+.ko-placeholder-card{
+  opacity:.72; /* visually distinct from confirmed fixtures */
+}
+.ko-placeholder-card .fix-t{
+  font-size:14px;line-height:1.25;
 }
 .fix-card.mine{
   background:var(--lav);
@@ -1906,6 +1919,20 @@ body{
 }
 .sched-stage-btn.on{background:var(--ink);color:var(--yellow)}
 
+.sched-jump-btn{
+  position:fixed;
+  bottom:calc(76px + env(safe-area-inset-bottom)); /* clears the install banner's space if both are visible at once */
+  left:50%;transform:translateX(-50%);
+  font-family:var(--display);
+  font-size:13px;letter-spacing:.05em;
+  background:var(--ink);color:var(--yellow);
+  border:none;border-radius:999px;
+  padding:10px 20px;
+  box-shadow:0 4px 16px #00000040;
+  cursor:pointer;z-index:45;
+}
+.sched-jump-btn:active{ opacity:.85 }
+
 /* ── ADD TO HOME SCREEN PROMPT ───────────────────────────────────────────── */
 .install-banner{
   position:fixed;
@@ -1931,6 +1958,17 @@ body{
 }
 .install-banner-icon{
   width:36px;height:36px;flex-shrink:0;
+}
+.install-banner.ios-instructions .install-banner-icon{
+  animation:install-icon-nudge 1.8s ease-in-out infinite;
+}
+@keyframes install-icon-nudge{
+  0%, 100% { transform:scale(1) }
+  50%      { transform:scale(1.12) }
+}
+.install-banner.ios-instructions{
+  border-top-width:4px;
+  box-shadow:0 -4px 28px #00000050, 0 0 0 1px var(--yellow) inset;
 }
 .install-banner-text{ flex:1;min-width:0 }
 .install-banner-title{

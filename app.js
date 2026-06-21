@@ -800,7 +800,7 @@ async function fetchFixtures() {
         id: f.fixture.id,
         h: f.teams.home.name, hc: teamCodeFromApi(f.teams.home),
         a: f.teams.away.name, ac: teamCodeFromApi(f.teams.away),
-        g: round.replace('Group ',''),
+        g: groupLetterFromRound(round) || round,
         stage: stageFromRound(round),
         // Use the viewer's own locale and local timezone (by omitting an
         // explicit locale/timeZone, both APIs fall back to the browser's
@@ -879,6 +879,69 @@ function schedStageFilter(stage) {
   });
 }
 
+// Placeholder knockout bracket — shown when the API has no fixtures yet for
+// a stage because the actual qualifying teams aren't confirmed until the
+// group stage (and earlier knockout rounds) finish. Slot descriptions are
+// taken directly from FIFA's published tournament regulations (Round of 32
+// draw structure), not guessed — exact kickoff times/venues per match
+// aren't included here since those weren't part of that published
+// structure, to avoid stating specifics that could turn out wrong.
+var KNOCKOUT_PLACEHOLDER = {
+  r32: {
+    dateRange: 'Jun 28 – Jul 3',
+    matches: [
+      'Runner-up Group A vs Runner-up Group B',
+      'Winner Group E vs Best 3rd place (Groups A/B/C/D/F)',
+      'Winner Group F vs Runner-up Group C',
+      'Winner Group C vs Runner-up Group F',
+      'Winner Group I vs Best 3rd place (Groups C/D/F/G/H)',
+      'Runner-up Group E vs Runner-up Group I',
+      'Winner Group A vs Best 3rd place (Groups C/E/F/H/I)',
+      'Winner Group L vs Best 3rd place (Groups E/H/I/J/K)',
+      'Winner Group D vs Best 3rd place (Groups B/E/F/I/J)',
+      'Winner Group G vs Best 3rd place (Groups A/E/H/I/J)',
+      'Runner-up Group K vs Runner-up Group L',
+      'Winner Group H vs Runner-up Group J',
+      'Winner Group B vs Best 3rd place (Groups E/F/G/I/J)',
+      'Winner Group J vs Runner-up Group H',
+      'Winner Group K vs Best 3rd place (Groups D/E/I/J/L)',
+      'Runner-up Group D vs Runner-up Group G',
+    ]
+  },
+  r16: { dateRange: 'Jul 4 – Jul 7',  matches: null },
+  qf:  { dateRange: 'Jul 9 – Jul 11', matches: null },
+  sf:  { dateRange: 'Jul 14 – Jul 15', matches: null },
+  final: { dateRange: 'Jul 19', matches: null },
+};
+
+function renderKnockoutPlaceholder(stage) {
+  var info = KNOCKOUT_PLACEHOLDER[stage];
+  if (!info) return '';
+
+  var stageLabel = (SCHED_STAGES.find(function(s){ return s.id === stage; }) || {}).label || '';
+
+  if (info.matches) {
+    return '<div class="ko-placeholder-note">' +
+      'Exact matchups depend on final group standings — shown here are the official slot pairings (' + info.dateRange + ').' +
+      '</div>' +
+      info.matches.map(function(m){
+        var parts = m.split(' vs ');
+        return '<div class="fix-card ko-placeholder-card">' +
+          '<div class="fix-t">' + parts[0] + '</div>' +
+          '<div class="fix-c"><span class="fix-time" style="font-size:14px">TBD</span></div>' +
+          '<div class="fix-t r">' + parts[1] + '</div>' +
+          '</div>';
+      }).join('');
+  }
+
+  // Later rounds (R16 onward) depend on R32 results, which don't exist
+  // yet — there's nothing specific to show, but the date window is known.
+  return '<div class="empty-state">' +
+    '<div class="empty-state-title">' + stageLabel + ' — ' + info.dateRange + '</div>' +
+    '<div class="empty-state-body">Matchups are decided by earlier knockout results, so they\u2019ll appear here once the previous round concludes.</div>' +
+    '</div>';
+}
+
 function renderScheduleList() {
   var listEl = document.getElementById('sched-list');
   if (!listEl || !fixturesCache) return;
@@ -891,15 +954,46 @@ function renderScheduleList() {
   var mine = fixtures.filter(function(f){ return mn.includes(f.h) || mn.includes(f.a); });
   var html = '';
 
+  // Find the fixture date closest to right now — used to mark a "today" /
+  // "current" anchor so the jump-to-latest control has somewhere to go.
+  // Prefers the next upcoming fixture; if every fixture in this stage is
+  // already finished, falls back to the most recent one instead, so the
+  // jump button still does something useful rather than going nowhere.
+  var nowKey = (function() {
+    var now = Date.now();
+    var future = fixtures.filter(function(f){ return f._sortKey >= now; });
+    if (future.length) {
+      return future.reduce(function(a,b){ return a._sortKey < b._sortKey ? a : b; }).date;
+    }
+    if (fixtures.length) {
+      return fixtures.reduce(function(a,b){ return a._sortKey > b._sortKey ? a : b; }).date;
+    }
+    return null;
+  })();
+  var usedNowAnchor = false;
+
   if (mine.length) {
     html += sec('Your fixtures');
-    html += mine.map(function(f){ return fixtureRow(f, true); }).join('');
+    var byDateMine = {};
+    mine.forEach(function(f){
+      if (!byDateMine[f.date]) byDateMine[f.date] = [];
+      byDateMine[f.date].push(f);
+    });
+    Object.entries(byDateMine).forEach(function(entry){
+      var date = entry[0], matches = entry[1];
+      html += '<div class="day-lbl span-all">' + date + '</div>';
+      html += matches.map(function(f){ return fixtureRow(f, true); }).join('');
+    });
   }
   html += sec('Full schedule');
 
   if (!fixtures.length) {
-    html += '<div class="empty-state"><div class="empty-state-title">No fixtures yet</div>' +
-      '<div class="empty-state-body">This stage hasn\u2019t been scheduled yet \u2014 check back once earlier rounds conclude.</div></div>';
+    if (schedStage !== 'ALL' && schedStage !== 'group' && KNOCKOUT_PLACEHOLDER[schedStage]) {
+      html += renderKnockoutPlaceholder(schedStage);
+    } else {
+      html += '<div class="empty-state"><div class="empty-state-title">No fixtures yet</div>' +
+        '<div class="empty-state-body">This stage hasn\u2019t been scheduled yet \u2014 check back once earlier rounds conclude.</div></div>';
+    }
   } else {
     var byDate = {};
     fixtures.forEach(function(f){
@@ -908,7 +1002,13 @@ function renderScheduleList() {
     });
     Object.entries(byDate).forEach(function(entry){
       var date = entry[0], matches = entry[1];
-      html += '<div class="day-lbl span-all">' + date + '</div>';
+      // Mark the first occurrence of the "now" date group as the jump
+      // target — only the "Full schedule" section's copy is anchored
+      // (not "Your fixtures") since that's the one likely to span enough
+      // dates to actually need a shortcut.
+      var anchorAttr = (!usedNowAnchor && date === nowKey) ? ' id="sched-now-anchor"' : '';
+      if (anchorAttr) usedNowAnchor = true;
+      html += '<div class="day-lbl span-all"' + anchorAttr + '>' + date + '</div>';
       html += matches.map(function(f){
         return fixtureRow(f, mn.includes(f.h) || mn.includes(f.a));
       }).join('');
@@ -916,6 +1016,18 @@ function renderScheduleList() {
   }
 
   listEl.innerHTML = html;
+
+  var jumpBtn = document.getElementById('sched-jump-today');
+  if (jumpBtn) jumpBtn.style.display = usedNowAnchor ? '' : 'none';
+}
+
+function jumpToScheduleNow() {
+  var target = document.getElementById('sched-now-anchor');
+  if (!target) return;
+  var stageBar = document.querySelector('.sched-stage-bar');
+  var offset = (stageBar ? stageBar.getBoundingClientRect().bottom : 0) + 8;
+  var targetTop = target.getBoundingClientRect().top + window.scrollY - offset;
+  window.scrollTo({ top: targetTop, behavior: 'smooth' });
 }
 
 async function buildSchedule(silent) {
@@ -952,6 +1064,7 @@ async function buildSchedule(silent) {
 
   pane.innerHTML =
     '<div class="sched-stage-bar">' + stageBtns + '</div>' +
+    '<button id="sched-jump-today" class="sched-jump-btn" onclick="jumpToScheduleNow()" style="display:none">Jump to latest ↓</button>' +
     '<div id="sched-list"></div>';
 
   renderScheduleList();
@@ -1668,14 +1781,19 @@ function showInstallBanner() {
 
   if (isIOS()) {
     // Safari has no programmatic install API — show instructions instead
-    // of an "Add" button that would have nothing to trigger.
+    // of an "Add" button that would have nothing to trigger. Since this
+    // requires the person to actually go do something themselves (find
+    // Share, then find "Add to Home Screen" in a list) rather than tap one
+    // button, it needs to be harder to miss than a typical small toast.
     document.getElementById('install-banner-body').textContent =
-      'Tap the Share button, then "Add to Home Screen".';
+      'In Safari, find Share (square with an arrow ↑ — under ••• on newer iOS), then tap "Add to Home Screen".';
     document.getElementById('install-banner-action').style.display = 'none';
+    banner.classList.add('ios-instructions');
   } else if (deferredInstallPrompt) {
     document.getElementById('install-banner-body').textContent =
       'Get the full-screen app experience — no browser bar, faster loading.';
     document.getElementById('install-banner-action').style.display = '';
+    banner.classList.remove('ios-instructions');
   } else {
     // Not iOS, and Chrome hasn't (yet, or won't) offer beforeinstallprompt —
     // nothing useful to show.
