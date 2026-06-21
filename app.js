@@ -97,7 +97,7 @@ function launch() {
   var myTeams = TEAMS.filter(function(t){ return chosen.includes(t.c); });
   document.getElementById('pill-bar').innerHTML = myTeams.map(function(t){
     return '<div class="team-pill" onclick="openTeam(\'' + t.c + '\')">' +
-      ff(t.c, 35, 25) + /* 28×20 × 1.25, per request */
+      ff(t.c, 44, 31) + /* 35×25 × 1.25 (second 25% bump), per request */
       '<span class="team-pill-n">' + t.n + '</span>' +
       '</div>';
   }).join('');
@@ -112,6 +112,7 @@ function launch() {
   // Start the "add to home screen" engagement timer from here (actual app
   // entry), not page load — time spent on the team-picker isn't real usage
   // of the app and shouldn't count toward the delay before prompting.
+  _appLaunchedAt = Date.now();
   if (typeof scheduleInstallPrompt === 'function') scheduleInstallPrompt();
 }
 
@@ -138,6 +139,19 @@ window.addEventListener('resize', syncHeaderHeight);
 window.addEventListener('orientationchange', function() {
   setTimeout(syncHeaderHeight, 150);
 });
+// The header/nav use Bebas Neue (loaded via @import, display:swap), so they
+// initially render with a fallback system font and then reflow once the
+// real font finishes loading — which can change their rendered height
+// after syncHeaderHeight() already measured them. Without this, sticky
+// elements further down the page (e.g. the group anchor bar) can end up
+// stuck at a stale offset, sometimes showing a gap and sometimes not,
+// depending on exactly when the font happened to finish loading relative
+// to the first measurement.
+if (document.fonts && document.fonts.ready) {
+  document.fonts.ready.then(function() {
+    syncHeaderHeight();
+  });
+}
 
 function back() {
   stopLivePoll();
@@ -174,6 +188,12 @@ function tab(id, btn) {
   // means no loading-flash if it's already been built once before.
   if (id === 'groups') buildGroups(true);
   if (id === 'sched')  buildSchedule(true);
+
+  // Switching tabs is a clear, deliberate sign of real engagement —
+  // trigger the install prompt check here too, not just on the wall-clock
+  // timer. This can't be missed due to the page being backgrounded or the
+  // timer simply not having elapsed yet during a normal visit.
+  if (typeof showInstallBanner === 'function') showInstallBanner();
 }
 
 // Switch tabs by index offset (-1 = previous, +1 = next), used by swipe gestures
@@ -1571,8 +1591,9 @@ if (chosen.length > 0) {
 // ─── ADD TO HOME SCREEN PROMPT ──────────────────────────────────────────────
 
 var deferredInstallPrompt = null; // Android/Chrome's captured beforeinstallprompt event
-var INSTALL_DISMISSED_KEY = 'sos_install_dismissed';
+var INSTALL_DISMISSED_KEY = 'sos_install_dismissed_until'; // stores a timestamp, not just a flag
 var INSTALL_ENGAGEMENT_MS = 12000; // show after ~12s of active use — long enough to not feel immediate, short enough that a normal quick visit actually reaches it
+var INSTALL_REPROMPT_DAYS = 3; // after a dismissal, it's fair to ask again in a few days rather than never again
 
 function isStandalone() {
   return window.matchMedia('(display-mode: standalone)').matches ||
@@ -1581,6 +1602,28 @@ function isStandalone() {
 
 function isIOS() {
   return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+}
+
+// True if the person dismissed the banner recently enough that we
+// shouldn't show it again yet. Previously this was a permanent one-time
+// flag — once set (even from an accidental tap, or testing), the banner
+// would never show again with no way to tell that was the reason. A
+// time-boxed cooldown is more forgiving and self-recovers.
+function installPromptSuppressed() {
+  try {
+    var until = localStorage.getItem(INSTALL_DISMISSED_KEY);
+    if (!until) return false;
+    return Date.now() < Number(until);
+  } catch (e) {
+    return false;
+  }
+}
+
+function suppressInstallPromptFor(days) {
+  try {
+    var until = Date.now() + days * 86400000;
+    localStorage.setItem(INSTALL_DISMISSED_KEY, String(until));
+  } catch (e) {}
 }
 
 // Chrome/Android fires this when the app meets installability criteria.
@@ -1594,14 +1637,21 @@ window.addEventListener('beforeinstallprompt', function(e) {
 window.addEventListener('appinstalled', function() {
   deferredInstallPrompt = null;
   hideInstallBanner();
-  try { localStorage.setItem(INSTALL_DISMISSED_KEY, '1'); } catch (e) {}
+  // Genuinely installed — suppress permanently (a very long cooldown),
+  // unlike a simple dismissal which only suppresses temporarily.
+  suppressInstallPromptFor(36500); // ~100 years
 });
+
+var _appLaunchedAt = null; // timestamp set in launch(), used to gate early triggers
 
 function showInstallBanner() {
   if (isStandalone()) return; // already installed/running standalone — never show
-  try {
-    if (localStorage.getItem(INSTALL_DISMISSED_KEY) === '1') return;
-  } catch (e) {}
+  if (installPromptSuppressed()) return;
+  // Don't show in the first few seconds even via the tab-switch trigger —
+  // avoids it appearing the instant someone opens the app and immediately
+  // taps a tab, which would feel exactly like the "immediately on load"
+  // pattern this was deliberately designed to avoid.
+  if (_appLaunchedAt !== null && Date.now() - _appLaunchedAt < 4000) return;
 
   // Don't interrupt someone reading a team/player/match detail overlay.
   var overlayOpen = ['team-overlay', 'player-overlay', 'match-overlay'].some(function(id) {
@@ -1642,18 +1692,24 @@ function hideInstallBanner() {
 
 function dismissInstallBanner() {
   hideInstallBanner();
-  try { localStorage.setItem(INSTALL_DISMISSED_KEY, '1'); } catch (e) {}
+  suppressInstallPromptFor(INSTALL_REPROMPT_DAYS);
 }
 
 async function handleInstallClick() {
   if (!deferredInstallPrompt) { hideInstallBanner(); return; }
   hideInstallBanner();
   deferredInstallPrompt.prompt();
+  var choice;
   try {
-    await deferredInstallPrompt.userChoice;
+    choice = await deferredInstallPrompt.userChoice;
   } catch (e) {}
   deferredInstallPrompt = null;
-  try { localStorage.setItem(INSTALL_DISMISSED_KEY, '1'); } catch (e) {}
+  // If they actually accepted, appinstalled will fire and suppress
+  // permanently on its own. If they declined the native prompt, treat it
+  // like a normal dismissal (ask again in a few days) rather than forever.
+  if (!choice || choice.outcome !== 'accepted') {
+    suppressInstallPromptFor(INSTALL_REPROMPT_DAYS);
+  }
 }
 
 // Trigger after a period of genuine engagement rather than immediately on

@@ -3,7 +3,7 @@
 // and degrades gracefully offline. Live data (API calls) always goes to
 // the network — we never cache /api/* responses here.
 
-const CACHE_NAME = 'summer-of-soccer-v9';
+const CACHE_NAME = 'summer-of-soccer-v10';
 const APP_SHELL = [
   '/',
   '/index.html',

@@ -1892,7 +1892,7 @@ body{
   background:var(--card);
   border-bottom:2px solid var(--ink);
   position:sticky;
-  top:calc(var(--header-h, 54px) + 56px);
+  top:calc(var(--header-h, 54px) + var(--nav-h, 56px));
   z-index:30;
 }
 .sched-stage-bar::-webkit-scrollbar{display:none}
