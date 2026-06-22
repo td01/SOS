@@ -147,7 +147,11 @@ function launch() {
 
 // Measure the actual rendered header height (varies with safe-area-inset-top
 // across devices) and expose it as a CSS variable so the tab nav can stick
-// directly beneath it instead of a guessed/hardcoded pixel value.
+// directly beneath it instead of a guessed/hardcoded pixel value. Always
+// measured at full size (the header is never .scrolled at the moments this
+// runs — on load, resize, and font-load — so this stays a stable base
+// value; the shrunk offset is derived from it via a fixed CSS calc()
+// rather than re-measuring mid-animation).
 function syncHeaderHeight() {
   var header = document.querySelector('.app-top');
   if (header) {
@@ -163,6 +167,29 @@ function syncHeaderHeight() {
     var navH = nav.getBoundingClientRect().height;
     document.documentElement.style.setProperty('--nav-h', navH + 'px');
   }
+  // Schedule's stage filter bar sits between the nav and that tab's sticky
+  // section headers ("Your fixtures" etc.) — only present once buildSchedule
+  // has actually rendered it, so this measurement is re-run from there too,
+  // not just on load/resize. Falls back to 0 via the CSS var's own default
+  // when absent (any other tab), so it doesn't leave a stale offset behind.
+  var stageBar = document.querySelector('.sched-stage-bar');
+  document.documentElement.style.setProperty('--sched-bar-h', stageBar ? stageBar.getBoundingClientRect().height + 'px' : '0px');
+  // Same idea for the Groups letter-jump anchor bar, which sits between the
+  // nav and each sticky "Group A"/"Group B" section header.
+  var grpBar = document.querySelector('.grp-anchor-bar');
+  document.documentElement.style.setProperty('--grp-bar-h', grpBar ? grpBar.getBoundingClientRect().height + 'px' : '0px');
+
+  // A background refresh on Schedule/Groups can replace .sec/.grp-hd
+  // elements with fresh ones via innerHTML — if the page happens to
+  // already be scrolled past the shrink threshold at that moment, the new
+  // elements need the current .header-scrolled state applied immediately,
+  // not just on the next scroll event (which might not fire again for a
+  // while if the person has stopped scrolling).
+  if (headerScrollState) {
+    document.querySelectorAll('.bottom-nav, .grp-anchor-bar, .sched-stage-bar, .sec, .grp-hd, .stats-section-hd').forEach(function(el) {
+      el.classList.add('header-scrolled');
+    });
+  }
 }
 window.addEventListener('resize', syncHeaderHeight);
 window.addEventListener('orientationchange', function() {
@@ -173,6 +200,19 @@ window.addEventListener('orientationchange', function() {
 // maximizes content space while scrolling, full prominence at rest.
 // Threshold of 8px (not 0) avoids flickering the class on/off from tiny
 // rubber-band/overscroll wobble right at the top.
+//
+// The nav bar, Groups letter bar, and Schedule filter bar all stick below
+// the header and need their offset to shrink in lockstep with it. Rather
+// than measuring the header's height on every frame of the transition (the
+// previous approach — it had a one-frame lag between the CSS variable
+// updating and dependents repainting against it, which showed up as a
+// brief gap/glitch where the page was visible through the sticky menus),
+// each of them gets a CSS calc() that subtracts the SAME fixed, known
+// reduction (25.6px — see .header-scrolled rules in style.css) from the
+// stable --header-h. Both the header's own shrink and these offsets are
+// driven by the same .header-scrolled class switch and the same CSS
+// transition timing, so they animate in perfect lockstep with no JS
+// measurement anywhere in the critical path.
 var headerScrollState = false; // tracks current .scrolled state to avoid redundant class writes on every scroll tick
 function syncHeaderScrollState() {
   var header = document.querySelector('.app-top');
@@ -181,18 +221,12 @@ function syncHeaderScrollState() {
   if (shouldShrink !== headerScrollState) {
     headerScrollState = shouldShrink;
     header.classList.toggle('scrolled', shouldShrink);
+    document.querySelectorAll('.bottom-nav, .grp-anchor-bar, .sched-stage-bar, .sec, .grp-hd, .stats-section-hd').forEach(function(el) {
+      el.classList.toggle('header-scrolled', shouldShrink);
+    });
   }
 }
 window.addEventListener('scroll', syncHeaderScrollState, { passive: true });
-// Re-measure --header-h once the shrink/grow transition finishes, so the
-// nav bar and everything sticking below it stay correctly positioned
-// against the header's real, current height rather than a stale value
-// captured before the transition completed.
-document.addEventListener('transitionend', function(e) {
-  if (e.target.classList && e.target.classList.contains('app-top')) {
-    syncHeaderHeight();
-  }
-});
 
 // The header/nav use Bebas Neue (loaded via @import, display:swap), so they
 // initially render with a fallback system font and then reflow once the
@@ -1224,6 +1258,7 @@ async function buildSchedule(silent) {
       '<div class="empty-state-title">Live schedule not available</div>' +
       '<div class="empty-state-body">The full fixture list will appear here once the tournament data feed is connected.</div>' +
     '</div>';
+    syncHeaderHeight(); // no stage bar in this state — resets --sched-bar-h to 0 in case it was stale from a previous successful load
     return;
   }
 
@@ -1245,6 +1280,7 @@ async function buildSchedule(silent) {
     '<div id="sched-list"></div>';
 
   renderScheduleList();
+  syncHeaderHeight(); // re-measure now that .sched-stage-bar actually exists, so sticky .sec headers below it get the right offset
 
   if (silent && !isFirstBuild) pane.scrollTop = scrollPos;
 }
@@ -1376,6 +1412,7 @@ async function buildGroups(silent) {
       '<div class="empty-state-title">Live standings not available</div>' +
       '<div class="empty-state-body">Group tables will appear here once the tournament data feed is connected.</div>' +
     '</div>';
+    syncHeaderHeight(); // no anchor bar in this state — resets --grp-bar-h to 0 in case it was stale from a previous successful load
     return;
   }
 
@@ -1424,6 +1461,7 @@ async function buildGroups(silent) {
 
   // Restore scroll position on a silent (background) refresh so the person
   // isn't jumped back to the top of the table mid-read.
+  syncHeaderHeight(); // re-measure now that .grp-anchor-bar actually exists, so sticky .grp-hd headers below it get the right offset
   if (silent && !isFirstBuild) pane.scrollTop = scrollPos;
 }
 

@@ -414,6 +414,16 @@ body{
   z-index:49;
   transform:translateZ(0);
   will-change:transform;
+  transition:top .25s cubic-bezier(.4,0,.2,1); /* matches .app-top's own shrink/grow transition timing exactly */
+}
+/* When the header is shrunk, its real height is --header-h minus a fixed,
+   known reduction (9.6px less padding + 16px smaller logo = 25.6px) — NOT
+   something that needs runtime measurement. Expressing it this way means
+   the nav's top transitions in perfect lockstep with the header's own CSS
+   transition, with no JS measurement (and its inherent one-frame lag)
+   anywhere in the critical path during the animation. */
+.bottom-nav.header-scrolled{
+  top:calc(var(--header-h, 54px) - 25.6px);
 }
 .bnav-btn{
   display:flex;flex-direction:column;align-items:center;gap:3px;
@@ -460,6 +470,13 @@ body{
   padding:12px var(--pad) 10px;
   display:block;
   line-height:1;
+  position:sticky;
+  top:calc(var(--header-h, 54px) + var(--nav-h, 56px) + var(--sched-bar-h, 0px));
+  z-index:20;
+  transition:top .25s cubic-bezier(.4,0,.2,1);
+}
+.sec.header-scrolled{
+  top:calc(var(--header-h, 54px) + var(--nav-h, 56px) + var(--sched-bar-h, 0px) - 25.6px);
 }
 .sec.span-all{grid-column:1/-1}
 
@@ -779,7 +796,7 @@ body{
    GROUPS
    ============================================================ */
 
-.grp-block{ border-bottom:1px solid var(--rule);overflow:hidden;position:relative }
+.grp-block{ border-bottom:1px solid var(--rule);overflow:clip;position:relative } /* was overflow:hidden — hidden creates a new scroll context that breaks position:sticky for .grp-hd inside it; overflow:clip gives the same visual clipping without that side effect */
 
 .grp-anchor-bar{
   position:sticky;
@@ -789,6 +806,10 @@ body{
   background:var(--ink);
   border-bottom:1px solid #ffffff25; /* was yellow, matching the tab bar above — now subtler since that line already exists just above this one, and two close-together yellow rules read as redundant rather than intentional */
   padding:0 8px;
+  transition:top .25s cubic-bezier(.4,0,.2,1); /* matches .app-top's own shrink/grow transition timing exactly */
+}
+.grp-anchor-bar.header-scrolled{
+  top:calc(var(--header-h, 54px) + var(--nav-h, 56px) - 25.6px); /* same fixed reduction as the nav bar above — only the header's height changes, the nav's own height is constant */
 }
 .grp-anchor-bar::-webkit-scrollbar{ display:none }
 .grp-anchor-btn{
@@ -806,6 +827,13 @@ body{
   background:var(--ink);
   padding:12px var(--pad) 10px;
   display:flex;align-items:center;justify-content:space-between;
+  position:sticky;
+  top:calc(var(--header-h, 54px) + var(--nav-h, 56px) + var(--grp-bar-h, 0px));
+  z-index:20;
+  transition:top .25s cubic-bezier(.4,0,.2,1);
+}
+.grp-hd.header-scrolled{
+  top:calc(var(--header-h, 54px) + var(--nav-h, 56px) + var(--grp-bar-h, 0px) - 25.6px);
 }
 .grp-title{
   font-family:var(--display);
@@ -1473,6 +1501,13 @@ body{
   background:var(--ink);
   padding:13px var(--pad) 11px;
   display:flex;align-items:center;justify-content:space-between;
+  position:sticky;
+  top:calc(var(--header-h, 54px) + var(--nav-h, 56px));
+  z-index:20;
+  transition:top .25s cubic-bezier(.4,0,.2,1);
+}
+.stats-section-hd.header-scrolled{
+  top:calc(var(--header-h, 54px) + var(--nav-h, 56px) - 25.6px);
 }
 .stats-section-title{
   font-family:var(--display);
@@ -2032,6 +2067,10 @@ body{
   position:sticky;
   top:calc(var(--header-h, 54px) + var(--nav-h, 56px));
   z-index:30;
+  transition:top .25s cubic-bezier(.4,0,.2,1); /* matches .app-top's own shrink/grow transition timing exactly */
+}
+.sched-stage-bar.header-scrolled{
+  top:calc(var(--header-h, 54px) + var(--nav-h, 56px) - 25.6px);
 }
 .sched-stage-bar::-webkit-scrollbar{display:none}
 .sched-stage-btn{
