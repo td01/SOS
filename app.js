@@ -1229,7 +1229,22 @@ function renderScheduleList() {
   listEl.innerHTML = html;
 
   var jumpBtn = document.getElementById('sched-jump-today');
-  if (jumpBtn) jumpBtn.style.display = usedNowAnchor ? '' : 'none';
+  var anchor  = document.getElementById('sched-now-anchor');
+
+  // Show the button only when the today anchor has scrolled out of view —
+  // when it's visible there's no need to jump to it, and when we auto-jump
+  // on first open the button shouldn't flash up before the scroll completes.
+  if (jumpBtn && anchor) {
+    jumpBtn.style.display = 'none'; // always start hidden
+    if (window._schedJumpObserver) window._schedJumpObserver.disconnect();
+    window._schedJumpObserver = new IntersectionObserver(function(entries) {
+      // Button visible only when the today section is NOT in the viewport
+      jumpBtn.style.display = entries[0].isIntersecting ? 'none' : '';
+    }, { threshold: 0, rootMargin: '-56px 0px 0px 0px' }); // account for sticky header+nav
+    window._schedJumpObserver.observe(anchor);
+  } else if (jumpBtn) {
+    jumpBtn.style.display = 'none'; // no today anchor (e.g. all fixtures in the future) — hide permanently
+  }
 }
 
 function jumpToScheduleNow() {
