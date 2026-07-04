@@ -111,6 +111,65 @@
   0%, 100% { opacity:.35 }
   50%      { opacity:.65 }
 }
+/* ── DESKTOP GATE ─────────────────────────────────────────────────────────── */
+/* Hidden on mobile (the target platform); on wider screens, covers the page  */
+/* with a simple redirect-to-mobile message and QR code instead of the app.  */
+#desktop-gate{
+  display:none; /* hidden on mobile by default */
+}
+@media(min-width:768px){
+  #desktop-gate{
+    display:flex;
+    position:fixed;inset:0;
+    background:var(--ink);
+    align-items:center;justify-content:center;
+    z-index:9999;
+  }
+  /* Hide everything else — loading screen, pick screen, app */
+  #s-loading, #s-pick, #s-app, #team-overlay, #player-overlay, #match-overlay, #install-banner{
+    display:none !important;
+  }
+}
+.desktop-inner{
+  text-align:center;
+  padding:40px;
+  max-width:400px;
+}
+.desktop-icon{
+  width:80px;height:80px;
+  border-radius:18px;
+  margin-bottom:24px;
+}
+.desktop-title{
+  font-family:var(--display);
+  font-size:36px;letter-spacing:.04em;
+  color:var(--yellow);
+  margin:0 0 12px;
+  line-height:1;
+}
+.desktop-sub{
+  font-family:var(--body);
+  font-size:16px;line-height:1.5;
+  color:#ffffff99;
+  margin:0 0 32px;
+}
+#desktop-qr{
+  display:inline-block;
+  background:var(--paper);
+  padding:12px;
+  border-radius:8px;
+  margin-bottom:20px;
+}
+#desktop-qr img, #desktop-qr canvas{
+  display:block;
+}
+.desktop-url{
+  font-family:var(--display);
+  font-size:16px;letter-spacing:.06em;
+  color:#ffffff60;
+  margin:0;
+}
+
 html,body{
   margin:0;padding:0;
   background:var(--paper);

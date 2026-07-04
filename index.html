@@ -26,6 +26,17 @@
 </head>
 <body>
 
+<!-- DESKTOP REDIRECT — visible only on viewports 768px and wider (CSS-controlled) -->
+<div id="desktop-gate">
+  <div class="desktop-inner">
+    <img src="icon-192.png" alt="Summer of Soccer" class="desktop-icon">
+    <h1 class="desktop-title">Summer of Soccer</h1>
+    <p class="desktop-sub">This app is designed for mobile.<br>Scan the code to open it on your phone.</p>
+    <div id="desktop-qr"></div>
+    <p class="desktop-url">summerofsoccer.netlify.app</p>
+  </div>
+</div>
+
 <!-- LOADING SCREEN -->
 <div id="s-loading">
   <div class="loading-inner">
@@ -171,6 +182,20 @@
 <script src="team.js"></script>
 <script src="diyk.js"></script>
 <script src="app.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+  // Generate QR code only on desktop (where the gate is visible)
+  if (window.matchMedia('(min-width: 768px)').matches) {
+    new QRCode(document.getElementById('desktop-qr'), {
+      text: 'https://summerofsoccer.netlify.app',
+      width: 200,
+      height: 200,
+      colorDark: '#1A1A2E',
+      colorLight: '#F5F3F0',
+      correctLevel: QRCode.CorrectLevel.M
+    });
+  }
+</script>
 <script>
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', function() {
