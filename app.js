@@ -950,7 +950,7 @@ function getCountdown(target) {
 
 // ─── SCHEDULE ─────────────────────────────────────────────────────────────────
 
-var fixturesCache = null; // cached full tournament fixture list from API
+var schedFirstVisit = true; // tracks whether the user has manually opened the Schedule tab yet
 
 // Classify an API-Football round string into one of our stage filter buckets
 function stageFromRound(round) {
@@ -1282,7 +1282,15 @@ async function buildSchedule(silent) {
   renderScheduleList();
   syncHeaderHeight(); // re-measure now that .sched-stage-bar actually exists, so sticky .sec headers below it get the right offset
 
-  if (silent && !isFirstBuild) pane.scrollTop = scrollPos;
+  if (schedFirstVisit && document.getElementById('p-sched').classList.contains('on')) {
+    // User's first visit to the Schedule tab — land them on today's matches
+    // automatically rather than leaving them at the top of the full fixture
+    // list with past fixtures above the fold.
+    schedFirstVisit = false;
+    setTimeout(jumpToScheduleNow, 80);
+  } else if (silent && !isFirstBuild) {
+    pane.scrollTop = scrollPos;
+  }
 }
 
 // ─── GROUPS ───────────────────────────────────────────────────────────────────

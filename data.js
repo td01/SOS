@@ -95,13 +95,14 @@ var COMPLETED = [];
 // NOTE: this is a hand-maintained historical record, not pulled from the
 // live API (no endpoint provides cross-tournament all-time totals). Since
 // the 2026 tournament is in progress, these figures can go stale with any
-// match — last manually verified 20 Jun 2026 (Messi's hat-trick vs Algeria
-// took him to 16, tying Klose; Mbappé sits on 14, tied with Müller).
+// match — last manually verified 3 Jul 2026 (Messi scored his 20th vs Cabo
+// Verde in R32, the all-time record; Mbappé on 19 after brace vs Sweden in R32;
+// Ronaldo at 15 after scoring in the knockouts).
 var ALL_TIME_SCORERS = [
+  { n:'Lionel Messi',    c:'ARG', goals:20, yrs:'2006–2026'  },
+  { n:'Kylian Mbappé',   c:'FRA', goals:19, yrs:'2018–2026'  },
   { n:'Miroslav Klose',  c:'GER', goals:16, yrs:'2002–2014' },
-  { n:'Lionel Messi',    c:'ARG', goals:16, yrs:'2006–2026'  },
   { n:'Ronaldo',         c:'BRA', goals:15, yrs:'1994–2006' },
-  { n:'Kylian Mbappé',   c:'FRA', goals:14, yrs:'2018–2026'  },
   { n:'Gerd Müller',     c:'GER', goals:14, yrs:'1970–74'   },
   { n:'Just Fontaine',   c:'FRA', goals:13, yrs:'1958'      },
   { n:'Pelé',            c:'BRA', goals:12, yrs:'1958–70'   },
@@ -127,6 +128,7 @@ var TOURNAMENT_WINNERS = [
 ];
 
 var RECORDS = [
+  { t:'Most goals ever',    v:'20',   d:'Lionel Messi, Argentina 2006–2026' },
   { t:'Fastest goal',      v:'11s',  d:'Hakan Şükür, Turkey 2002'   },
   { t:'Biggest win',       v:'10–1', d:'Hungary vs El Salvador 1982' },
   { t:'Oldest scorer',     v:'42',   d:'Roger Milla, Cameroon 1994'  },
